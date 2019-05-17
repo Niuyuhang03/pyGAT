@@ -17,23 +17,30 @@ from utils import load_data, accuracy
 from models import GAT, SpGAT
 
 # Training settings
+# 处理参数
 parser = argparse.ArgumentParser()
 parser.add_argument('--no-cuda', action='store_true', default=False, help='Disables CUDA training.')
 parser.add_argument('--fastmode', action='store_true', default=False, help='Validate during training pass.')
 parser.add_argument('--sparse', action='store_true', default=False, help='GAT with sparse version or not.')
 parser.add_argument('--seed', type=int, default=72, help='Random seed.')
+# 迭代次数
 parser.add_argument('--epochs', type=int, default=10000, help='Number of epochs to train.')
 parser.add_argument('--lr', type=float, default=0.005, help='Initial learning rate.')
 parser.add_argument('--weight_decay', type=float, default=5e-4, help='Weight decay (L2 loss on parameters).')
 parser.add_argument('--hidden', type=int, default=8, help='Number of hidden units.')
+# 头数，即K
 parser.add_argument('--nb_heads', type=int, default=8, help='Number of head attentions.')
+# dropout概率
 parser.add_argument('--dropout', type=float, default=0.6, help='Dropout rate (1 - keep probability).')
+# LeakyReLU在x<0的斜率
 parser.add_argument('--alpha', type=float, default=0.2, help='Alpha for the leaky_relu.')
+# 提前停止参数
 parser.add_argument('--patience', type=int, default=100, help='Patience')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
+# 生成随机数种子
 random.seed(args.seed)
 np.random.seed(args.seed)
 torch.manual_seed(args.seed)
@@ -41,6 +48,7 @@ if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
 # Load data
+# 加载数据
 adj, features, labels, idx_train, idx_val, idx_test = load_data()
 
 # Model and optimizer
@@ -112,6 +120,7 @@ def compute_test():
           "accuracy= {:.4f}".format(acc_test.data[0]))
 
 # Train model
+# 训练模型
 t_total = time.time()
 loss_values = []
 bad_counter = 0
@@ -128,6 +137,7 @@ for epoch in range(args.epochs):
     else:
         bad_counter += 1
 
+    # 损失连续100次迭代没有优化时，则提取停止
     if bad_counter == args.patience:
         break
 
@@ -151,4 +161,5 @@ print('Loading {}th epoch'.format(best_epoch))
 model.load_state_dict(torch.load('{}.pkl'.format(best_epoch)))
 
 # Testing
+# 验证
 compute_test()
