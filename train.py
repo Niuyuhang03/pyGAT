@@ -111,6 +111,7 @@ def train(epoch):
 
 
 def compute_test():
+    # 使model进入测试模式
     model.eval()
     output = model(features, adj)
     loss_test = F.nll_loss(output[idx_test], labels[idx_test])
