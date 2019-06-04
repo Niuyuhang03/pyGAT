@@ -21,7 +21,8 @@ class GAT(nn.Module):
         x = torch.cat([att(x, adj) for att in self.attentions], dim=1)
         x = F.dropout(x, self.dropout, training=self.training)
         x = F.elu(self.out_att(x, adj))
-        return F.log_softmax(x, dim=1)
+        # return F.log_softmax(x, dim=1)
+        return x
 
 
 class SpGAT(nn.Module):
@@ -49,5 +50,6 @@ class SpGAT(nn.Module):
         x = torch.cat([att(x, adj) for att in self.attentions], dim=1)
         x = F.dropout(x, self.dropout, training=self.training)
         x = F.elu(self.out_att(x, adj))
-        return F.log_softmax(x, dim=1)
+        # return F.log_softmax(x, dim=1)
+        return x
 

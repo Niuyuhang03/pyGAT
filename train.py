@@ -98,7 +98,9 @@ def train(epoch):
         model.eval()
         output = model(features, adj)
 
-    loss_val = F.nll_loss(output[idx_val], labels[idx_val])
+    # loss_val = F.nll_loss(output[idx_val], labels[idx_val])
+    loss_fn = torch.nn.BCELoss(reduce=False, size_average=False)
+    loss_val = loss_fn(F.sigmoid(output[idx_val]), labels[idx_val])
     acc_val = accuracy(output[idx_val], labels[idx_val])
     print('Epoch: {:04d}'.format(epoch+1),
           'loss_train: {:.4f}'.format(loss_train.data[0]),
@@ -114,7 +116,9 @@ def compute_test():
     # 使model进入测试模式
     model.eval()
     output = model(features, adj)
-    loss_test = F.nll_loss(output[idx_test], labels[idx_test])
+    # loss_test = F.nll_loss(output[idx_test], labels[idx_test])
+    loss_fn = torch.nn.BCELoss(reduce=False, size_average=False)
+    loss_test = loss_fn(F.sigmoid(output[idx_test], labels[idx_test])
     acc_test = accuracy(output[idx_test], labels[idx_test])
     print("Test set results:",
           "loss= {:.4f}".format(loss_test.data[0]),
