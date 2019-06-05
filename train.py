@@ -36,6 +36,8 @@ parser.add_argument('--dropout', type=float, default=0.6, help='Dropout rate (1 
 parser.add_argument('--alpha', type=float, default=0.2, help='Alpha for the leaky_relu.')
 # 提前停止参数
 parser.add_argument('--patience', type=int, default=100, help='Patience')
+# 数据集
+parser.add_argument('--dataset', type=str, default='cora', help='DataSet of model')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -49,7 +51,7 @@ if args.cuda:
 
 # Load data
 # 加载数据
-adj, features, labels, labels_one_hot, idx_train, idx_val, idx_test = load_data()
+adj, features, labels, labels_one_hot, idx_train, idx_val, idx_test = load_data(path='./data/'+ args.dataset + '/', dataset=args.dataset)
 # Model and optimizer
 if args.sparse:
     model = SpGAT(nfeat=features.shape[1], 
@@ -86,11 +88,16 @@ def train(epoch):
     model.train()
     optimizer.zero_grad()
     output = model(features, adj)
-    loss_fn = torch.nn.BCEWithLogitsLoss(reduce=True, size_average=True)
-    loss_train = loss_fn(output[idx_train], labels_one_hot[idx_train])
-    # print('loss_train_one_hot.shape', loss_train.shape)
+    
+    loss_fn = torch.nn.BCELoss(reduce=True, size_average=True)
+    sigmoid_fn = torch.nn.Sigmoid()
+    loss_train = loss_fn(sigmoid_fn(output[idx_train]), labels_one_hot[idx_train])
+
+    # loss_fn = torch.nn.BCEWithLogitsLoss(reduce=True, size_average=True)
+    # loss_train = loss_fn(output[idx_train], labels_one_hot[idx_train])
+    
     # loss_train = F.nll_loss(output[idx_train], labels[idx_train])
-    # print('loss_train.shape', loss_train.shape)
+    
     acc_train = accuracy(output[idx_train], labels[idx_train])
     loss_train.backward()
     optimizer.step()
@@ -100,16 +107,18 @@ def train(epoch):
         # deactivates dropout during validation run.
         model.eval()
         output = model(features, adj)
-    # print('idx_val=', idx_val)
-    # print('labels.shape=', labels.shape)
-    # print('labels[idx_val].shape=', labels[idx_val].shape)
-    # print('labels[idx_val]=', labels[idx_val])
-    loss_fn = torch.nn.BCEWithLogitsLoss(reduce=True, size_average=True)
-    loss_val = loss_fn(output[idx_val], labels_one_hot[idx_val])
-    # print('loss_val_one_hot.shape=', loss_val.shape)
+    
+    loss_fn = torch.nn.BCELoss(reduce=True, size_average=True)
+    sigmoid_fn = torch.nn.Sigmoid()
+    loss_val = loss_fn(sigmoid_fn(output[idx_val]), labels_one_hot[idx_val])
+
+    # loss_fn = torch.nn.BCEWithLogitsLoss(reduce=True, size_average=True)
+    # loss_val = loss_fn(output[idx_val], labels_one_hot[idx_val])
+    
     # loss_val = F.nll_loss(output[idx_val], labels[idx_val])
-    # print('loss_val.shape=', loss_val.shape)
+    
     acc_val = accuracy(output[idx_val], labels[idx_val])
+    
     print('Epoch: {:04d}'.format(epoch+1),
           'loss_train: {:.4f}'.format(loss_train.data[0]),
           'acc_train: {:.4f}'.format(acc_train.data[0]),
@@ -124,12 +133,16 @@ def compute_test():
     # 使model进入测试模式
     model.eval()
     output = model(features, adj)
+    
     # loss_test = F.nll_loss(output[idx_test], labels[idx_test])
-    loss_fn = torch.nn.BCEWithLogitsLoss(reduce=True, size_average=True)
-    loss_test = loss_fn(output[idx_test], labels_one_hot[idx_test])
-    # print('loss_test_one_hot.shape', loss_test.shape)
-    # loss_test = loss_fn(output[idx_test], lables[idx_test])
-    # print('loss_test.shape', loss_test.shape)
+    
+    loss_fn = torch.nn.BCELoss(reduce=True, size_average=True)
+    sigmoid_fn = torch.nn.Sigmoid()
+    loss_test = loss_fn(sigmoid_fn(output[idx_test]), labels_one_hot[idx_test])
+
+    # loss_fn = torch.nn.BCEWithLogitsLoss(reduce=True, size_average=True)
+    # loss_test = loss_fn(output[idx_test], labels_one_hot[idx_test])
+
     acc_test = accuracy(output[idx_test], labels[idx_test])
     print("Test set results:",
           "loss= {:.4f}".format(loss_test.data[0]),
@@ -171,6 +184,7 @@ for file in files:
 
 print("Optimization Finished!")
 print("Total time elapsed: {:.4f}s".format(time.time() - t_total))
+print('finish time:', time.time())
 
 # Restore best model
 print('Loading {}th epoch'.format(best_epoch))
