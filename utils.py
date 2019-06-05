@@ -34,6 +34,9 @@ def load_data(path="./data/cora/", dataset="cora"):
     features = sp.csr_matrix(idx_features_labels[:, 1:-1], dtype=np.float32)
     # 提取样本的标签，并将其转换为one-hot编码形式
     labels = encode_onehot(idx_features_labels[:, -1])
+    # print('labels=', labels)
+    # print('lables.shape=', labels.shape)
+    # print('np.where(lables)[1]', np.where(labels)[1])
 
     # build graph
     # 样本的id数组
@@ -66,13 +69,14 @@ def load_data(path="./data/cora/", dataset="cora"):
 
     adj = torch.FloatTensor(np.array(adj.todense()))
     features = torch.FloatTensor(np.array(features.todense()))
+    labels_one_hot = torch.FloatTensor(labels)
     labels = torch.LongTensor(np.where(labels)[1])
 
     idx_train = torch.LongTensor(idx_train)
     idx_val = torch.LongTensor(idx_val)
     idx_test = torch.LongTensor(idx_test)
 
-    return adj, features, labels, idx_train, idx_val, idx_test
+    return adj, features, labels, labels_one_hot, idx_train, idx_val, idx_test
 
 
 def normalize_adj(mx):
