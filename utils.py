@@ -17,7 +17,7 @@ def encode_onehot(labels):
     return labels_onehot
 
 
-def load_data(path="./data/cora/", dataset="cora"):
+def load_data(path, dataset):
     """Load citation network dataset (cora only for now)"""
     # str.format()函数用于格式化字符串
     print('Loading {} dataset...'.format(dataset))
