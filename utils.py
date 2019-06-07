@@ -1,3 +1,4 @@
+import heapq
 import numpy as np
 import scipy.sparse as sp
 import torch
@@ -109,8 +110,8 @@ def accuracy(output, labels_one_hot):
 
     correct = 0.0
     for idx in range(len(labels_one_hot)):
-        length = np.where(labels_one_hot[idx]).shape[0]
-        predict_1_sorted_idx = np.argsort(-output[idx])[:length]
+        length = len(np.where(labels_one_hot[idx]))
+        predict_1_sorted_idx = map(output[idx].index, heapq.nlargest(length, output[idx]))
         preds = np.int64(output[idx] in predict_1_sorted_idx)
         correct += preds.eq(labels_one_hot[idx]).double()
     return correct / len(labels_one_hot)
