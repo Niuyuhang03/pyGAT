@@ -108,11 +108,6 @@ def accuracy(output, labels_one_hot):
     print('preds', output.max(1)[1].type_as(labels_one_hot))
 
     correct = 0.0
-    for label_onehot in labels_one_hot:
-        print(label_onehot)
-        print(np.where(label_onehot))
-        print(np.where(label_onehot)[1])
-        break
     for idx in range(len(labels_one_hot)):
         length = np.where(labels_one_hot[idx]).shape[0]
         predict_1_sorted_idx = np.argsort(-output[idx])[:length]
