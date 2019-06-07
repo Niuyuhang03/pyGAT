@@ -5,16 +5,19 @@ import torch
 
 # 将标签转换为one-hot编码形式
 def encode_onehot(labels):
-    classes = set(labels)
-    # np.identity()函数创建方针，返回主对角线元素为1，其余元素为0的数组
+    classes = set()
+    for label in labels:
+        classes |= set(label)
+    # np.identity()函数创建方阵，返回主对角线元素为1，其余元素为0的数组
     # enumerate()函数用于将一个可遍历的数据对象（如列表、元组或字符串）组合为一个索引序列
     # 同时列出数据和数据下标，一般用在for循环中
     classes_dict = {c: np.identity(len(classes))[i, :] for i, c in enumerate(classes)}
     # map()函数根据提供的函数对指定序列做映射
     # map(function, iterable)
     # 第一个参数function以参数序列中的每一个元素调用function函数，返回包含每次function函数返回值的新列表
-    labels_onehot = np.array(list(map(classes_dict.get, labels)), dtype=np.int32)
-    return labels_onehot
+    labels_onehot = np.array([np.sum([classes_dict.get(l) for l in label], axis=0) for label in labels], dtype=np.int32)
+    # new_labels = [np.where(label_onehot) for label_onehot in labels_onehot]
+    return labels_onehot, len(classes)
 
 
 def load_data(path, dataset):
@@ -33,7 +36,8 @@ def load_data(path, dataset):
     # 提取样本的特征，并将其转换为csr矩阵（压缩稀疏行矩阵），用行索引、列索引和值表示矩阵
     features = sp.csr_matrix(idx_features_labels[:, 1:-1], dtype=np.float32)
     # 提取样本的标签，并将其转换为one-hot编码形式
-    labels = encode_onehot(idx_features_labels[:, -1])
+    labels = list(map(lambda x: x.split(','), idx_features_labels[:, -1]))
+    labels_one_hot, nclass = encode_onehot(labels)
 
     # build graph
     # 样本的id数组
@@ -45,7 +49,7 @@ def load_data(path, dataset):
     # 将样本之间的引用关系用样本索引之间的关系表示
     edges = np.array(list(map(idx_map.get, edges_unordered.flatten())), dtype=np.int32).reshape(edges_unordered.shape)
     # 构建图的邻接矩阵，用坐标形式的稀疏矩阵表示，非对称邻接矩阵
-    adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])), shape=(labels.shape[0], labels.shape[0]), dtype=np.float32)
+    adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])), shape=(labels_one_hot.shape[0], labels_one_hot.shape[0]), dtype=np.float32)
 
     # build symmetric adjacency matrix
     # 将非对称邻接矩阵转变为对称邻接矩阵
@@ -66,14 +70,13 @@ def load_data(path, dataset):
 
     adj = torch.FloatTensor(np.array(adj.todense()))
     features = torch.FloatTensor(np.array(features.todense()))
-    labels_one_hot = torch.FloatTensor(labels)
-    labels = torch.LongTensor(np.where(labels)[1])
+    labels_one_hot = torch.FloatTensor(labels_one_hot)
 
     idx_train = torch.LongTensor(idx_train)
     idx_val = torch.LongTensor(idx_val)
     idx_test = torch.LongTensor(idx_test)
 
-    return adj, features, labels, labels_one_hot, idx_train, idx_val, idx_test
+    return adj, features, labels_one_hot, idx_train, idx_val, idx_test, nclass
 
 
 def normalize_adj(mx):
@@ -95,7 +98,7 @@ def normalize_features(mx):
     return mx
 
 
-def accuracy(output, labels_one_hot, labels):
+def accuracy(output, labels_one_hot):
     print('label_one_hot.shape:', labels_one_hot.shape)
     print('output.shape', output.shape)
     print('output.max(1)', output.max(1))
@@ -103,10 +106,17 @@ def accuracy(output, labels_one_hot, labels):
     print('output.max(1)[1].shape', output.max(1)[1].shape)
     print('preds.shape', output.max(1)[1].type_as(labels_one_hot).shape)
     print('preds', output.max(1)[1].type_as(labels_one_hot))
-    
-    preds = output.max(1)[1].type_as(labels_one_hot)
-    correct = preds.eq(labels_one_hot).double()
-    correct = correct.sum()
-    return
-    return correct / len(labels)
+
+    correct = 0.0
+    for label_onehot in labels_one_hot:
+        print(label_onehot)
+        print(np.where(label_onehot))
+        print(np.where(label_onehot)[1])
+        break
+    for idx in range(len(labels_one_hot)):
+        length = np.where(labels_one_hot[idx]).shape[0]
+        predict_1_sorted_idx = np.argsort(-output[idx])[:length]
+        preds = np.int64(output[idx] in predict_1_sorted_idx)
+        correct += preds.eq(labels_one_hot[idx]).double()
+    return correct / len(labels_one_hot)
 
