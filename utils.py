@@ -100,6 +100,7 @@ def normalize_features(mx):
 
 
 def accuracy(output, labels_one_hot):
+    '''
     print('label_one_hot.shape:', labels_one_hot.shape)
     print('output.shape', output.shape)
     print('output.max(1)', output.max(1))
@@ -107,12 +108,15 @@ def accuracy(output, labels_one_hot):
     print('output.max(1)[1].shape', output.max(1)[1].shape)
     print('preds.shape', output.max(1)[1].type_as(labels_one_hot).shape)
     print('preds', output.max(1)[1].type_as(labels_one_hot))
-
+    '''
+    print('output:', output)
     correct = 0.0
     for idx in range(len(labels_one_hot)):
         length = len(np.where(labels_one_hot[idx]))
+        print('length:', length)
         predict_1_sorted_idx = map(output[idx].index, heapq.nlargest(length, output[idx]))
-        preds = np.int64(output[idx] in predict_1_sorted_idx)
+        preds = list(map(lambda x: x in predict_1_sorted_idx, output[idx]))
+        print('preds:', preds)
         correct += preds.eq(labels_one_hot[idx]).double()
     return correct / len(labels_one_hot)
 
