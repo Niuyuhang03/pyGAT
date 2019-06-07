@@ -34,9 +34,6 @@ def load_data(path, dataset):
     features = sp.csr_matrix(idx_features_labels[:, 1:-1], dtype=np.float32)
     # 提取样本的标签，并将其转换为one-hot编码形式
     labels = encode_onehot(idx_features_labels[:, -1])
-    # print('labels=', labels)
-    # print('lables.shape=', labels.shape)
-    # print('np.where(lables)[1]', np.where(labels)[1])
 
     # build graph
     # 样本的id数组
@@ -98,9 +95,18 @@ def normalize_features(mx):
     return mx
 
 
-def accuracy(output, labels):
-    preds = output.max(1)[1].type_as(labels)
-    correct = preds.eq(labels).double()
+def accuracy(output, labels_one_hot, labels):
+    print('label_one_hot.shape:', labels_one_hot.shape)
+    print('output.shape', output.shape)
+    print('output.max(1)', output.max(1))
+    print('output.max(1)[1]', output.max(1)[1])
+    print('output.max(1)[1].shape', output.max(1)[1].shape)
+    print('preds.shape', output.max(1)[1].type_as(labels_one_hot).shape)
+    print('preds', output.max(1)[1].type_as(labels_one_hot))
+    
+    preds = output.max(1)[1].type_as(labels_one_hot)
+    correct = preds.eq(labels_one_hot).double()
     correct = correct.sum()
+    return
     return correct / len(labels)
 
