@@ -111,8 +111,12 @@ def accuracy(output, labels_one_hot):
     '''
     correct = 0.0
     for idx in range(len(labels_one_hot)):
+        print('labels_one_hot[idx]:', labels_one_hot[idx])
+        print('output[idx]:', output[idx])
         length = len(np.where(labels_one_hot[idx]))
-        predict_1_sorted_idx = list(map(output[idx].index, heapq.nlargest(length, output[idx])))
+        print('length:', length)
+        predict_1_sorted_idx = output[idx].sort(reversed=True)[:length]
+        print('predict_1_sorted_idx:', predict_1_sorted_idx)
         preds = torch.FloatTensor(list(map(lambda x: x in predict_1_sorted_idx, output[idx]))).type_as(labels_one_hot[idx])
         print('preds:', preds)
         correct += preds.eq(labels_one_hot[idx]).double()
