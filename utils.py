@@ -103,7 +103,6 @@ def normalize_features(mx):
 
 
 def accuracy(output, labels_one_hot):
-    output = np.array(output)
     preds = torch.zeros(labels_one_hot.shape[0], labels_one_hot.shape[1])
     for idx in range(len(labels_one_hot)):
         length = len(np.where(labels_one_hot[idx]))
