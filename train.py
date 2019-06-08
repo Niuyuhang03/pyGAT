@@ -97,7 +97,7 @@ def train(epoch):
     
     # loss_train = F.nll_loss(output[idx_train], labels[idx_train])
 
-    acc_train = accuracy(output[idx_train], labels_one_hot[idx_train])
+    acc_train = accuracy(output[idx_train], labels_one_hot[idx_train], args.cuda)
     loss_train.backward()
     optimizer.step()
 
@@ -116,7 +116,7 @@ def train(epoch):
     
     # loss_val = F.nll_loss(output[idx_val], labels[idx_val])
     
-    acc_val = accuracy(output[idx_val], labels_one_hot[idx_val])
+    acc_val = accuracy(output[idx_val], labels_one_hot[idx_val], args.cuda)
     
     print('Epoch: {:04d}'.format(epoch+1),
           'loss_train: {:.4f}'.format(loss_train.data[0]),
@@ -137,7 +137,7 @@ def compute_test():
     
     loss_fn = torch.nn.BCELoss(reduce=True, size_average=True)
     sigmoid_fn = torch.nn.Sigmoid()
-    loss_test = loss_fn(sigmoid_fn(output[idx_test]), labels_one_hot[idx_test])
+    loss_test = loss_fn(sigmoid_fn(output[idx_test]), labels_one_hot[idx_test], args.cuda)
 
     # loss_fn = torch.nn.BCEWithLogitsLoss(reduce=True, size_average=True)
     # loss_test = loss_fn(output[idx_test], labels_one_hot[idx_test])

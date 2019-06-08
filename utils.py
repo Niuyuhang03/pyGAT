@@ -102,12 +102,14 @@ def normalize_features(mx):
     return mx
 
 
-def accuracy(output, labels_one_hot):
+def accuracy(output, labels_one_hot, is_cuda):
     preds = torch.zeros(labels_one_hot.shape[0], labels_one_hot.shape[1])
     for idx in range(len(labels_one_hot)):
         length = len(np.where(labels_one_hot[idx]))
-        predict_1_boundary = output[idx].sort()[-length]
-        preds[idx] = np.where(output[idx] >= predict_1_boundary, 1, 0).type_as(labels_one_hot[idx])
+        predict_1_boundary = output[idx].sort()[-length].float()
+        preds[idx] = torch.from_numpy(np.where(output[idx] >= predict_1_boundary, 1, 0)).type_as(labels_one_hot[idx])
+    if is_cuda:
+        preds = preds.cuda()
     correct = preds.eq(labels_one_hot).double()
     correct = correct.sum()
     return correct / len(labels_one_hot)
