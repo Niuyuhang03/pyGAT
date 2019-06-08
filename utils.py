@@ -118,6 +118,6 @@ def accuracy(output, labels_one_hot, is_cuda):
 
 # adj, features, labels_one_hot, idx_train, idx_val, idx_test, nclass = load_data(path='./data/FB15K237/', dataset='FB15K237')
 # output = np.random.random((labels_one_hot.shape[0],labels_one_hot.shape[1]))
-# output = torch.LongTensor(output)
+# output = torch.FloatTensor(output)
 # output, labels_one_hot = Variable(output), Variable(labels_one_hot)
 # acc_train = accuracy(output[idx_train], labels_one_hot[idx_train], False)
