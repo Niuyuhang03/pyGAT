@@ -74,7 +74,7 @@ def load_data(path, dataset):
 
     adj = torch.FloatTensor(np.array(adj.todense()))
     features = torch.FloatTensor(np.array(features.todense()))
-    labels_one_hot = torch.FloatTensor(labels_one_hot)
+    labels_one_hot = torch.LongTensor(labels_one_hot)
 
     idx_train = torch.LongTensor(idx_train)
     idx_val = torch.LongTensor(idx_val)
@@ -106,17 +106,18 @@ def accuracy(output, labels_one_hot, is_cuda):
     preds = torch.zeros(labels_one_hot.shape[0], labels_one_hot.shape[1])
     for idx in range(len(labels_one_hot)):
         length = len(np.where(labels_one_hot[idx]))
-        predict_1_boundary = output[idx].sort()[-length].float()
+        predict_1_boundary = output[idx].sort()[-length].type_as(labels_one_hot[idx])
         preds[idx] = torch.from_numpy(np.where(output[idx] >= predict_1_boundary, 1, 0)).type_as(labels_one_hot[idx])
     if is_cuda:
         preds = preds.cuda()
+    preds = preds.type_as(labels_one_hot)
     correct = preds.eq(labels_one_hot).double()
     correct = correct.sum()
     return correct / len(labels_one_hot)
 
 
-# adj, features, labels_one_hot, idx_train, idx_val, idx_test, nclass = load_data(path='./data/WN18RR/', dataset='WN18RR')
+# adj, features, labels_one_hot, idx_train, idx_val, idx_test, nclass = load_data(path='./data/FB15K237/', dataset='FB15K237')
 # output = np.random.random((labels_one_hot.shape[0],labels_one_hot.shape[1]))
-# output = torch.FloatTensor(output)
+# output = torch.LongTensor(output)
 # output, labels_one_hot = Variable(output), Variable(labels_one_hot)
 # acc_train = accuracy(output[idx_train], labels_one_hot[idx_train], False)
