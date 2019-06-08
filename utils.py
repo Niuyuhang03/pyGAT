@@ -2,6 +2,9 @@ import heapq
 import numpy as np
 import scipy.sparse as sp
 import torch
+from torch.autograd import Variable
+from models import GAT
+import torch.optim as optim
 
 
 # 将标签转换为one-hot编码形式
@@ -76,7 +79,7 @@ def load_data(path, dataset):
     idx_train = torch.LongTensor(idx_train)
     idx_val = torch.LongTensor(idx_val)
     idx_test = torch.LongTensor(idx_test)
-
+    print('Loading {} dataset finishes...'.format(dataset))
     return adj, features, labels_one_hot, idx_train, idx_val, idx_test, nclass
 
 
@@ -100,25 +103,19 @@ def normalize_features(mx):
 
 
 def accuracy(output, labels_one_hot):
-    '''
-    print('label_one_hot.shape:', labels_one_hot.shape)
-    print('output.shape', output.shape)
-    print('output.max(1)', output.max(1))
-    print('output.max(1)[1]', output.max(1)[1])
-    print('output.max(1)[1].shape', output.max(1)[1].shape)
-    print('preds.shape', output.max(1)[1].type_as(labels_one_hot).shape)
-    print('preds', output.max(1)[1].type_as(labels_one_hot))
-    '''
-    correct = 0.0
+    output = np.array(output)
+    preds = torch.zeros(labels_one_hot.shape[0], labels_one_hot.shape[1])
     for idx in range(len(labels_one_hot)):
-        print('labels_one_hot[idx]:', labels_one_hot[idx])
-        print('output[idx]:', output[idx])
         length = len(np.where(labels_one_hot[idx]))
-        print('length:', length)
-        predict_1_sorted_idx = output[idx].sort(reversed=True)[:length]
-        print('predict_1_sorted_idx:', predict_1_sorted_idx)
-        preds = torch.FloatTensor(list(map(lambda x: x in predict_1_sorted_idx, output[idx]))).type_as(labels_one_hot[idx])
-        print('preds:', preds)
-        correct += preds.eq(labels_one_hot[idx]).double()
+        predict_1_boundary = np.sort(output[idx])[-length]
+        preds[idx] = torch.FloatTensor(np.where(output[idx] >= predict_1_boundary, 1, 0)).type_as(labels_one_hot[idx])
+    correct = preds.eq(labels_one_hot).double()
+    correct = correct.sum()
     return correct / len(labels_one_hot)
 
+
+# adj, features, labels_one_hot, idx_train, idx_val, idx_test, nclass = load_data(path='./data/FB15K237/', dataset='FB15K237')
+# output = np.random.random((labels_one_hot.shape[0],labels_one_hot.shape[1]))
+# output = torch.FloatTensor(output)
+# output, labels_one_hot = Variable(output), Variable(labels_one_hot)
+# acc_train = accuracy(output[idx_train], labels_one_hot[idx_train])
