@@ -137,12 +137,12 @@ def compute_test():
     
     loss_fn = torch.nn.BCELoss(reduce=True, size_average=True)
     sigmoid_fn = torch.nn.Sigmoid()
-    loss_test = loss_fn(sigmoid_fn(output[idx_test]), labels_one_hot[idx_test], args.cuda)
+    loss_test = loss_fn(sigmoid_fn(output[idx_test]), labels_one_hot[idx_test])
 
     # loss_fn = torch.nn.BCEWithLogitsLoss(reduce=True, size_average=True)
     # loss_test = loss_fn(output[idx_test], labels_one_hot[idx_test])
 
-    acc_test = accuracy(output[idx_test], labels_one_hot[idx_test])
+    acc_test = accuracy(output[idx_test], labels_one_hot[idx_test], args.cuda)
     print("Test set results:",
           "loss= {:.4f}".format(loss_test.data[0]),
           "accuracy= {:.4f}".format(acc_test.data[0]))
