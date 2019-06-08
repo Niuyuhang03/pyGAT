@@ -51,7 +51,7 @@ if args.cuda:
 
 # Load data
 # 加载数据
-adj, features, labels_one_hot, idx_train, idx_val, idx_test, nclass = load_data(path='./data/'+ args.dataset + '/', dataset=args.dataset)
+adj, features, labels, idx_train, idx_val, idx_test, nclass = load_data(path='./data/'+ args.dataset + '/', dataset=args.dataset)
 # Model and optimizer
 if args.sparse:
     model = SpGAT(nfeat=features.shape[1], 
@@ -75,12 +75,12 @@ if args.cuda:
     model.cuda()
     features = features.cuda()
     adj = adj.cuda()
-    labels_one_hot = labels_one_hot.cuda()
+    labels = labels.cuda()
     idx_train = idx_train.cuda()
     idx_val = idx_val.cuda()
     idx_test = idx_test.cuda()
 
-features, adj, labels_one_hot = Variable(features), Variable(adj), Variable(labels_one_hot)
+features, adj, labels = Variable(features), Variable(adj), Variable(labels)
 
 def train(epoch):
     t = time.time()
@@ -90,14 +90,14 @@ def train(epoch):
     
     # loss_fn = torch.nn.BCELoss(reduce=True, size_average=True)
     # sigmoid_fn = torch.nn.Sigmoid()
-    # loss_train = loss_fn(sigmoid_fn(output[idx_train]), labels_one_hot[idx_train].type_as(output[idx_train]))
+    # loss_train = loss_fn(sigmoid_fn(output[idx_train]), labels[idx_train].type_as(output[idx_train]))
 
     loss_fn = torch.nn.BCEWithLogitsLoss(reduce=True, size_average=True)
-    loss_train = loss_fn(output[idx_train], labels_one_hot[idx_train].type_as(output[idx_train]))
+    loss_train = loss_fn(output[idx_train], labels[idx_train].type_as(output[idx_train]))
     
     # loss_train = F.nll_loss(output[idx_train], labels[idx_train])
 
-    acc_train = accuracy(output[idx_train], labels_one_hot[idx_train], args.cuda)
+    acc_train = accuracy(output[idx_train], labels[idx_train], args.cuda)
     loss_train.backward()
     optimizer.step()
 
@@ -109,14 +109,14 @@ def train(epoch):
     
     # loss_fn = torch.nn.BCELoss(reduce=True, size_average=True)
     # sigmoid_fn = torch.nn.Sigmoid()
-    # loss_val = loss_fn(sigmoid_fn(output[idx_val]), labels_one_hot[idx_val].type_as(output[idx_train]))
+    # loss_val = loss_fn(sigmoid_fn(output[idx_val]), labels[idx_val].type_as(output[idx_train]))
 
     loss_fn = torch.nn.BCEWithLogitsLoss(reduce=True, size_average=True)
-    loss_val = loss_fn(output[idx_val], labels_one_hot[idx_val].type_as(output[idx_train]))
+    loss_val = loss_fn(output[idx_val], labels[idx_val].type_as(output[idx_train]))
     
     # loss_val = F.nll_loss(output[idx_val], labels[idx_val])
     
-    acc_val = accuracy(output[idx_val], labels_one_hot[idx_val], args.cuda)
+    acc_val = accuracy(output[idx_val], labels[idx_val], args.cuda)
     
     print('Epoch: {:04d}'.format(epoch+1),
           'loss_train: {:.4f}'.format(loss_train.data[0]),
@@ -137,12 +137,12 @@ def compute_test():
     
     # loss_fn = torch.nn.BCELoss(reduce=True, size_average=True)
     # sigmoid_fn = torch.nn.Sigmoid()
-    # loss_test = loss_fn(sigmoid_fn(output[idx_test]), labels_one_hot[idx_test].type_as(output[idx_train]))
+    # loss_test = loss_fn(sigmoid_fn(output[idx_test]), labels[idx_test].type_as(output[idx_train]))
 
     loss_fn = torch.nn.BCEWithLogitsLoss(reduce=True, size_average=True)
-    loss_test = loss_fn(output[idx_test], labels_one_hot[idx_test].type_as(output[idx_train]))
+    loss_test = loss_fn(output[idx_test], labels[idx_test].type_as(output[idx_train]))
 
-    acc_test = accuracy(output[idx_test], labels_one_hot[idx_test], args.cuda)
+    acc_test = accuracy(output[idx_test], labels[idx_test], args.cuda)
     print("Test set results:",
           "loss= {:.4f}".format(loss_test.data[0]),
           "accuracy= {:.4f}".format(acc_test.data[0]))

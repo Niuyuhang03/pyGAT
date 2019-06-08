@@ -19,9 +19,9 @@ def encode_onehot(labels):
     # map()函数根据提供的函数对指定序列做映射
     # map(function, iterable)
     # 第一个参数function以参数序列中的每一个元素调用function函数，返回包含每次function函数返回值的新列表
-    labels_onehot = np.array([np.sum([classes_dict.get(l) for l in label], axis=0) for label in labels], dtype=np.int32)
+    labels = np.array([np.sum([classes_dict.get(l) for l in label], axis=0) for label in labels], dtype=np.int32)
     # new_labels = [np.where(label_onehot) for label_onehot in labels_onehot]
-    return labels_onehot, len(classes)
+    return labels, len(classes)
 
 
 def load_data(path, dataset):
@@ -41,7 +41,7 @@ def load_data(path, dataset):
     features = sp.csr_matrix(idx_features_labels[:, 1:-1], dtype=np.float32)
     # 提取样本的标签，并将其转换为one-hot编码形式
     labels = list(map(lambda x: x.split(','), idx_features_labels[:, -1]))
-    labels_one_hot, nclass = encode_onehot(labels)
+    labels, nclass = encode_onehot(labels)
 
     # build graph
     # 样本的id数组
@@ -53,7 +53,7 @@ def load_data(path, dataset):
     # 将样本之间的引用关系用样本索引之间的关系表示
     edges = np.array(list(map(idx_map.get, edges_unordered.flatten())), dtype=np.int32).reshape(edges_unordered.shape)
     # 构建图的邻接矩阵，用坐标形式的稀疏矩阵表示，非对称邻接矩阵
-    adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])), shape=(labels_one_hot.shape[0], labels_one_hot.shape[0]), dtype=np.float32)
+    adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])), shape=(labels.shape[0], labels.shape[0]), dtype=np.float32)
 
     # build symmetric adjacency matrix
     # 将非对称邻接矩阵转变为对称邻接矩阵
@@ -74,13 +74,13 @@ def load_data(path, dataset):
 
     adj = torch.FloatTensor(np.array(adj.todense()))
     features = torch.FloatTensor(np.array(features.todense()))
-    labels_one_hot = torch.LongTensor(labels_one_hot)
+    labels = torch.LongTensor(labels)
 
     idx_train = torch.LongTensor(idx_train)
     idx_val = torch.LongTensor(idx_val)
     idx_test = torch.LongTensor(idx_test)
     print('Loading {} dataset finishes...'.format(dataset))
-    return adj, features, labels_one_hot, idx_train, idx_val, idx_test, nclass
+    return adj, features, labels, idx_train, idx_val, idx_test, nclass
 
 
 def normalize_adj(mx):
