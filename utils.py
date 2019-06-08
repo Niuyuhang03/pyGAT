@@ -119,4 +119,4 @@ def accuracy(output, labels_one_hot, is_cuda):
 # output = np.random.random((labels_one_hot.shape[0],labels_one_hot.shape[1]))
 # output = torch.FloatTensor(output)
 # output, labels_one_hot = Variable(output), Variable(labels_one_hot)
-# acc_train = accuracy(output[idx_train], labels_one_hot[idx_train])
+# acc_train = accuracy(output[idx_train], labels_one_hot[idx_train], False)
