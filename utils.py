@@ -106,8 +106,8 @@ def accuracy(output, labels_one_hot, is_cuda):
     preds = torch.zeros(labels_one_hot.shape[0], labels_one_hot.shape[1])
     for idx in range(len(labels_one_hot)):
         length = len(np.where(labels_one_hot[idx]))
-        predict_1_boundary = output[idx].sort()[-length].type_as(labels_one_hot[idx])
-        preds[idx] = torch.from_numpy(np.where(output[idx] >= predict_1_boundary, 1, 0)).type_as(labels_one_hot[idx])
+        predict_1_boundary = output[idx].sort()[-length].type_as(output)
+        preds[idx] = torch.from_numpy(np.where(output[idx] >= predict_1_boundary, 1, 0))
     if is_cuda:
         preds = preds.cuda()
     preds = preds.type_as(labels_one_hot)

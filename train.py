@@ -88,12 +88,12 @@ def train(epoch):
     optimizer.zero_grad()
     output = model(features, adj)
     
-    loss_fn = torch.nn.BCELoss(reduce=True, size_average=True)
-    sigmoid_fn = torch.nn.Sigmoid()
-    loss_train = loss_fn(sigmoid_fn(output[idx_train]), labels_one_hot[idx_train])
+    # loss_fn = torch.nn.BCELoss(reduce=True, size_average=True)
+    # sigmoid_fn = torch.nn.Sigmoid()
+    # loss_train = loss_fn(sigmoid_fn(output[idx_train]), labels_one_hot[idx_train].type_as(output[idx_train]))
 
-    # loss_fn = torch.nn.BCEWithLogitsLoss(reduce=True, size_average=True)
-    # loss_train = loss_fn(output[idx_train], labels_one_hot[idx_train])
+    loss_fn = torch.nn.BCEWithLogitsLoss(reduce=True, size_average=True)
+    loss_train = loss_fn(output[idx_train], labels_one_hot[idx_train].type_as(output[idx_train]))
     
     # loss_train = F.nll_loss(output[idx_train], labels[idx_train])
 
@@ -107,12 +107,12 @@ def train(epoch):
         model.eval()
         output = model(features, adj)
     
-    loss_fn = torch.nn.BCELoss(reduce=True, size_average=True)
-    sigmoid_fn = torch.nn.Sigmoid()
-    loss_val = loss_fn(sigmoid_fn(output[idx_val]), labels_one_hot[idx_val])
+    # loss_fn = torch.nn.BCELoss(reduce=True, size_average=True)
+    # sigmoid_fn = torch.nn.Sigmoid()
+    # loss_val = loss_fn(sigmoid_fn(output[idx_val]), labels_one_hot[idx_val].type_as(output[idx_train]))
 
-    # loss_fn = torch.nn.BCEWithLogitsLoss(reduce=True, size_average=True)
-    # loss_val = loss_fn(output[idx_val], labels_one_hot[idx_val])
+    loss_fn = torch.nn.BCEWithLogitsLoss(reduce=True, size_average=True)
+    loss_val = loss_fn(output[idx_val], labels_one_hot[idx_val].type_as(output[idx_train]))
     
     # loss_val = F.nll_loss(output[idx_val], labels[idx_val])
     
@@ -135,12 +135,12 @@ def compute_test():
     
     # loss_test = F.nll_loss(output[idx_test], labels[idx_test])
     
-    loss_fn = torch.nn.BCELoss(reduce=True, size_average=True)
-    sigmoid_fn = torch.nn.Sigmoid()
-    loss_test = loss_fn(sigmoid_fn(output[idx_test]), labels_one_hot[idx_test])
+    # loss_fn = torch.nn.BCELoss(reduce=True, size_average=True)
+    # sigmoid_fn = torch.nn.Sigmoid()
+    # loss_test = loss_fn(sigmoid_fn(output[idx_test]), labels_one_hot[idx_test].type_as(output[idx_train]))
 
-    # loss_fn = torch.nn.BCEWithLogitsLoss(reduce=True, size_average=True)
-    # loss_test = loss_fn(output[idx_test], labels_one_hot[idx_test])
+    loss_fn = torch.nn.BCEWithLogitsLoss(reduce=True, size_average=True)
+    loss_test = loss_fn(output[idx_test], labels_one_hot[idx_test].type_as(output[idx_train]))
 
     acc_test = accuracy(output[idx_test], labels_one_hot[idx_test], args.cuda)
     print("Test set results:",
