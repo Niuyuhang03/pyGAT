@@ -1,10 +1,6 @@
-import heapq
 import numpy as np
 import scipy.sparse as sp
 import torch
-from torch.autograd import Variable
-from models import GAT
-import torch.optim as optim
 
 
 # 将标签转换为one-hot编码形式
@@ -19,9 +15,9 @@ def encode_onehot(labels):
     # map()函数根据提供的函数对指定序列做映射
     # map(function, iterable)
     # 第一个参数function以参数序列中的每一个元素调用function函数，返回包含每次function函数返回值的新列表
-    labels = np.array([np.sum([classes_dict.get(l) for l in label], axis=0) for label in labels], dtype=np.int32)
+    labels_onehot = np.array([np.sum([classes_dict.get(l) for l in label], axis=0) for label in labels], dtype=np.int32)
     # new_labels = [np.where(label_onehot) for label_onehot in labels_onehot]
-    return labels, len(classes)
+    return labels_onehot, len(classes)
 
 
 def load_data(path, dataset):
@@ -102,11 +98,11 @@ def normalize_features(mx):
     return mx
 
 
-def accuracy(output, labels_one_hot, is_cuda):
+def accuracy(output, labels, is_cuda):
     print("output:", output)
-    preds = torch.zeros(labels_one_hot.shape[0], labels_one_hot.shape[1])
-    for idx in range(len(labels_one_hot)):
-        length = len(np.where(labels_one_hot[idx]))
+    preds = torch.zeros(labels.shape[0], labels.shape[1])
+    for idx in range(len(labels)):
+        length = len(np.where(labels[idx]))
         # print('labels_one_hot[idx]', labels_one_hot[idx])
         # print("length", length)
         # print('output[idx]:', output[idx])
@@ -118,11 +114,11 @@ def accuracy(output, labels_one_hot, is_cuda):
         # print("preds[idx]:", preds[idx])
     if is_cuda:
         preds = preds.cuda()
-    preds = preds.type_as(labels_one_hot)
+    preds = preds.type_as(labels)
     print("preds:", preds)
-    correct = preds.eq(labels_one_hot).double()
+    correct = preds.eq(labels).double()
     correct = correct.sum()
-    return correct / len(labels_one_hot)
+    return correct / len(labels)
 
 
 # adj, features, labels_one_hot, idx_train, idx_val, idx_test, nclass = load_data(path='./data/FB15K237/', dataset='FB15K237')
