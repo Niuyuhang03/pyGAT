@@ -102,3 +102,4 @@ ENV/
 
 .idea
 *.pkl
+try.py
