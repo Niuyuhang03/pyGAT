@@ -102,15 +102,15 @@ def accuracy(output, labels, is_cuda):
     print("output:", output)
     preds = torch.zeros(labels.shape[0], labels.shape[1])
     for idx in range(len(labels)):
-        length = len(np.where(labels[idx]))
+        length = len(np.where(labels[idx])[0])
         # print('labels_one_hot[idx]', labels_one_hot[idx])
         # print("length", length)
         # print('output[idx]:', output[idx])
         predict_1_index = output[idx].sort()[1][-length:]
         # print("output[idx].sort()", output[idx].sort()[0])
         # print("output[idx].sort()[-length]", output[idx].sort()[0][-length])
-        # print("predict_1_boundary:", predict_1_boundary)
-        output_01 = np.zeros(7, dtype=np.float32)
+        # print("predict_1_index:", predict_1_index)
+        output_01 = np.zeros(labels.shape[1], dtype=np.float32)
         for i in predict_1_index:
             output_01[i] = 1.0
         preds[idx] = torch.from_numpy(output_01)
@@ -121,7 +121,7 @@ def accuracy(output, labels, is_cuda):
     print("preds:", preds)
     correct = preds.eq(labels).double()
     correct = correct.sum()
-    return correct / len(labels)
+    return correct / (labels.shape[0] * labels.shape[1])
 
 
 # adj, features, labels_one_hot, idx_train, idx_val, idx_test, nclass = load_data(path='./data/FB15K237/', dataset='FB15K237')
