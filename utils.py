@@ -106,11 +106,14 @@ def accuracy(output, labels, is_cuda):
         # print('labels_one_hot[idx]', labels_one_hot[idx])
         # print("length", length)
         # print('output[idx]:', output[idx])
-        predict_1_boundary = output[idx].sort()[0][-length].type_as(output)
+        predict_1_index = output[idx].sort()[1][-length:]
         # print("output[idx].sort()", output[idx].sort()[0])
         # print("output[idx].sort()[-length]", output[idx].sort()[0][-length])
         # print("predict_1_boundary:", predict_1_boundary)
-        preds[idx] = torch.from_numpy(np.where(output[idx] >= predict_1_boundary, 1, 0))
+        output_01 = np.zeros(7, dtype=np.float32)
+        for i in predict_1_index:
+            output_01[i] = 1.0
+        preds[idx] = torch.from_numpy(output_01)
         # print("preds[idx]:", preds[idx])
     if is_cuda:
         preds = preds.cuda()
