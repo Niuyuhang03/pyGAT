@@ -22,7 +22,8 @@ class GAT(nn.Module):
         x = F.dropout(x, self.dropout, training=self.training)
         x = F.elu(self.out_att(x, adj))
         # return F.log_softmax(x, dim=1)
-        return nn.Sigmoid(x)
+        sigmoid_fn = nn.Sigmoid()
+        return sigmoid_fn(x)
 
 
 class SpGAT(nn.Module):
@@ -51,5 +52,6 @@ class SpGAT(nn.Module):
         x = F.dropout(x, self.dropout, training=self.training)
         x = F.elu(self.out_att(x, adj))
         # return F.log_softmax(x, dim=1)
-        return x
+        sigmoid_fn = nn.Sigmoid()
+        return sigmoid_fn(x)
 
