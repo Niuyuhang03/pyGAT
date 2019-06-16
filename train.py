@@ -70,7 +70,6 @@ else:
 optimizer = optim.Adam(model.parameters(), 
                        lr=args.lr, 
                        weight_decay=args.weight_decay)
-
 if args.cuda:
     model.cuda()
     features = features.cuda()
@@ -118,8 +117,7 @@ def compute_test():
     output = model(features, adj)
     loss_test = loss_fn(output[idx_test], labels[idx_test].type_as(output))
     acc_test, preds = accuracy(output[idx_test], labels[idx_test], args.cuda)
-    print("labels[idx_test]:", labels[idx_test])
-    print("pres:", preds)
+    print("pres:", np.where(preds)[1])
     print("Test set results:",
           "loss= {:.4f}".format(loss_test.data[0]),
           "accuracy= {:.4f}".format(acc_test))
