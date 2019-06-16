@@ -81,23 +81,14 @@ if args.cuda:
     idx_test = idx_test.cuda()
 
 features, adj, labels = Variable(features), Variable(adj), Variable(labels)
-loss_fn = nn.BCEWithLogitsLoss(reduce=True, size_average=False)
+loss_fn = nn.BCELoss(reduce=True, size_average=True)
 
 def train(epoch):
     t = time.time()
     model.train()
     optimizer.zero_grad()
     output = model(features, adj)
-
-    # loss_fn = nn.BCELoss(reduce=True, size_average=True)
-    # sigmoid_fn = nn.Sigmoid()
-    # sigmoid_output_idx_train = sigmoid_fn(output[idx_train])
-    # loss_train = loss_fn(sigmoid_output_idx_train, labels[idx_train].type_as(output))
-
     loss_train = loss_fn(output[idx_train], labels[idx_train].type_as(output))
-
-    # loss_train = F.nll_loss(output[idx_train], labels[idx_train])
-
     acc_train, preds = accuracy(output[idx_train], labels[idx_train], args.cuda)
     loss_train.backward()
     optimizer.step()
@@ -108,15 +99,7 @@ def train(epoch):
         model.eval()
         output = model(features, adj)
 
-    # loss_fn = nn.BCELoss(reduce=True, size_average=True)
-    # sigmoid_fn = nn.Sigmoid()
-    # sigmoid_output_idx_val = sigmoid_fn(output[idx_val])
-    # loss_val = loss_fn(sigmoid_output_idx_val, labels[idx_val].type_as(output))
-
     loss_val = loss_fn(output[idx_val], labels[idx_val].type_as(output))
-
-    # loss_val = F.nll_loss(output[idx_val], labels[idx_val])
-    
     acc_val, preds = accuracy(output[idx_val], labels[idx_val], args.cuda)
     
     print('Epoch: {:04d}'.format(epoch+1),
@@ -133,16 +116,7 @@ def compute_test():
     # 使model进入测试模式
     model.eval()
     output = model(features, adj)
-
-    # loss_test = F.nll_loss(output[idx_test], labels[idx_test])
-
-    # loss_fn = nn.BCELoss(reduce=True, size_average=True)
-    # sigmoid_fn = nn.Sigmoid()
-    # sigmoid_output_idx_test = sigmoid_fn(output[idx_test])
-    # loss_test = loss_fn(sigmoid_output_idx_test, labels[idx_test].type_as(output))
-
     loss_test = loss_fn(output[idx_test], labels[idx_test].type_as(output))
-
     acc_test, preds = accuracy(output[idx_test], labels[idx_test], args.cuda)
     print("labels[idx_test]:", labels[idx_test])
     print("pres:", preds)
