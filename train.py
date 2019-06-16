@@ -98,7 +98,7 @@ def train(epoch):
 
     # loss_train = F.nll_loss(output[idx_train], labels[idx_train])
 
-    acc_train = accuracy(output[idx_train], labels[idx_train], args.cuda)
+    acc_train, preds = accuracy(output[idx_train], labels[idx_train], args.cuda)
     loss_train.backward()
     optimizer.step()
 
@@ -117,7 +117,7 @@ def train(epoch):
 
     # loss_val = F.nll_loss(output[idx_val], labels[idx_val])
     
-    acc_val = accuracy(output[idx_val], labels[idx_val], args.cuda)
+    acc_val, preds = accuracy(output[idx_val], labels[idx_val], args.cuda)
     
     print('Epoch: {:04d}'.format(epoch+1),
           'loss_train: {:.4f}'.format(loss_train.data[0]),
@@ -143,7 +143,9 @@ def compute_test():
 
     loss_test = loss_fn(output[idx_test], labels[idx_test].type_as(output))
 
-    acc_test = accuracy(output[idx_test], labels[idx_test], args.cuda)
+    acc_test, preds = accuracy(output[idx_test], labels[idx_test], args.cuda)
+    print("labels[idx_test]:", labels[idx_test])
+    print("pres:", preds)
     print("Test set results:",
           "loss= {:.4f}".format(loss_test.data[0]),
           "accuracy= {:.4f}".format(acc_test))

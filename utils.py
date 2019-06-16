@@ -121,7 +121,7 @@ def accuracy(output, labels, is_cuda):
         preds = preds.cuda()
     preds = preds.type_as(labels)
     # print("preds:", preds)
-    return correct / all_labels_1_length
+    return correct / all_labels_1_length, preds
 
 
 # adj, features, labels_one_hot, idx_train, idx_val, idx_test, nclass = load_data(path='./data/FB15K237/', dataset='FB15K237')
