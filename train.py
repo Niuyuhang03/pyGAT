@@ -81,6 +81,7 @@ if args.cuda:
     idx_test = idx_test.cuda()
 
 features, adj, labels = Variable(features), Variable(adj), Variable(labels)
+loss_fn = nn.BCEWithLogitsLoss(reduce=True, size_average=False)
 
 def train(epoch):
     t = time.time()
@@ -93,7 +94,6 @@ def train(epoch):
     # sigmoid_output_idx_train = sigmoid_fn(output[idx_train])
     # loss_train = loss_fn(sigmoid_output_idx_train, labels[idx_train].type_as(output))
 
-    loss_fn = nn.BCEWithLogitsLoss(reduce=True, size_average=True)
     loss_train = loss_fn(output[idx_train], labels[idx_train].type_as(output))
 
     # loss_train = F.nll_loss(output[idx_train], labels[idx_train])
@@ -113,7 +113,6 @@ def train(epoch):
     # sigmoid_output_idx_val = sigmoid_fn(output[idx_val])
     # loss_val = loss_fn(sigmoid_output_idx_val, labels[idx_val].type_as(output))
 
-    loss_fn = nn.BCEWithLogitsLoss(reduce=True, size_average=True)
     loss_val = loss_fn(output[idx_val], labels[idx_val].type_as(output))
 
     # loss_val = F.nll_loss(output[idx_val], labels[idx_val])
@@ -142,7 +141,6 @@ def compute_test():
     # sigmoid_output_idx_test = sigmoid_fn(output[idx_test])
     # loss_test = loss_fn(sigmoid_output_idx_test, labels[idx_test].type_as(output))
 
-    loss_fn = nn.BCEWithLogitsLoss(reduce=True, size_average=True)
     loss_test = loss_fn(output[idx_test], labels[idx_test].type_as(output))
 
     acc_test = accuracy(output[idx_test], labels[idx_test], args.cuda)
