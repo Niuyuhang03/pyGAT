@@ -81,7 +81,7 @@ if args.cuda:
     idx_test = idx_test.cuda()
 
 features, adj, labels = Variable(features), Variable(adj), Variable(labels)
-loss_fn = nn.BCEWithLogitsLoss(reduce=True, size_average=False)
+loss_fn = nn.BCEWithLogitsLoss(reduce=True, size_average=True)
 
 def train(epoch):
     t = time.time()

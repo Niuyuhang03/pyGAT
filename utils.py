@@ -99,8 +99,8 @@ def normalize_features(mx):
 
 
 def accuracy(output, labels, is_cuda):
-    print("labels:", labels)
-    print("output:", output)
+    # print("labels:", labels)
+    # print("output:", output)
     preds = torch.zeros(labels.shape[0], labels.shape[1])
     all_labels_1_length = 0
     correct = 0
@@ -120,7 +120,7 @@ def accuracy(output, labels, is_cuda):
     if is_cuda:
         preds = preds.cuda()
     preds = preds.type_as(labels)
-    print("preds:", preds)
+    # print("preds:", preds)
     return correct / all_labels_1_length
 
 
