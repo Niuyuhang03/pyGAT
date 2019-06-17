@@ -18,4 +18,6 @@ class GAT(nn.Module):
     def forward(self, x, adj):
         x = torch.cat([att(x, adj) for att in self.attentions], dim=1)
         x = self.out_att(x, adj)
-        return F.log_softmax(x, dim=1)
+        # return F.log_softmax(x, dim=1)
+        sigmoid_fn = nn.Sigmoid()
+        return sigmoid_fn(x)

@@ -6,6 +6,7 @@ import argparse
 import numpy as np
 import random
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import os
@@ -26,8 +27,11 @@ parser.add_argument('--weight_decay', type=float, default=5e-4, help='Weight dec
 parser.add_argument('--hidden', type=int, default=8, help='Number of hidden units.')
 parser.add_argument('--nb_heads', type=int, default=8, help='Number of head attentions.')
 parser.add_argument('--dropout', type=float, default=0.6, help='Dropout rate (1 - keep probability).')
+# LeakyReLU在x<0的斜率
 parser.add_argument('--alpha', type=float, default=0.2, help='Alpha for the leaky_relu.')
 parser.add_argument('--patience', type=int, default=100, help='Patience')
+# 数据集
+parser.add_argument('--dataset', type=str, default='cora', help='DataSet of model')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -39,10 +43,10 @@ if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
 # Load data
-adj, features, labels, idx_train, idx_val, idx_test = load_data()
+adj, features, labels, idx_train, idx_val, idx_test, nclass = load_data(path='./data/'+ args.dataset + '/', dataset=args.dataset)
 
 # Model and optimizer
-model = GAT(nfeat=features.shape[1], nhid=args.hidden, nclass=int(labels.max()) + 1, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha)
+model = GAT(nfeat=features.shape[1], nhid=args.hidden, nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha)
 optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
 
 if args.cuda:
@@ -56,14 +60,15 @@ if args.cuda:
 
 features, adj, labels = Variable(features), Variable(adj), Variable(labels)
 
+loss_fn = nn.BCELoss(reduce=True, size_average=True)
 
 def train(epoch):
     t = time.time()
     model.train()
     optimizer.zero_grad()
     output = model(features, adj)
-    loss_train = F.nll_loss(output[idx_train], labels[idx_train])
-    acc_train = accuracy(output[idx_train], labels[idx_train])
+    loss_train = loss_fn(output[idx_train], labels[idx_train].type_as(output))
+    acc_train, preds = accuracy(output[idx_train], labels[idx_train], args.cuda)
     loss_train.backward()
     optimizer.step()
 
@@ -73,13 +78,13 @@ def train(epoch):
         model.eval()
         output = model(features, adj)
 
-    loss_val = F.nll_loss(output[idx_val], labels[idx_val])
-    acc_val = accuracy(output[idx_val], labels[idx_val])
+    loss_val = loss_fn(output[idx_val], labels[idx_val].type_as(output))
+    acc_val, preds = accuracy(output[idx_val], labels[idx_val], args.cuda)
     print('Epoch: {:04d}'.format(epoch+1),
           'loss_train: {:.4f}'.format(loss_train.data[0]),
-          'acc_train: {:.4f}'.format(acc_train.data[0]),
+          'acc_train: {:.4f}'.format(acc_train),
           'loss_val: {:.4f}'.format(loss_val.data[0]),
-          'acc_val: {:.4f}'.format(acc_val.data[0]),
+          'acc_val: {:.4f}'.format(acc_val),
           'time: {:.4f}s'.format(time.time() - t))
 
     return loss_val.data[0]
@@ -88,11 +93,12 @@ def train(epoch):
 def compute_test():
     model.eval()
     output = model(features, adj)
-    loss_test = F.nll_loss(output[idx_test], labels[idx_test])
-    acc_test = accuracy(output[idx_test], labels[idx_test])
+    loss_test = loss_fn(output[idx_test], labels[idx_test].type_as(output))
+    acc_test, preds = accuracy(output[idx_test], labels[idx_test], args.cuda)
+    print("pres:", np.where(preds)[1])
     print("Test set results:",
           "loss= {:.4f}".format(loss_test.data[0]),
-          "accuracy= {:.4f}".format(acc_test.data[0]))
+          "accuracy= {:.4f}".format(acc_test))
 
 
 # Train model
@@ -112,6 +118,7 @@ for epoch in range(args.epochs):
     else:
         bad_counter += 1
 
+    # 损失连续100次迭代没有优化时，则提取停止
     if bad_counter == args.patience:
         break
 
