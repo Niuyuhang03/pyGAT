@@ -44,7 +44,7 @@ def load_data(path, dataset):
         for y in range(0, adj.shape[1]):
             if adj[x,y] == 0:
                 adj[x,y] = -9e15
-            elif adj[x,y] == 1:
+            elif adj[x,y] >= 1:
                 adj[x,y] = 0
             else:
                 print(adj[x,y], 'error')
