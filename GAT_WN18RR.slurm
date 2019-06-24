@@ -5,4 +5,4 @@
 #SBATCH -c 5
 source /home/LAB/anaconda3/etc/profile.d/conda.sh
 conda activate cuda9.1
-python train.py --dataset WN18RR
+CUDA_VISIBLE_DEVICES=1 python train.py --dataset WN18RR
