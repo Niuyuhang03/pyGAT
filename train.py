@@ -13,7 +13,7 @@ import os
 import glob
 from torch.autograd import Variable
 
-from utils import load_data, accuracy
+from utils import load_data, accuracy, multi_labels_nll_loss
 from models import GAT
 
 # Training settings
@@ -60,14 +60,12 @@ if args.cuda:
 
 features, adj, labels = Variable(features), Variable(adj), Variable(labels)
 
-loss_fn = nn.BCELoss(reduce=True, size_average=True)
-
 def train(epoch):
     t = time.time()
     model.train()
     optimizer.zero_grad()
     output = model(features, adj)
-    loss_train = loss_fn(output[idx_train], labels[idx_train].type_as(output))
+    loss_train = multi_labels_nll_loss(output[idx_train], labels[idx_train])
     acc_train, preds = accuracy(output[idx_train], labels[idx_train], args.cuda)
     loss_train.backward()
     optimizer.step()
@@ -78,7 +76,7 @@ def train(epoch):
         model.eval()
         output = model(features, adj)
 
-    loss_val = loss_fn(output[idx_val], labels[idx_val].type_as(output))
+    loss_val = multi_labels_nll_loss(output[idx_val], labels[idx_val])
     acc_val, preds = accuracy(output[idx_val], labels[idx_val], args.cuda)
     print('Epoch: {:04d}'.format(epoch+1),
           'loss_train: {:.4f}'.format(loss_train.data[0]),
@@ -93,7 +91,7 @@ def train(epoch):
 def compute_test():
     model.eval()
     output = model(features, adj)
-    loss_test = loss_fn(output[idx_test], labels[idx_test].type_as(output))
+    loss_test = multi_labels_nll_loss(output[idx_test], labels[idx_test])
     acc_test, preds = accuracy(output[idx_test], labels[idx_test], args.cuda)
     print("pres:", np.where(preds)[1])
     print("Test set results:",

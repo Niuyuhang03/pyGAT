@@ -109,3 +109,13 @@ def accuracy(output, labels, is_cuda):
     # print("preds:", preds)
     return correct / all_labels_1_length, preds
 
+
+def multi_labels_nll_loss(output, labels):
+    loss = 0.0
+    cnt = 0
+    for index in range(len(labels)):
+        right_indexs = np.where(labels[index])[0]
+        for right_index in right_indexs:
+            loss += -output[index][right_index]
+            cnt += 1
+    return loss / cnt
