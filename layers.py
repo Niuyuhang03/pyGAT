@@ -34,6 +34,7 @@ class GraphAttentionLayer(nn.Module):
         seq = torch.transpose(input, 0, 1).unsqueeze(0)
         seq_fts = self.seq_transformation(seq)
 
+        # 输入层->隐层，求得eij=LeakyReLU(a^T[Whi||Whj]).隐层->输出层，求得aij=softmax(eij)
         f_1 = self.f_1(seq_fts)
         f_2 = self.f_2(seq_fts)
         logits = (torch.transpose(f_1, 2, 1) + f_2).squeeze(0)
@@ -42,6 +43,7 @@ class GraphAttentionLayer(nn.Module):
         seq_fts = F.dropout(torch.transpose(seq_fts.squeeze(0), 0, 1), self.dropout, training=self.training)
         coefs = F.dropout(coefs, self.dropout, training=self.training)
 
+        # 生成节点新特征，对节点i的邻居特征按贡献度aij进行加权平均后加一个非线性转换，得到节点i的新特征hi'
         ret = torch.mm(coefs, seq_fts) + self.bias
 
         if self.residual:
