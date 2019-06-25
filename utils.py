@@ -99,33 +99,24 @@ def normalize_features(mx):
 
 
 def accuracy(output, labels, is_cuda):
-    # print("labels:", labels)
-    # print("output:", output)
-    preds = torch.zeros(labels.shape[0], labels.shape[1])
-    all_labels_1_length = 0
-    correct = 0
+    output = np.array(output)
+    cnt = len(np.where(labels)[1])
+    columns = np.array([])
     for idx in range(len(labels)):
-        labels_1_index = np.where(labels[idx])[0]
-        labels_1_length = len(labels_1_index)
-        predict_1_index = output[idx].sort()[1][-labels_1_length:]
-        all_labels_1_length += labels_1_length
-        for labels_1 in labels_1_index:
-            if labels_1 in predict_1_index:
-                correct += 1
-        # 生成预测结果preds，仅查看用
-        output_01 = np.zeros(labels.shape[1], dtype=np.float32)
-        for i in predict_1_index:
-            output_01[i] = 1.0
-        preds[idx] = torch.from_numpy(output_01)
+        labels_1_length = len(np.where(labels[idx])[0])
+        predict_1_index = np.argsort(-output[idx])[:labels_1_length]
+        columns = np.append(columns, predict_1_index)
+    rows = np.where(labels)[0]
+    preds = torch.sparse.FloatTensor(torch.LongTensor([rows, columns]), torch.FloatTensor([1] * cnt), torch.Size(labels.size())).to_dense()
     if is_cuda:
         preds = preds.cuda()
-    preds = preds.type_as(labels)
-    # print("preds:", preds)
-    return correct / all_labels_1_length, preds
+    correct = preds.mul(labels).sum()
+    return correct / cnt, preds
 
 
-# adj, features, labels_one_hot, idx_train, idx_val, idx_test, nclass = load_data(path='./data/FB15K237/', dataset='FB15K237')
-# output = np.random.random((labels_one_hot.shape[0],labels_one_hot.shape[1]))
-# output = torch.FloatTensor(output)
-# output, labels_one_hot = Variable(output), Variable(labels_one_hot)
-# acc_train = accuracy(output[idx_train], labels_one_hot[idx_train], False)
+def multi_labels_nll_loss(output, labels):
+    # labels和output按位点乘，结果相加，除以labels中1的总数，作为适用于多标签的nll_loss。
+    loss = -labels.mul(output).sum()
+    cnt = len(np.where(labels)[1])
+    return loss / cnt
+
