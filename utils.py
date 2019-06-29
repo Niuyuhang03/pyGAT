@@ -110,13 +110,13 @@ def accuracy(output, labels, is_cuda):
     preds = torch.sparse.FloatTensor(torch.LongTensor([rows, columns]), torch.FloatTensor([1] * cnt), torch.Size(labels.size())).to_dense()
     if is_cuda:
         preds = preds.cuda()
-    correct = preds.mul(labels).sum()
+    correct = preds.type_as(labels).mul(labels).sum()
     return correct / cnt, preds
 
 
 def multi_labels_nll_loss(output, labels):
     # labels和output按位点乘，结果相加，除以labels中1的总数，作为适用于多标签的nll_loss。
-    loss = -labels.mul(output).sum()
+    loss = -labels.type_as(output).mul(output).sum()
     cnt = len(np.where(labels)[1])
     return loss / cnt
 
