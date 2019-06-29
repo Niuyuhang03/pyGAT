@@ -97,7 +97,7 @@ def accuracy(output, labels, is_cuda):
     if is_cuda:
         preds = preds.cuda()
     correct = preds.type_as(labels).mul(labels).sum()
-    return correct / cnt, preds
+    return correct.item() / cnt, preds
 
 
 def multi_labels_nll_loss(output, labels):
