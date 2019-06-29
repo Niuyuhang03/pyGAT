@@ -80,9 +80,9 @@ def train(epoch):
     acc_val, preds = accuracy(output[idx_val], labels[idx_val], args.cuda)
     print('Epoch: {:04d}'.format(epoch+1),
           'loss_train: {:.4f}'.format(loss_train.data[0]),
-          'acc_train: {:.4f}'.format(acc_train),
+          'acc_train: {:.4f}'.format(acc_train.data[0]),
           'loss_val: {:.4f}'.format(loss_val.data[0]),
-          'acc_val: {:.4f}'.format(acc_val),
+          'acc_val: {:.4f}'.format(acc_val.data[0]),
           'time: {:.4f}s'.format(time.time() - t))
 
     return loss_val.data[0]
@@ -96,7 +96,7 @@ def compute_test():
     print("pres:", np.where(preds)[1])
     print("Test set results:",
           "loss= {:.4f}".format(loss_test.data[0]),
-          "accuracy= {:.4f}".format(acc_test))
+          "accuracy= {:.4f}".format(acc_test.data[0]))
 
 
 # Train model
