@@ -95,7 +95,7 @@ def compute_test():
     print("pres:", np.where(preds)[1])
     print("Test set results:",
           "loss= {:.4f}".format(loss_test.data[0]),
-          "accuracy= {:.4f}".format(acc_test)
+          "accuracy= {:.4f}".format(acc_test))
 
 
 # Train model
