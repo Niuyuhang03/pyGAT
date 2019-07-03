@@ -19,8 +19,14 @@ class GraphAttentionLayer(nn.Module):
 
         self.W = nn.Parameter(torch.zeros(size=(in_features, out_features)))
         nn.init.xavier_uniform_(self.W.data, gain=1.414)
-        self.a = nn.Parameter(torch.zeros(size=(2*out_features, 1)))
-        nn.init.xavier_uniform_(self.a.data, gain=1.414)
+        # self.a = nn.Parameter(torch.zeros(size=(2*out_features, 1)))
+        # nn.init.xavier_uniform_(self.a.data, gain=1.414)
+        self.a1 = nn.Parameter(nn.init.xavier_uniform(torch.Tensor(out_features, 1).type(
+            torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor), gain=np.sqrt(2.0)),
+                               requires_grad=True)
+        self.a2 = nn.Parameter(nn.init.xavier_uniform(torch.Tensor(out_features, 1).type(
+            torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor), gain=np.sqrt(2.0)),
+                               requires_grad=True)
 
         self.leakyrelu = nn.LeakyReLU(self.alpha)
 
@@ -28,8 +34,11 @@ class GraphAttentionLayer(nn.Module):
         h = torch.mm(input, self.W)
         N = h.size()[0]
 
-        a_input = torch.cat([h.repeat(1, N).view(N * N, -1), h.repeat(N, 1)], dim=1).view(N, -1, 2 * self.out_features)
-        e = self.leakyrelu(torch.matmul(a_input, self.a).squeeze(2))
+        # a_input = torch.cat([h.repeat(1, N).view(N * N, -1), h.repeat(N, 1)], dim=1).view(N, -1, 2 * self.out_features)
+        # e = self.leakyrelu(torch.matmul(a_input, self.a).squeeze(2))
+        f_1 = h @ self.a1
+        f_2 = h @ self.a2
+        e = self.leakyrelu(f_1 + f_2.transpose(0, 1))
 
         zero_vec = -9e15*torch.ones_like(e)
         attention = torch.where(adj > 0, e, zero_vec)
