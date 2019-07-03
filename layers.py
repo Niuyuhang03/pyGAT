@@ -31,6 +31,7 @@ class GraphAttentionLayer(nn.Module):
         # Too harsh to use the same dropout. TODO add another dropout
         # input = F.dropout(input, self.dropout, training=self.training)
 
+        # 对feature转置
         seq = torch.transpose(input, 0, 1).unsqueeze(0)
         seq_fts = self.seq_transformation(seq)
 
