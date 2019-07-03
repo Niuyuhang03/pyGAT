@@ -14,13 +14,16 @@ class GAT(nn.Module):
         for i, attention in enumerate(self.attentions):
             self.add_module('attention_{}'.format(i), attention)
 
-        self.out_att = GraphAttentionLayer(nhid * nheads, nclass, dropout=dropout, alpha=alpha, concat=False)
+        self.out_att = GraphAttentionLayer(nhid * nheads, nhid * nheads, dropout=dropout, alpha=alpha, concat=False)
+        self.linear_att = nn.Linear(nhid * nheads, nclass)
 
     def forward(self, x, adj):
         x = F.dropout(x, self.dropout, training=self.training)
         x = torch.cat([att(x, adj) for att in self.attentions], dim=1)
         x = F.dropout(x, self.dropout, training=self.training)
         x = F.elu(self.out_att(x, adj))
+        # 增加一个全连接层
+        x = self.linear_att(x)
         return F.log_softmax(x, dim=1)
         # sigmoid_fn = nn.Sigmoid()
         # return sigmoid_fn(x)
@@ -41,16 +44,19 @@ class SpGAT(nn.Module):
             self.add_module('attention_{}'.format(i), attention)
 
         self.out_att = SpGraphAttentionLayer(nhid * nheads, 
-                                             nclass, 
+                                             nhid * nheads,
                                              dropout=dropout, 
                                              alpha=alpha, 
                                              concat=False)
+        self.linear_att = nn.Linear(nhid * nheads, nclass)
 
     def forward(self, x, adj):
         x = F.dropout(x, self.dropout, training=self.training)
         x = torch.cat([att(x, adj) for att in self.attentions], dim=1)
         x = F.dropout(x, self.dropout, training=self.training)
         x = F.elu(self.out_att(x, adj))
+        # 增加一个全连接层
+        x = self.linear_att(x)
         return F.log_softmax(x, dim=1)
         # sigmoid_fn = nn.Sigmoid()
         # return sigmoid_fn(x)

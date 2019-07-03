@@ -99,7 +99,7 @@ def normalize_features(mx):
 
 
 def accuracy(output, labels, is_cuda):
-    output = np.array(output)
+    output = np.array(output.detach())
     cnt = len(np.where(labels)[1])
     columns = np.array([])
     for idx in range(len(labels)):
