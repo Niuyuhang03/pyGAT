@@ -33,11 +33,11 @@ class GraphAttentionLayer(nn.Module):
 
         # 对feature转置
         seq = torch.transpose(input, 0, 1).unsqueeze(0)
-        seq_fts = self.seq_transformation(seq)
+        seq_fts = self.seq_transformation(seq) # W
 
         # 输入层->隐层，求得eij=LeakyReLU(a^T[Whi||Whj]).隐层->输出层，求得aij=softmax(eij)
-        f_1 = self.f_1(seq_fts)
-        f_2 = self.f_2(seq_fts)
+        f_1 = self.f_1(seq_fts) # a1
+        f_2 = self.f_2(seq_fts) # a2
         logits = (torch.transpose(f_1, 2, 1) + f_2).squeeze(0)
         coefs = F.softmax(self.leakyrelu(logits) + adj, dim=1)
 
