@@ -33,7 +33,7 @@ parser.add_argument('--patience', type=int, default=100, help='Patience')
 # 数据集
 parser.add_argument('--dataset', type=str, default='cora', help='DataSet of model')
 # 是否考虑relation类型
-parser.add_argument('--rel', type='store_true', default=False, help='Process relation')
+parser.add_argument('--rel', action='store_true', default=False, help='Process relation')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
