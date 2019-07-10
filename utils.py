@@ -12,7 +12,7 @@ def encode_onehot(labels):
     return labels_onehot, len(classes)
 
 
-def load_data(path, dataset):
+def load_data(path, dataset, process_rel):
     """Load citation network dataset (cora only for now)"""
     print('Loading {} dataset...'.format(dataset))
 
@@ -26,7 +26,7 @@ def load_data(path, dataset):
     idx_map = {j: i for i, j in enumerate(idx)}
     edges_unordered = np.genfromtxt("{}{}.cites".format(path, dataset), dtype=np.int32)
     # 将样本之间的引用关系用样本索引之间的关系表示
-    edges = np.array(list(map(idx_map.get, edges_unordered.flatten())), dtype=np.int32).reshape(edges_unordered.shape)
+    edges = np.array(list(map(idx_map.get, edges_unordered[:, :-1].flatten())), dtype=np.int32).reshape(edges_unordered[:, :-1].shape)
     # 构建图的邻接矩阵，用坐标形式的稀疏矩阵表示，非对称邻接矩阵
     adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])), shape=(labels.shape[0], labels.shape[0]), dtype=np.float32)
 
@@ -50,6 +50,17 @@ def load_data(path, dataset):
                 print(adj[x,y], 'error')
     adj = torch.FloatTensor(np.array(adj))
 
+    # 生成relation embeddings的结果rel和entities之间rel的对应字典rel_dict
+    rel_dict = {}
+    if process_rel:
+        idx_rel = np.genfromtxt("{}{}.rel".format(path, dataset), dtype=np.dtype(str))
+        rel = sp.csr_matrix(idx_rel[:, 1:], dtype=np.float32)
+        for line in edges_unordered:
+            rel_dict[str(line[0]) + '+' + str(line[1])] = rel_dict.get(str(line[0]) + '+' + str(line[1]), []) + [line[2]]
+            rel_dict[str(line[1]) + '+' + str(line[0])] = rel_dict.get(str(line[1]) + '+' + str(line[0]), []) + [line[2]]
+    else:
+        rel = []
+
     idx_train = range(140)
     idx_val = range(200, 500)
     idx_test = range(500, 1500)
@@ -62,7 +73,7 @@ def load_data(path, dataset):
     idx_test = torch.LongTensor(idx_test)
 
     print('Loading {} dataset finishes...'.format(dataset))
-    return adj, features, labels, idx_train, idx_val, idx_test, nclass
+    return adj, features, rel, rel_dict, labels, idx_train, idx_val, idx_test, nclass
 
 
 def normalize_adj(mx):

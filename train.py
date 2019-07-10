@@ -14,7 +14,7 @@ import glob
 from torch.autograd import Variable
 
 from utils import load_data, accuracy, multi_labels_nll_loss
-from models import GAT
+from models import GAT, GAT_rel
 
 # Training settings
 parser = argparse.ArgumentParser()
@@ -32,6 +32,8 @@ parser.add_argument('--alpha', type=float, default=0.2, help='Alpha for the leak
 parser.add_argument('--patience', type=int, default=100, help='Patience')
 # 数据集
 parser.add_argument('--dataset', type=str, default='cora', help='DataSet of model')
+# 是否考虑relation类型
+parser.add_argument('--rel', type='store_true', default=False, help='Process relation')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -43,10 +45,13 @@ if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
 # Load data
-adj, features, labels, idx_train, idx_val, idx_test, nclass = load_data(path='./data/'+ args.dataset + '/', dataset=args.dataset)
+adj, features, rel, rel_dict, labels, idx_train, idx_val, idx_test, nclass = load_data(path='./data/'+ args.dataset + '/', dataset=args.dataset, process_rel=args.rel)
 
 # Model and optimizer
-model = GAT(nfeat=features.shape[1], nhid=args.hidden, nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha)
+if args.rel:
+    model = GAT_rel(nfeat=features.shape[1], nhid=args.hidden, nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha)
+else:
+    model = GAT(nfeat=features.shape[1], nhid=args.hidden, nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha)
 optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
 
 if args.cuda:
@@ -64,7 +69,10 @@ def train(epoch):
     t = time.time()
     model.train()
     optimizer.zero_grad()
-    output = model(features, adj)
+    if args.rel:
+        output = model(features, rel, rel_dict, adj)
+    else:
+        output = model(features, adj)
     loss_train = multi_labels_nll_loss(output[idx_train], labels[idx_train])
     acc_train, preds = accuracy(output[idx_train], labels[idx_train], args.cuda)
     loss_train.backward()
@@ -74,7 +82,10 @@ def train(epoch):
         # Evaluate validation set performance separately,
         # deactivates dropout during validation run.
         model.eval()
-        output = model(features, adj)
+        if args.rel:
+            output = model(features, rel, rel_dict, adj)
+        else:
+            output = model(features, adj)
 
     loss_val = multi_labels_nll_loss(output[idx_val], labels[idx_val])
     acc_val, preds = accuracy(output[idx_val], labels[idx_val], args.cuda)
@@ -89,7 +100,10 @@ def train(epoch):
 
 def compute_test():
     model.eval()
-    output = model(features, adj)
+    if args.rel:
+        output = model(features, rel, rel_dict, adj)
+    else:
+        output = model(features, adj)
     loss_test = multi_labels_nll_loss(output[idx_test], labels[idx_test])
     acc_test, preds = accuracy(output[idx_test], labels[idx_test], args.cuda)
     print("pres:", np.where(preds)[1])

@@ -82,7 +82,7 @@ class GraphAttentionLayer_rel(nn.Module):
 
         self.sigmoid = nn.Sigmoid()
 
-    def forward(self, input, rel, adj):
+    def forward(self, input, rel, rel_dict, adj):
         # Too harsh to use the same dropout. TODO add another dropout
         # input = F.dropout(input, self.dropout, training=self.training)
 
@@ -91,8 +91,14 @@ class GraphAttentionLayer_rel(nn.Module):
 
         seq_rel = torch.transpose(rel, 0, 1).unsqueeze(0)
         seq_fts_rel = self.seq_transformation_rel(seq_rel) # rel m*1
+        print(seq_fts_rel.shape)
         # TODO: 构造logits，即alpha。若entity1和entity2有关系3，则将logits的1行2列设置为seq_fts_rel中的第三个标量。否则为0。
-        logits =
+        logits = torch.zeros_like(adj).float()
+        for key, value_index in rel_dict.items():
+            e1, e2 = key.split('+')
+            mean_value = seq_fts_rel[value_index].mean()
+            logits[int(e1)][int(e2)] = mean_value
+            logits[int(e2)][int(e1)] = mean_value
         coefs = F.softmax(self.sigmoid(logits) + adj, dim=1) # softmax(leakyrelu(a(Wh1||Wh2)))
 
         seq_fts = F.dropout(torch.transpose(seq_fts.squeeze(0), 0, 1), self.dropout, training=self.training)
