@@ -98,8 +98,8 @@ class GraphAttentionLayer_rel(nn.Module):
             e1, e2 = key.split('+')
             print("value_index:", value_index)
             print("seq_fts_rel[0, 0, value_index]", seq_fts_rel[0, 0, value_index])
-            print("mean_value:", mean_value)
             mean_value = seq_fts_rel[0, 0, value_index].mean()
+            print("mean_value:", mean_value)
             logits[int(e1)][int(e2)] = mean_value
             logits[int(e2)][int(e1)] = mean_value
         print("logits:", logits)
