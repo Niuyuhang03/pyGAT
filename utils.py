@@ -54,7 +54,7 @@ def load_data(path, dataset, process_rel):
     rel_dict = {}
     if process_rel:
         idx_rel = np.genfromtxt("{}{}.rel".format(path, dataset), dtype=np.dtype(str))
-        rel = sp.csr_matrix(idx_rel[:, 1:], dtype=np.float32)
+        rel = torch.FloatTensor(sp.csr_matrix(idx_rel[:, 1:], dtype=np.float32))
         for line in edges_unordered:
             rel_dict[str(line[0]) + '+' + str(line[1])] = rel_dict.get(str(line[0]) + '+' + str(line[1]), []) + [line[2]]
             rel_dict[str(line[1]) + '+' + str(line[0])] = rel_dict.get(str(line[1]) + '+' + str(line[0]), []) + [line[2]]
