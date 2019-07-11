@@ -89,7 +89,6 @@ class GraphAttentionLayer_rel(nn.Module):
 
         seq_rel = torch.transpose(rel, 0, 1).unsqueeze(0)
         seq_fts_rel = self.seq_transformation_rel(seq_rel) # rel m*1
-        print("seq_fts_rel:", seq_fts_rel.shape)
 
         logits = torch.zeros_like(adj).float()
         for key, value_index in rel_dict.items():
@@ -97,7 +96,6 @@ class GraphAttentionLayer_rel(nn.Module):
             mean_value = seq_fts_rel[0, 0, value_index].mean()
             logits[int(e1)][int(e2)] = mean_value
             logits[int(e2)][int(e1)] = mean_value
-        print("logits:", logits)
         coefs = F.softmax(self.sigmoid(logits) + adj, dim=1)
 
         seq_fts = F.dropout(torch.transpose(seq_fts.squeeze(0), 0, 1), self.dropout, training=self.training)
