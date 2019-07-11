@@ -98,12 +98,12 @@ class GraphAttentionLayer_rel(nn.Module):
             logits[int(e1)][int(e2)] = mean_value
             logits[int(e2)][int(e1)] = mean_value
         print("logits:", logits)
-        coefs = F.softmax(self.sigmoid(logits) + adj, dim=1) # softmax(leakyrelu(a(Wh1||Wh2)))
+        coefs = F.softmax(self.sigmoid(logits) + adj, dim=1)
 
         seq_fts = F.dropout(torch.transpose(seq_fts.squeeze(0), 0, 1), self.dropout, training=self.training)
         coefs = F.dropout(coefs, self.dropout, training=self.training)
 
-        ret = torch.mm(coefs, seq_fts) + self.bias # alphaWh
+        ret = torch.mm(coefs, seq_fts) + self.bias
 
         if self.residual:
             if seq.size()[-1] != ret.size()[-1]:
