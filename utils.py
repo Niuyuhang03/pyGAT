@@ -26,10 +26,7 @@ def load_data(path, dataset, process_rel):
     idx_map = {j: i for i, j in enumerate(idx)}
     edges_unordered = np.genfromtxt("{}{}.cites".format(path, dataset), dtype=np.int32)
     # 将样本之间的引用关系用样本索引之间的关系表示
-    if dataset is 'cora':
-        edges = np.array(list(map(idx_map.get, edges_unordered.flatten())), dtype=np.int32).reshape(edges_unordered.shape)
-    else:
-        edges = np.array(list(map(idx_map.get, edges_unordered[:, :-1].flatten())), dtype=np.int32).reshape(edges_unordered[:, :-1].shape)
+    edges = np.array(list(map(idx_map.get, edges_unordered[:, :2].flatten())), dtype=np.int32).reshape(edges_unordered[:, :2].shape)
     # 构建图的邻接矩阵，用坐标形式的稀疏矩阵表示，非对称邻接矩阵
     adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])), shape=(labels.shape[0], labels.shape[0]), dtype=np.float32)
 
