@@ -72,12 +72,9 @@ class GraphAttentionLayer_rel(nn.Module):
         self.concat = concat
         self.residual = residual
 
-        self.seq_transformation = nn.Conv1d(in_features, out_features, kernel_size=1, stride=1, bias=False)
         self.seq_transformation_rel = nn.Conv1d(in_features, 1, kernel_size=1, stride=1, bias=False)
         if self.residual:
             self.proj_residual = nn.Conv1d(in_features, out_features, kernel_size=1, stride=1)
-        self.f_1 = nn.Conv1d(out_features, 1, kernel_size=1, stride=1)
-        self.f_2 = nn.Conv1d(out_features, 1, kernel_size=1, stride=1)
         self.bias = nn.Parameter(torch.zeros(out_features).type(torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor), requires_grad=True)
 
         self.sigmoid = nn.Sigmoid()
@@ -96,10 +93,7 @@ class GraphAttentionLayer_rel(nn.Module):
         logits = torch.zeros_like(adj).float()
         for key, value_index in rel_dict.items():
             e1, e2 = key.split('+')
-            print("value_index:", value_index)
-            print("seq_fts_rel[0, 0, value_index]", seq_fts_rel[0, 0, value_index])
             mean_value = seq_fts_rel[0, 0, value_index].mean()
-            print("mean_value:", mean_value)
             logits[int(e1)][int(e2)] = mean_value
             logits[int(e2)][int(e1)] = mean_value
         print("logits:", logits)
