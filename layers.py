@@ -72,6 +72,7 @@ class GraphAttentionLayer_rel(nn.Module):
         self.concat = concat
         self.residual = residual
 
+        self.seq_transformation = nn.Conv1d(in_features, out_features, kernel_size=1, stride=1, bias=False)
         self.seq_transformation_rel = nn.Conv1d(in_features, 1, kernel_size=1, stride=1, bias=False)
         if self.residual:
             self.proj_residual = nn.Conv1d(in_features, out_features, kernel_size=1, stride=1)
