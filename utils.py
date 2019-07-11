@@ -55,9 +55,12 @@ def load_data(path, dataset, process_rel):
     if process_rel:
         idx_rel = np.genfromtxt("{}{}.rel".format(path, dataset), dtype=np.dtype(str))
         rel = sp.csr_matrix(idx_rel[:, 1:], dtype=np.float32)
-        for line in edges_unordered:
-            rel_dict[str(line[0]) + '+' + str(line[1])] = rel_dict.get(str(line[0]) + '+' + str(line[1]), []) + [line[2]]
-            rel_dict[str(line[1]) + '+' + str(line[0])] = rel_dict.get(str(line[1]) + '+' + str(line[0]), []) + [line[2]]
+        for index in range(len(edges_unordered)):
+            e1 = edges[index][0]
+            e2 = edges[index][1]
+            r = edges_unordered[index][2]
+            rel_dict[str(e1) + '+' + str(e2)] = rel_dict.get(str(e1) + '+' + str(e2), []) + [r]
+            rel_dict[str(e2) + '+' + str(e1)] = rel_dict.get(str(e2) + '+' + str(e1), []) + [r]
     else:
         rel = []
 
