@@ -54,7 +54,7 @@ def load_data(path, dataset, process_rel):
     rel_dict = {}
     if process_rel:
         idx_rel = np.genfromtxt("{}{}.rel".format(path, dataset), dtype=np.dtype(str))
-        rel = sp.csr_matrix(idx_rel[:, 1:], dtype=np.float32)
+        rel = torch.FloatTensor(np.array(sp.csr_matrix(idx_rel[:, 1:], dtype=np.float32).todense()))
         for index in range(len(edges_unordered)):
             e1 = edges[index][0]
             e2 = edges[index][1]
@@ -62,7 +62,7 @@ def load_data(path, dataset, process_rel):
             rel_dict[str(e1) + '+' + str(e2)] = rel_dict.get(str(e1) + '+' + str(e2), []) + [r]
             rel_dict[str(e2) + '+' + str(e1)] = rel_dict.get(str(e2) + '+' + str(e1), []) + [r]
     else:
-        rel = []
+        rel = torch.FloatTensor()
 
     idx_train = range(140)
     idx_val = range(200, 500)
@@ -70,7 +70,6 @@ def load_data(path, dataset, process_rel):
 
     features = torch.FloatTensor(np.array(features.todense()))
     labels = torch.LongTensor(labels)
-    rel = torch.FloatTensor(np.array(rel.todense()))
 
     idx_train = torch.LongTensor(idx_train)
     idx_val = torch.LongTensor(idx_val)
