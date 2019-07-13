@@ -5,4 +5,4 @@
 #SBATCH -c 5
 source /home/LAB/anaconda3/etc/profile.d/conda.sh
 conda activate cuda9.1
-CUDA_VISIBLE_DEVICES=1 python train.py --dataset FB15K237 --hidden 10 --nb_heads 10 --rel
+CUDA_VISIBLE_DEVICES=1 python train.py --dataset FB15K237 --hidden 100 --nb_heads 10 --rel
