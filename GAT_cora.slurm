@@ -5,4 +5,4 @@
 #SBATCH -c 5
 source /home/LAB/anaconda3/etc/profile.d/conda.sh
 conda activate cuda9.1
-python train.py --dataset cora --hidden 10 --nb_heads 10
+python train.py --dataset cora --hidden 10 --nb_heads 10 --experiment GAT_cora
