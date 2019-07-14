@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -o GAT_WN18RR_result.log         # 输出日志，可以查看ckpt文件夹
+#SBATCH -o ./GAT_WN18RR_epochs100/GAT_WN18RR_result.log         # 输出日志，可以查看ckpt文件夹
 #SBATCH -J GAT_WN18RR             # 任务名称
 #SBATCH --gres=gpu:V100:1
 #SBATCH -c 5
