@@ -34,6 +34,8 @@ parser.add_argument('--patience', type=int, default=100, help='Patience')
 parser.add_argument('--dataset', type=str, default='cora', help='DataSet of model')
 # 是否考虑relation类型
 parser.add_argument('--rel', action='store_true', default=False, help='Process relation')
+# 实验名称，用于生成.pkl文件夹
+parser.add_argument('--experiment', type=str, default='GAT', help='Name of current experiment.')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -49,7 +51,7 @@ adj, features, rel, rel_dict, labels, idx_train, idx_val, idx_test, nclass = loa
 
 # Model and optimizer
 if args.rel:
-    model = GAT_rel(nfeat=features.shape[1], nhid=args.hidden, nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha)
+    model = GAT_rel(nhid=args.hidden, nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha)
 else:
     model = GAT(nfeat=features.shape[1], nhid=args.hidden, nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha)
 optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
@@ -122,10 +124,11 @@ loss_values = []
 bad_counter = 0
 best = args.epochs + 1
 best_epoch = 0
+
 for epoch in range(args.epochs):
     loss_values.append(train(epoch))
 
-    torch.save(model.state_dict(), '{}.pkl'.format(epoch))
+    torch.save(model.state_dict(), './{}/{}.pkl'.format(args.experiment, epoch))
     if loss_values[-1] < best:
         best = loss_values[-1]
         best_epoch = epoch
@@ -137,13 +140,13 @@ for epoch in range(args.epochs):
     if bad_counter == args.patience:
         break
 
-    files = glob.glob('*.pkl')
+    files = glob.glob('./{}/*.pkl'.format(args.experiment))
     for file in files:
         epoch_nb = int(file.split('.')[0])
         if epoch_nb < best_epoch:
             os.remove(file)
 
-files = glob.glob('*.pkl')
+files = glob.glob('./{}/*.pkl'.format(args.experiment))
 for file in files:
     epoch_nb = int(file.split('.')[0])
     if epoch_nb > best_epoch:
@@ -154,7 +157,7 @@ print("Total time elapsed: {:.4f}s".format(time.time() - t_total))
 
 # Restore best model
 print('Loading {}th epoch'.format(best_epoch))
-model.load_state_dict(torch.load('{}.pkl'.format(best_epoch)))
+model.load_state_dict(torch.load('./{}/{}.pkl'.format(args.experiment, best_epoch)))
 
 # Testing
 compute_test()

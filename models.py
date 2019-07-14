@@ -29,15 +29,15 @@ class GAT(nn.Module):
         # return sigmoid_fn(x)
 
 class GAT_rel(nn.Module):
-    def __init__(self, nfeat, nhid, nclass, dropout, alpha, nheads):
+    def __init__(self, nhid, nclass, dropout, alpha, nheads):
         super(GAT_rel, self).__init__()
         self.dropout = dropout
 
-        self.attentions = [GraphAttentionLayer_rel(nfeat, nhid, dropout=dropout, alpha=alpha, concat=True) for _ in range(nheads)]
+        self.attentions = [GraphAttentionLayer_rel(100, 1, nhid, dropout=dropout, alpha=alpha, concat=True) for _ in range(nheads)]
         for i, attention in enumerate(self.attentions):
             self.add_module('attention_{}'.format(i), attention)
 
-        self.out_att = GraphAttentionLayer_rel(nhid * nheads, nhid * nheads, dropout=dropout, alpha=alpha, concat=False)
+        self.out_att = GraphAttentionLayer_rel(100, 1, nhid * nheads, dropout=dropout, alpha=alpha, concat=False)
         self.linear_att = nn.Linear(nhid * nheads, nclass)
 
     def forward(self, x, rel, rel_dict, adj):
