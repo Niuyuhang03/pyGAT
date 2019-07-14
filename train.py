@@ -143,13 +143,13 @@ for epoch in range(args.epochs):
 
     files = glob.glob('./{}/*.pkl'.format(args.experiment))
     for file in files:
-        epoch_nb = int(file.split('.')[0])
+        epoch_nb = int(file.split('/')[-1].split('.')[0])
         if epoch_nb < best_epoch:
             os.remove(file)
 
 files = glob.glob('./{}/*.pkl'.format(args.experiment))
 for file in files:
-    epoch_nb = int(file.split('.')[0])
+    epoch_nb = int(file.split('/')[-1].split('.')[0])
     if epoch_nb > best_epoch:
         os.remove(file)
 
