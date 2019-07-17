@@ -75,7 +75,7 @@ class GraphAttentionLayer_rel(nn.Module):
         self.seq_transformation_rel = nn.Conv1d(in_rels, out_rels, kernel_size=1, stride=1, bias=False)
         self.bias = nn.Parameter(torch.zeros(in_out_features).type(torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor), requires_grad=True)
 
-        self.sigmoid = nn.Sigmoid()
+        self.ReLU = nn.ReLU()
 
     def forward(self, input, rel, rel_dict, adj):
         # Too harsh to use the same dropout. TODO add another dropout
@@ -89,7 +89,7 @@ class GraphAttentionLayer_rel(nn.Module):
             for e2, r in e2r.items():
                 mean_value = seq_fts_rel[0, 0, r].max()
                 logits[int(e1)][int(e2)] = mean_value
-        coefs = F.softmax(self.sigmoid(logits) + adj, dim=1)
+        coefs = F.softmax(self.ReLU(logits) + adj, dim=1)
 
         coefs = F.dropout(coefs, self.dropout, training=self.training)
 
