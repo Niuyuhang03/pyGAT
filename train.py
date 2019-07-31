@@ -71,6 +71,7 @@ features, adj, labels = Variable(features), Variable(adj), Variable(labels)
 if args.rel:
     rel = Variable(rel)
 
+
 def train(epoch):
     t = time.time()
     model.train()

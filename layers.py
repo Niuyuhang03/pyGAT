@@ -32,12 +32,12 @@ class GraphAttentionLayer(nn.Module):
         # input = F.dropout(input, self.dropout, training=self.training)
 
         seq = torch.transpose(input, 0, 1).unsqueeze(0)
-        seq_fts = self.seq_transformation(seq) # Wh
+        seq_fts = self.seq_transformation(seq)  # Wh
 
-        f_1 = self.f_1(seq_fts) # a1Wh1
-        f_2 = self.f_2(seq_fts) # a2Wh2
-        logits = (torch.transpose(f_1, 2, 1) + f_2).squeeze(0) # a(Wh1||Wh2)
-        coefs = F.softmax(self.leakyrelu(logits) + adj, dim=1) # softmax(leakyrelu(a(Wh1||Wh2)))
+        f_1 = self.f_1(seq_fts)  # a1Wh1
+        f_2 = self.f_2(seq_fts)  # a2Wh2
+        logits = (torch.transpose(f_1, 2, 1) + f_2).squeeze(0)  # a(Wh1||Wh2)
+        coefs = F.softmax(self.leakyrelu(logits) + adj, dim=1)  # softmax(leakyrelu(a(Wh1||Wh2)))
 
         seq_fts = F.dropout(torch.transpose(seq_fts.squeeze(0), 0, 1), self.dropout, training=self.training)
         coefs = F.dropout(coefs, self.dropout, training=self.training)
@@ -57,6 +57,7 @@ class GraphAttentionLayer(nn.Module):
 
     def __repr__(self):
         return self.__class__.__name__ + ' (' + str(self.in_features) + ' -> ' + str(self.out_features) + ')'
+
 
 class GraphAttentionLayer_rel(nn.Module):
     """
@@ -82,7 +83,7 @@ class GraphAttentionLayer_rel(nn.Module):
         # input = F.dropout(input, self.dropout, training=self.training)
 
         seq_rel = torch.transpose(rel, 0, 1).unsqueeze(0)
-        seq_fts_rel = self.seq_transformation_rel(seq_rel) # rel m*1
+        seq_fts_rel = self.seq_transformation_rel(seq_rel)  # rel m*1
 
         logits = torch.zeros_like(adj).float()
         for e1, e2r in rel_dict.items():

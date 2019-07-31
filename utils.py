@@ -47,12 +47,12 @@ def load_data(path, dataset, process_rel):
     adj = (adj + sp.eye(adj.shape[0])).todense()
     for x in range(0, adj.shape[0]):
         for y in range(0, adj.shape[1]):
-            if adj[x,y] == 0:
-                adj[x,y] = -9e15
-            elif adj[x,y] >= 1:
-                adj[x,y] = 0
+            if adj[x, y] == 0:
+                adj[x, y] = -9e15
+            elif adj[x, y] >= 1:
+                adj[x, y] = 0
             else:
-                print(adj[x,y], 'error')
+                print(adj[x, y], 'error')
     adj = torch.FloatTensor(np.array(adj))
 
     # 生成relation embeddings的结果rel和entities之间rel的对应字典rel_dict
@@ -74,7 +74,7 @@ def load_data(path, dataset, process_rel):
         idx_train = range(140)
         idx_val = range(200, 500)
         idx_test = range(500, 1500)
-    else:
+    else:  # train:val:test = 6:2:2
         idx_train = range(len(idx_map) // 10 * 6)
         idx_val = range(len(idx_map) // 10 * 6, len(idx_map) // 10 * 8)
         idx_test = range(len(idx_map) // 10 * 8, len(idx_map))
