@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.sparse as sp
 import torch
+from collections import Counter
 
 
 np.set_printoptions(threshold=np.inf)
@@ -112,13 +113,13 @@ def normalize_features(mx):
 def accuracy(output, labels, is_cuda):
     output = np.array(output.detach())
     cnt = len(np.where(labels)[1])
-    columns = np.array([])
-    for idx in range(len(labels)):
-        labels_1_length = len(np.where(labels[idx])[0])
+    counter = Counter(np.where(labels)[0])
+    preds = np.zeros_like(labels)
+    for idx in range(labels.shape[0]):
+        labels_1_length = counter[idx]
         predict_1_index = np.argsort(-output[idx])[:labels_1_length]
-        columns = np.append(columns, predict_1_index)
-    rows = np.where(labels)[0]
-    preds = torch.sparse.FloatTensor(torch.LongTensor([rows, columns]), torch.FloatTensor([1] * cnt), torch.Size(labels.size())).to_dense()
+        preds[idx][predict_1_index] = 1
+    preds = torch.FloatTensor(preds)
     if is_cuda:
         preds = preds.cuda()
     correct = preds.type_as(labels).mul(labels).sum()
