@@ -15,7 +15,6 @@ from torch.autograd import Variable
 
 from utils import load_data, accuracy, multi_labels_nll_loss
 from models import GAT, GAT_rel
-
 t_total = time.time()
 # Training settings
 parser = argparse.ArgumentParser()
@@ -71,6 +70,9 @@ if args.cuda:
 features, adj, labels = Variable(features), Variable(adj), Variable(labels)
 if args.rel:
     rel = Variable(rel)
+import sys
+print("Total time elapsed: {:.4f}s".format(time.time() - t_total))
+sys.exit(0)
 
 def train(epoch):
     t = time.time()
@@ -124,14 +126,11 @@ files = glob.glob('./{}/*.pkl'.format(args.experiment))
 for file in files:
     os.remove(file)
 
+t_total = time.time()
 loss_values = []
 bad_counter = 0
 best = args.epochs + 1
 best_epoch = 0
-print("{} processing cost {} seconds.".format(args.experiment, time.time() - t_total))
-import sys
-sys.exit(0)
-
 if not os.path.exists(args.experiment):
     os.mkdir('{}'.format(args.experiment))
 
