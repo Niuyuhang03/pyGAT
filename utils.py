@@ -32,11 +32,11 @@ def load_data(path, dataset, process_rel):
     edges = np.array(list(map(idx_map.get, edges_unordered[:, :2].flatten())), dtype=np.int32).reshape(edges_unordered[:, :2].shape)
     # 构建图的邻接矩阵，用坐标形式的稀疏矩阵表示，非对称邻接矩阵
     adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])), shape=(labels.shape[0], labels.shape[0]), dtype=np.float32)
-    print("adj: {}".format(adj.to_dense()))
+    print("adj: {}".format(adj.todense()))
 
     # build symmetric adjacency matrix, 将非对称邻接矩阵转变为对称邻接矩阵
     adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
-    print("adj: {}".format(adj.to_dense()))
+    print("adj: {}".format(adj.todense()))
 
     features = normalize_features(features)
     # Implementation from paper
