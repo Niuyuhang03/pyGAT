@@ -32,11 +32,11 @@ def load_data(path, dataset, process_rel):
     edges = np.array(list(map(idx_map.get, edges_unordered[:, :2].flatten())), dtype=np.int32).reshape(edges_unordered[:, :2].shape)
     # 构建图的邻接矩阵，用坐标形式的稀疏矩阵表示，非对称邻接矩阵
     adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])), shape=(labels.shape[0], labels.shape[0]), dtype=np.float32)
-    print("adj: {}".format(adj))
+    print("adj: {}".format(np.array(adj)))
 
     # build symmetric adjacency matrix, 将非对称邻接矩阵转变为对称邻接矩阵
     adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
-    print("adj: {}".format(adj))
+    print("adj: {}".format(np.array(adj)))
 
     features = normalize_features(features)
     # Implementation from paper
@@ -45,7 +45,6 @@ def load_data(path, dataset, process_rel):
 
     # Tricky implementation of official GAT
     adj = (adj + sp.eye(adj.shape[0])).todense()
-    print("adj: {}".format(adj))
     for x in range(0, adj.shape[0]):
         for y in range(0, adj.shape[1]):
             if adj[x,y] == 0:
@@ -54,7 +53,6 @@ def load_data(path, dataset, process_rel):
                 adj[x,y] = 0
             else:
                 print(adj[x,y], 'error')
-    print("adj: {}".format(adj))
     adj = torch.FloatTensor(np.array(adj))
 
     # 生成relation embeddings的结果rel和entities之间rel的对应字典rel_dict
@@ -80,7 +78,6 @@ def load_data(path, dataset, process_rel):
         idx_train = range(len(idx_map) // 10 * 6)
         idx_val = range(len(idx_map) // 10 * 6, len(idx_map) // 10 * 8)
         idx_test = range(len(idx_map) // 10 * 8, len(idx_map))
-    print("idx_train: {} idx_val: {} idx_test: {}".format(idx_train, idx_val, idx_test))
 
     features = torch.FloatTensor(np.array(features.todense()))
     labels = torch.LongTensor(labels)
