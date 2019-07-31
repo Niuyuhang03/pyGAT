@@ -71,7 +71,7 @@ def load_data(path, dataset, process_rel):
     else:
         rel = torch.FloatTensor()
 
-    if dataset is 'cora':
+    if dataset == 'cora':
         idx_train = range(140)
         idx_val = range(200, 500)
         idx_test = range(500, 1500)
