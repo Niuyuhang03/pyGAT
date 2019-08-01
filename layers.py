@@ -90,7 +90,7 @@ class GraphAttentionLayer_rel(nn.Module):
         logits = torch.zeros_like(adj).float()
         for e1, e2r in rel_dict.items():
             for e2, r in e2r.items():
-                max_value = seq_fts_rel[0, 0, r].max()
+                max_value = float(seq_fts_rel[0, 0, r].max())
                 logits[int(e1)][int(e2)] = max_value
         coefs = F.softmax(self.ReLU(logits) + adj, dim=1)
         coefs = F.dropout(coefs, self.dropout, training=self.training)  # fb中coefs.shape = [14435, 14435]
