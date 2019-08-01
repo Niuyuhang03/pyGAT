@@ -86,6 +86,7 @@ class GraphAttentionLayer_rel(nn.Module):
         seq_rel = torch.transpose(rel, 0, 1).unsqueeze(0)  # fb中seq_rel.shape = [1, 100, 237]
         seq_fts_rel = self.seq_transformation_rel(seq_rel)  # fb中seq_fts_rel.shape = [1, 1, 237]
 
+        # 根据rel构造权重coefs
         logits = torch.zeros_like(adj).float()
         for e1, e2r in rel_dict.items():
             for e2, r in e2r.items():
@@ -97,10 +98,8 @@ class GraphAttentionLayer_rel(nn.Module):
         ret = torch.mm(coefs, input) + self.bias  # fb中ret.shape = [14435, 100]
 
         if self.concat:
-            print("F.elu(ret)")
             return F.elu(ret)  # fb中F.elu(ret).shape = [14435, 100]
         else:
-            print("ret")
             return ret
 
     def __repr__(self):
