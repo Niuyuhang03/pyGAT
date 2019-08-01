@@ -45,14 +45,8 @@ def load_data(path, dataset, process_rel):
 
     # Tricky implementation of official GAT
     adj = (adj + sp.eye(adj.shape[0])).todense()
-    for x in range(0, adj.shape[0]):
-        for y in range(0, adj.shape[1]):
-            if adj[x, y] == 0:
-                adj[x, y] = -9e15
-            elif adj[x, y] >= 1:
-                adj[x, y] = 0
-            else:
-                print(adj[x, y], 'error')
+    adj[adj==0] = -9e15
+    adj[adj>=1] = 0
     adj = torch.FloatTensor(np.array(adj))
 
     # 生成relation embeddings的结果rel和entities之间rel的对应字典rel_dict
