@@ -35,7 +35,7 @@ def load_data(path, dataset, process_rel):
     adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])), shape=(labels.shape[0], labels.shape[0]), dtype=np.float32)
 
     # build symmetric adjacency matrix
-    # 将非对称邻接矩阵转变为对称邻接矩阵
+    # 将非对称邻接矩阵转变为对称邻接矩阵，有向图变为无向图
     adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
 
     features = normalize_features(features)

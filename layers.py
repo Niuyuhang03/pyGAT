@@ -31,21 +31,20 @@ class GraphAttentionLayer(nn.Module):
         self.leakyrelu = nn.LeakyReLU(self.alpha)
 
     def forward(self, input, adj):
-        # Too harsh to use the same dropout. TODO add another dropout
-        # input = F.dropout(input, self.dropout, training=self.training)
+        # fb中input.shape = [14435, 100], adj.shape = [14435, 14435]
 
-        seq = torch.transpose(input, 0, 1).unsqueeze(0)
-        seq_fts = self.seq_transformation(seq)  # Wh
+        seq = torch.transpose(input, 0, 1).unsqueeze(0)  # fb中seq.shape = [1, 100, 14435]
+        seq_fts = self.seq_transformation(seq)  # Wh, fb中seq_fts.shape = [1, 10, 14435]
 
-        f_1 = self.f_1(seq_fts)  # a1Wh1
-        f_2 = self.f_2(seq_fts)  # a2Wh2
-        logits = (torch.transpose(f_1, 2, 1) + f_2).squeeze(0)  # a(Wh1||Wh2)
-        coefs = F.softmax(self.leakyrelu(logits) + adj, dim=1)  # softmax(leakyrelu(a(Wh1||Wh2)))
+        f_1 = self.f_1(seq_fts)  # a1Wh1, fb中f_1.shape = [1, 1, 14435]
+        f_2 = self.f_2(seq_fts)  # a2Wh2, fb中f_2.shape = [1, 1, 14435]
+        logits = (torch.transpose(f_1, 2, 1) + f_2).squeeze(0)  # a(Wh1||Wh2), fb中logits.shape = [14435, 14435]
+        coefs = F.softmax(self.leakyrelu(logits) + adj, dim=1)  # softmax(leakyrelu(a(Wh1||Wh2))), fb中coefs.shape = [14435, 14435]
 
-        seq_fts = F.dropout(torch.transpose(seq_fts.squeeze(0), 0, 1), self.dropout, training=self.training)
-        coefs = F.dropout(coefs, self.dropout, training=self.training)
+        seq_fts = F.dropout(torch.transpose(seq_fts.squeeze(0), 0, 1), self.dropout, training=self.training)  # fb中seq_fts.shape = [14435, 10]
+        coefs = F.dropout(coefs, self.dropout, training=self.training)  # fb中coefs.shape = [14435, 14435]
 
-        ret = torch.mm(coefs, seq_fts) + self.bias # alphaWh
+        ret = torch.mm(coefs, seq_fts) + self.bias # alphaWh, fb中ret.shape = [14435, 10]
 
         if self.residual:
             if seq.size()[-1] != ret.size()[-1]:
@@ -54,7 +53,7 @@ class GraphAttentionLayer(nn.Module):
                 ret += input
 
         if self.concat:
-            return F.elu(ret)
+            return F.elu(ret)  # fb中F.elu(ret).shape = [14435, 10]
         else:
             return ret
 
@@ -93,13 +92,13 @@ class GraphAttentionLayer_rel(nn.Module):
                 mean_value = seq_fts_rel[0, 0, r].max()
                 logits[int(e1)][int(e2)] = mean_value
         coefs = F.softmax(self.ReLU(logits) + adj, dim=1)
-        coefs = F.dropout(coefs, self.dropout, training=self.training)  # 在fb中coefs.shape = [14435, 14435]
+        coefs = F.dropout(coefs, self.dropout, training=self.training)  # fb中coefs.shape = [14435, 14435]
 
-        ret = torch.mm(coefs, input) + self.bias  # 在fb中ret.shape = [14435, 100]
+        ret = torch.mm(coefs, input) + self.bias  # fb中ret.shape = [14435, 100]
 
         if self.concat:
             print("F.elu(ret)")
-            return F.elu(ret)
+            return F.elu(ret)  # fb中F.elu(ret).shape = [14435, 100]
         else:
             print("ret")
             return ret
