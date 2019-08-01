@@ -84,24 +84,61 @@ class GraphAttentionLayer_rel(nn.Module):
     def forward(self, input, rel, rel_dict, adj):
         # Too harsh to use the same dropout. TODO add another dropout
         # input = F.dropout(input, self.dropout, training=self.training)
-
+        print("input")
+        print(input)
+        print("input.shape")
+        print(input.shape)
+        print("rel")
+        print(rel)
+        print("rel.shape")
+        print(rel.shape)
+        print("rel_dict")
+        print(rel_dict)
+        print("adj")
+        print(adj)
+        print("adj.shape")
+        print(adj.shape)
         seq_rel = torch.transpose(rel, 0, 1).unsqueeze(0)
+        print("seq_rel")
+        print(seq_rel)
+        print("seq_rel.shape")
+        print(seq_rel.shape)
         seq_fts_rel = self.seq_transformation_rel(seq_rel)  # rel m*1
-
+        print("seq_fts_rel")
+        print(seq_fts_rel)
+        print("seq_fts_rel.shape")
+        print(seq_fts_rel.shape)
         logits = torch.zeros_like(adj).float()
         for e1, e2r in rel_dict.items():
             for e2, r in e2r.items():
                 mean_value = seq_fts_rel[0, 0, r].max()
                 logits[int(e1)][int(e2)] = mean_value
+        print("logits")
+        print(logits)
         coefs = F.softmax(self.ReLU(logits) + adj, dim=1)
-
+        print("coefs")
+        print(coefs)
+        print("coefs.shape")
+        print(coefs.shape)
         coefs = F.dropout(coefs, self.dropout, training=self.training)
-
+        print("coefs")
+        print(coefs)
+        print("coefs.shape")
+        print(coefs.shape)
         ret = torch.mm(coefs, input) + self.bias
-
+        print("ret")
+        print(ret)
+        print("ret.shape")
+        print(ret.shape)
         if self.concat:
+            print("F.elu(ret)")
+            print(F.elu(ret))
+            print("F.elu(ret).shape")
+            print((F.elu(ret).shape))
             return F.elu(ret)
         else:
+            print("ret")
+            print(ret)
             return ret
 
     def __repr__(self):
