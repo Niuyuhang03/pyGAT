@@ -87,11 +87,11 @@ class GraphAttentionLayer_rel(nn.Module):
         seq_fts_rel = self.seq_transformation_rel(seq_rel)  # fb中seq_fts_rel.shape = [1, 1, 237]
 
         # 根据rel构造权重coefs
-        logits = torch.zeros_like(adj).float()
+        logits = np.zeros_like(adj)
         for e1, e2r in rel_dict.items():
             for e2, r in e2r.items():
-                max_value = float(seq_fts_rel[0, 0, r].max())
-                logits[int(e1)][int(e2)] = max_value
+                logits[e1][e2] = float(seq_fts_rel[0, 0, r].max())
+        logits = torch.FloatTensor(logits)
         coefs = F.softmax(self.ReLU(logits) + adj, dim=1)
         coefs = F.dropout(coefs, self.dropout, training=self.training)  # fb中coefs.shape = [14435, 14435]
 
