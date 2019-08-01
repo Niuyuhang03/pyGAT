@@ -83,61 +83,25 @@ class GraphAttentionLayer_rel(nn.Module):
 
     def forward(self, input, rel, rel_dict, adj):
         # fb中input.shape = [14435, 100], rel.shape = [237, 100], adj.shape = [14435, 14435]
-        print("input")
-        print(input)
-        print("input.shape")
-        print(input.shape)
-        print("rel")
-        print(rel)
-        print("rel.shape")
-        print(rel.shape)
-        print("rel_dict")
-        print(rel_dict)
-        print("adj")
-        print(adj)
-        print("adj.shape")
-        print(adj.shape)
+
         seq_rel = torch.transpose(rel, 0, 1).unsqueeze(0)  # fb中seq_rel.shape = [1, 100, 237]
-        print("seq_rel")
-        print(seq_rel)
-        print("seq_rel.shape")
-        print(seq_rel.shape)
         seq_fts_rel = self.seq_transformation_rel(seq_rel)  # fb中seq_fts_rel.shape = [1, 1, 237]
-        print("seq_fts_rel")
-        print(seq_fts_rel)
-        print("seq_fts_rel.shape")
-        print(seq_fts_rel.shape)
+
         logits = torch.zeros_like(adj).float()
         for e1, e2r in rel_dict.items():
             for e2, r in e2r.items():
                 mean_value = seq_fts_rel[0, 0, r].max()
                 logits[int(e1)][int(e2)] = mean_value
-        print("logits")
-        print(logits)
         coefs = F.softmax(self.ReLU(logits) + adj, dim=1)
-        print("coefs")
-        print(coefs)
-        print("coefs.shape")
-        print(coefs.shape)
         coefs = F.dropout(coefs, self.dropout, training=self.training)  # 在fb中coefs.shape = [14435, 14435]
-        print("coefs")
-        print(coefs)
-        print("coefs.shape")
-        print(coefs.shape)
+
         ret = torch.mm(coefs, input) + self.bias  # 在fb中ret.shape = [14435, 100]
-        print("ret")
-        print(ret)
-        print("ret.shape")
-        print(ret.shape)
+
         if self.concat:
             print("F.elu(ret)")
-            print(F.elu(ret))
-            print("F.elu(ret).shape")
-            print((F.elu(ret).shape))
             return F.elu(ret)
         else:
             print("ret")
-            print(ret)
             return ret
 
     def __repr__(self):
