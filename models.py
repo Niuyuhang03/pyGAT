@@ -41,7 +41,7 @@ class GAT_rel(nn.Module):
         self.linear_att = nn.Linear(nhid * nheads, nclass)
 
     def forward(self, x, rel, rel_dict, adj):
-        # 学习K个不同的attention，对应参数aij^k，W^k，然后在生成节点i的新特征时拼接起来：
+        # 学习K个不同的attention，对应参数aij^k，W^k，然后在生成节点i的新特征时拼接起来
         x = torch.cat([att(x, rel, rel_dict, adj) for att in self.attentions], dim=1)
 
         # 在整个图神经网络的最后一层，使用平均替代拼接，得到节点最终的embedding
