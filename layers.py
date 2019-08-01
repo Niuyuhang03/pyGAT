@@ -82,8 +82,7 @@ class GraphAttentionLayer_rel(nn.Module):
         self.ReLU = nn.ReLU()
 
     def forward(self, input, rel, rel_dict, adj):
-        # Too harsh to use the same dropout. TODO add another dropout
-        # input = F.dropout(input, self.dropout, training=self.training)
+        # fb中input.shape = [14435, 100], rel.shape = [237, 100], adj.shape = [14435, 14435]
         print("input")
         print(input)
         print("input.shape")
@@ -98,12 +97,12 @@ class GraphAttentionLayer_rel(nn.Module):
         print(adj)
         print("adj.shape")
         print(adj.shape)
-        seq_rel = torch.transpose(rel, 0, 1).unsqueeze(0)
+        seq_rel = torch.transpose(rel, 0, 1).unsqueeze(0)  # fb中seq_rel.shape = [1, 100, 237]
         print("seq_rel")
         print(seq_rel)
         print("seq_rel.shape")
         print(seq_rel.shape)
-        seq_fts_rel = self.seq_transformation_rel(seq_rel)  # rel m*1
+        seq_fts_rel = self.seq_transformation_rel(seq_rel)  # fb中seq_fts_rel.shape = [1, 1, 237]
         print("seq_fts_rel")
         print(seq_fts_rel)
         print("seq_fts_rel.shape")
@@ -120,12 +119,12 @@ class GraphAttentionLayer_rel(nn.Module):
         print(coefs)
         print("coefs.shape")
         print(coefs.shape)
-        coefs = F.dropout(coefs, self.dropout, training=self.training)
+        coefs = F.dropout(coefs, self.dropout, training=self.training)  # 在fb中coefs.shape = [14435, 14435]
         print("coefs")
         print(coefs)
         print("coefs.shape")
         print(coefs.shape)
-        ret = torch.mm(coefs, input) + self.bias
+        ret = torch.mm(coefs, input) + self.bias  # 在fb中ret.shape = [14435, 100]
         print("ret")
         print(ret)
         print("ret.shape")
