@@ -13,7 +13,7 @@
 ### GAT
 
 + rel：是否使用关系。
-+ epochs：all：运行至收敛。2、100：提前结束。
++ epochs：all：运行至收敛。100：运行100个epochs后提前结束。
 
 |   job   |  数据集   |  rel  |  nhid | nheads |  epochs  | 运行时间  |  acc   |
 | :-----: | :-------: | :---: | :---: | :----: | :------: | :------: | :----: |
@@ -22,10 +22,10 @@
 |   FB    | FB15K-237 | False |   10  |   10   | all(245) | 10h30min | 0.3455 |
 | FB_r100 | FB15K-237 | True  |  100  |   10   |   100    | 5h20min  | 0.4538 |
 |  FB_r   | FB15K-237 | True  |  100  |   10   | all(239) |   13h    | 0.4920 |
-| WN_100  |  WN18RR   | False |   10  |   10   |   100    |          |        |
-|   WN    |  WN18RR   | False |   10  |   10   |   all    |          |        |
-| WN_r100 |  WN18RR   | True  |  100  |   10   |   100    |          |        |
-|  WN_r   |  WN18RR   | True  |  100  |   10   |   all    |          |        |
+| WN_100  |  WN18RR   | False |   10  |   10   |   100    | out of memory |        |
+|   WN    |  WN18RR   | False |   10  |   10   |   all    | out of memory |        |
+| WN_r100 |  WN18RR   | True  |  100  |   10   |   100    | 正在运行 |        |
+|  WN_r   |  WN18RR   | True  |  100  |   10   |   all    | 正在运行 |        |
 
 ### baseline
 
