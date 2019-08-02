@@ -51,7 +51,7 @@ adj, features, rel, rel_dict, labels, idx_train, idx_val, idx_test, nclass = loa
 
 # Model and optimizer
 if args.rel:
-    model = GAT_rel(nhid=args.hidden, nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha)
+    model = GAT_rel(nrel=rel.shape[1], nhid=args.hidden, nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha)
 else:
     model = GAT(nfeat=features.shape[1], nhid=args.hidden, nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha)
 optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
@@ -115,7 +115,6 @@ def compute_test():
     acc_test, preds = accuracy(output[idx_test], labels[idx_test], args.cuda)
     print("pres:", preds)
     print("Test set results:",
-          "pres= {}".format(preds),
           "loss= {:.4f}".format(loss_test.data[0]),
           "accuracy= {:.4f}".format(acc_test))
 
