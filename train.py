@@ -115,7 +115,6 @@ def compute_test():
     acc_test, preds = accuracy(output[idx_test], labels[idx_test], args.cuda)
     print("pres:", preds)
     print("Test set results:",
-          "pres= {}".format(preds),
           "loss= {:.4f}".format(loss_test.data[0]),
           "accuracy= {:.4f}".format(acc_test))
 
