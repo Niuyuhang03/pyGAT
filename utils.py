@@ -69,9 +69,9 @@ def load_data(path, dataset, process_rel):
         idx_val = range(200, 500)
         idx_test = range(500, 1500)
     else:  # 其他数据集采用train:val:test = 6:2:2划分
-        idx_train = range(len(idx_map) // 10 * 6)
-        idx_val = range(len(idx_map) // 10 * 6, len(idx_map) // 10 * 8)
-        idx_test = range(len(idx_map) // 10 * 8, len(idx_map))
+        idx_train = range(len(idx_map) // 10 * 8)
+        idx_val = range(len(idx_map) // 10 * 8, len(idx_map) // 10 * 9)
+        idx_test = range(len(idx_map) // 10 * 9, len(idx_map))
 
     features = torch.FloatTensor(np.array(features.todense()))
     labels = torch.LongTensor(labels)
