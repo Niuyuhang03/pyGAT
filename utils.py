@@ -49,18 +49,20 @@ def load_data(path, dataset, process_rel):
     adj[adj>=1] = 0
     adj = torch.FloatTensor(np.array(adj))
 
-    # 生成relation embeddings的结果rel和entities之间rel的对应字典rel_dict
+    # 生成relation embeddings的结果rel和entities之间rel的对应字典rel_dict，该字典中ent1和ent2的所有关系都存入ent1+ent2中
     rel_dict = {}
     if process_rel:
         idx_rel = np.genfromtxt("{}{}.rel".format(path, dataset), dtype=np.dtype(str))
         rel = torch.FloatTensor(np.array(sp.csr_matrix(idx_rel[:, 1:], dtype=np.float32).todense()))
         for index in range(len(edges_unordered)):
-            e1 = edges[index][0]
-            e2 = edges[index][1]
+            e1, e2 = edges[index][:2]
             r = edges_unordered[index][2]
-            if rel_dict.get(e1, None) is None:
-                rel_dict[e1] = {}
-            rel_dict[e1][e2] = rel_dict[e1].get(e2, []) + [r]
+            if rel_dict.get(e1, None) is not None:
+                rel_dict[str(e1) + '+' + str(e2)] = rel_dict[str(e1) + '+' + str(e2)].add(r)
+            elif rel_dict.get(e2, None) is not None:
+                rel_dict[str(e2) + '+' + str(e1)] = rel_dict[str(e2) + '+' + str(e1)].add(r)
+            else:
+                rel_dict[str(e1)+'+'+str(e2)] = {r}
     else:
         rel = torch.FloatTensor()
 
