@@ -105,3 +105,4 @@ ENV/
 try.py
 GAT_data_processing.slurm
 GAT_data_processing/
+__pycache__/
