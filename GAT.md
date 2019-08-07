@@ -24,7 +24,7 @@
 | WN_100  |   WN18RR  |  实体  |   10  |   10   |   100    | out of memory |        |
 |   WN    |   WN18RR  |  实体  |   10  |   10   |   all    | out of memory |        |
 | WN_r100 |   WN18RR  |  关系  |  100  |   10   |   100    | 26h20min | 0.8597 |
-|  WN_r   |   WN18RR  |  关系  |  100  |   10   |   all    | 正在运行  |        |
+|  WN_r   |   WN18RR  |  关系  |  100  |   10   | all(168) | 43h40min | 0.8592 |
 
 ### baseline
 
