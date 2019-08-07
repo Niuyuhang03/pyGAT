@@ -55,8 +55,7 @@ def load_data(path, dataset, process_rel):
         idx_rel = np.genfromtxt("{}{}.rel".format(path, dataset), dtype=np.dtype(str))
         rel = torch.FloatTensor(np.array(sp.csr_matrix(idx_rel[:, 1:], dtype=np.float32).todense()))
         for index in range(len(edges_unordered)):
-            e1 = edges[index][0]
-            e2 = edges[index][1]
+            e1, e2 = edges[index][:2]
             r = edges_unordered[index][2]
             if rel_dict.get(e1, None) is not None:
                 rel_dict[str(e1) + '+' + str(e2)] = rel_dict[str(e1) + '+' + str(e2)].add(r)
