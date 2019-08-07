@@ -89,6 +89,7 @@ class GraphAttentionLayer_rel(nn.Module):
         logits = np.zeros_like(adj)
         for e1e2, r in rel_dict.items():
             e1, e2 = e1e2.split('+')
+            e1, e2 = int(e1), int(e2)
             logits[e2][e1] = logits[e1][e2] = float(seq_fts_rel[0, 0, list(r)].max())
         logits = torch.FloatTensor(logits)
         coefs = F.softmax(self.relu(logits) + adj, dim=1)
