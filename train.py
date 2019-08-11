@@ -120,7 +120,7 @@ def compute_test():
     with open("./{}/{}_output.txt".format(args.experiment, args.experiment),"w") as output_f:
         with open("./data/{}/{}.content".format(args.dataset, args.dataset), 'r') as input_f:
             input_content = input_f.readlines()
-            output = np.array(output)
+            output = np.array(output.detach())
             for idx in range(len(input_content)):
                 line = input_content[idx].split('\t')
                 output_f.write(str(line[0]) + '\t')
