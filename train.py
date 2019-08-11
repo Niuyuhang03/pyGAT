@@ -124,7 +124,7 @@ def compute_test():
             for idx in range(len(input_content)):
                 line = input_content[idx].split('\t')
                 output_f.write(str(line[0]) + '\t')
-                for i in range(output[idx]):
+                for i in output[idx]:
                     output_f.write(str(i) + '\t')
                 output_f.write(str(line[-1]) + '\n')
 
