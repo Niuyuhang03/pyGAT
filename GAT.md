@@ -39,15 +39,10 @@
 | RDF2VEC(multilabel-svm) | FB15K-237 | 0.1596  |
 | RDF2VEC(multilabel-svm) |  WN18RR   |  0.7817  |
 | RDF2VEC(multilabel-svm) | WN18RR_sub30000 | 0.7596 |
-|      WL      |   cora    |                      |
-|      WL      | FB15K-237 |                      |
-|      WL      |  WN18RR   |                      |
-|     FEAT     |   cora    |                      |
-|     FEAT     | FB15K-237 |                      |
-|     FEAT     |  WN18RR   |                      |
-|    R-GCN     |   cora    |                      |
-|    R-GCN     | FB15K-237 |                      |
-|    R-GCN     |  WN18RR   |                      |
+|    R-GCN     |   cora    | 0.5791 |
+|    R-GCN     | FB15K-237 |  0.5067 |
+|    R-GCN     |  WN18RR   |  0.9860  |
+|    R-GCN     |  WN18RR_sub30000   |  0.9701  |
 
 ## 任务进度(生产实习手册用)
 
