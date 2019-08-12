@@ -12,37 +12,30 @@
 
 ## 实验结果
 
-### GAT
+### GAT参数
 
 + epochs：all：运行至收敛。100：运行100个epochs后提前结束。
 
-|   job   |   数据集  |实体/关系|  nhid | nheads |  epochs  | 运行时间 |  准确率 |
-| :-----: | :-------: | :----: | :---: | :----: | :------: | :------: | :----: |
-|   co    |    cora   |  实体  |   10  |   10   | all(265) |   30s    | 0.8200 |
-|   FB    | FB15K-237 |  实体  |   10  |   10   | all(642) | 27h20min | 0.2876 |
-|  FB_r   | FB15K-237 |  关系  |  100  |   10   | all(240) | 19h30min | 0.4725 |
-| WN_100  |   WN18RR  |  实体  |   10  |   10   |   100    | 44h20min | 0.8609 |
-|   WN    |   WN18RR  |  实体  |   10  |   10   | all(out of memory)  | - | - |
-|  WN_r   |   WN18RR  |  关系  |  100  |   10   | all(168) | 43h40min | 0.8592 |
-| WNsub30 | WN18RR_sub30000 | 实体 | 10 | 10 | all |  |  |
-| WNsub30_r | WN18RR_sub30000 | 关系 | 100 | 10 | all |  |  |
+|   job   |   数据集  |实体/关系|  nhid | nheads |  epochs  | 运行时间 |
+| :-----: | :-------: | :----: | :---: | :----: | :------: | :------: |
+|   co    |    cora   |  实体  |   10  |   10   | all(265) |   30s    |
+|   FB    | FB15K-237 |  实体  |   10  |   10   | all(642) | 27h20min |
+|  FB_r   | FB15K-237 |  关系  |  100  |   10   | all(240) | 19h30min |
+| WN_100  |   WN18RR  |  实体  |   10  |   10   |   100    | 44h20min |
+|   WN    |   WN18RR  |  实体  |   10  |   10   | all(out of memory)  | - |
+|  WN_r   |   WN18RR  |  关系  |  100  |   10   | all(168) | 43h40min |
+| WNsub30 | WN18RR_sub30000 | 实体 | 10 | 10 | all | |
+| WNsub30_r | WN18RR_sub30000 | 关系 | 100 | 10 | all | |
 
-### baseline
+### GAT结果和baseline
 
-| baseline模型 |  数据集   |         acc          |
-| :----------: | :-------: | :------------------: |
-| RDF2VEC(nb)  |   cora    |  0.4877  |
-| RDF2VEC(multilabel-nb)  | FB15K-237 | 0.01607 |
-| RDF2VEC(multilabel-nb)  |  WN18RR   |  0.6919  |
-| RDF2VEC(multilabel-nb) | WN18RR_sub30000 | 0.6726 |
-| RDF2VEC(svm) |   cora    | 0.3021  |
-| RDF2VEC(multilabel-svm) | FB15K-237 | 0.1596  |
-| RDF2VEC(multilabel-svm) |  WN18RR   |  0.7817  |
-| RDF2VEC(multilabel-svm) | WN18RR_sub30000 | 0.7596 |
-|    R-GCN     |   cora    | 0.5791 |
-|    R-GCN     | FB15K-237 |  0.5067 |
-|    R-GCN     |  WN18RR   |  0.9860  |
-|    R-GCN     |  WN18RR_sub30000   |  0.9701  |
+|  |  cora   | FB15K-237 | WN18RR | WN18RR_sub30000 |
+| :----------: | :---: | :---: | :---:| :---:|
+| 实体GAT | 0.8200 | 0.2876 | 0.8609(100 epochs) |  |
+| 关系GAT | - | 0.4725 | 0.8592 |  |
+| RDF2VEC(nb)  | 0.4877 |  0.0161 | 0.6919 | 0.6726 |
+| RDF2VEC(svm) | 0.3021 | 0.1596 | 0.7817 | 0.7596 |
+|    R-GCN     | 0.5791 | 0.4879 | 0.9778 | 0.9671 |
 
 ## 任务进度(生产实习手册用)
 
