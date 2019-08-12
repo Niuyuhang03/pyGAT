@@ -6,4 +6,4 @@
 #SBATCH -p sugon             # 曙光没有时间限制
 source /home/LAB/anaconda3/etc/profile.d/conda.sh
 conda activate cuda9.1
-CUDA_VISIBLE_DEVICES=1 python train.py --dataset WN18RR_sub30000 --hidden 100 --nb_heads 10 --experiment GAT_WN18RR_sub30000
+CUDA_VISIBLE_DEVICES=1 python train.py --dataset WN18RR_sub30000 --hidden 10 --nb_heads 10 --experiment GAT_WN18RR_sub30000
