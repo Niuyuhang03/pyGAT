@@ -31,14 +31,14 @@
 
 | baseline模型 |  数据集   |         acc          |
 | :----------: | :-------: | :------------------: |
-| RDF2VEC(nb)  |   cora    |  0.4877546229932895  |
-| RDF2VEC(multilabel-nb)  | FB15K-237 | 0.016072001044300215 |
-| RDF2VEC(multilabel-nb)  |  WN18RR   |  0.6919378726901931  |
-| RDF2VEC(multilabel-nb) | WN18RR_sub30000 |  |
-| RDF2VEC(svm) |   cora    | 0.30207475441104414  |
-| RDF2VEC(multilabel-svm) | FB15K-237 | 0.15961101736725006  |
-| RDF2VEC(multilabel-svm) |  WN18RR   |  0.7817455187704332  |
-| RDF2VEC(multilabel-svm) | WN18RR_sub30000 |  |
+| RDF2VEC(nb)  |   cora    |  0.4877  |
+| RDF2VEC(multilabel-nb)  | FB15K-237 | 0.01607 |
+| RDF2VEC(multilabel-nb)  |  WN18RR   |  0.6919  |
+| RDF2VEC(multilabel-nb) | WN18RR_sub30000 | 0.6726 |
+| RDF2VEC(svm) |   cora    | 0.3021  |
+| RDF2VEC(multilabel-svm) | FB15K-237 | 0.1596  |
+| RDF2VEC(multilabel-svm) |  WN18RR   |  0.7817  |
+| RDF2VEC(multilabel-svm) | WN18RR_sub30000 | 0.7596 |
 |      WL      |   cora    |                      |
 |      WL      | FB15K-237 |                      |
 |      WL      |  WN18RR   |                      |
