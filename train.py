@@ -126,7 +126,7 @@ def compute_test():
                 output_f.write(str(line[0]) + '\t')
                 for i in output[idx]:
                     output_f.write(str(i) + '\t')
-                output_f.write(str(line[-1]) + '\n')
+                output_f.write(str(line[-1]))
 
 
 # Train model
