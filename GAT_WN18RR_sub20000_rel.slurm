@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -o ./GAT_WN18RR_sub20000_rel/GAT_WN18RR_result.log         # 输出日志，可以查看ckpt文件夹
+#SBATCH -o ./GAT_WN18RR_sub20000_rel/GAT_WN18RR_sub20000_result.log         # 输出日志，可以查看ckpt文件夹
 #SBATCH -J WNs20_r             # 任务名称
 #SBATCH --gres=gpu:V100:1               # 申请一张GPUV100
 #SBATCH -c 5                # 申请CPU核数
