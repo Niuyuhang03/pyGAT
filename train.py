@@ -51,9 +51,9 @@ adj, features, rel, rel_dict, labels, idx_train, idx_val, idx_test, nclass = loa
 
 # Model and optimizer
 if args.rel:
-    model = GAT_rel(nrel=rel.shape[1], nhid=args.hidden, nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha)
+    model = GAT_rel(nrel=rel.shape[1], nhid=args.hidden, nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha, dataset=args.dataset, experiment=args.experiment)
 else:
-    model = GAT(nfeat=features.shape[1], nhid=args.hidden, nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha)
+    model = GAT(nfeat=features.shape[1], nhid=args.hidden, nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha, dataset=args.dataset, experiment=args.experiment)
 optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
 
 if args.cuda:
@@ -108,25 +108,15 @@ def train(epoch):
 def compute_test():
     model.eval()
     if args.rel:
-        output = model(features, rel, rel_dict, adj)
+        output = model(features, rel, rel_dict, adj, True)
     else:
-        output = model(features, adj)
+        output = model(features, adj, True)
     loss_test = multi_labels_nll_loss(output[idx_test], labels[idx_test])
     acc_test, preds = accuracy(output[idx_test], labels[idx_test], args.cuda)
     print("pres:", preds)
     print("Test set results:",
           "loss= {:.4f}".format(loss_test.data[0]),
           "accuracy= {:.4f}".format(acc_test))
-    with open("./{}/{}_output.txt".format(args.experiment, args.experiment),"w") as output_f:
-        with open("./data/{}/{}.content".format(args.dataset, args.dataset), 'r') as input_f:
-            input_content = input_f.readlines()
-            output = np.array(output.detach())
-            for idx in range(len(input_content)):
-                line = input_content[idx].split('\t')
-                output_f.write(str(line[0]) + '\t')
-                for i in output[idx]:
-                    output_f.write(str(i) + '\t')
-                output_f.write(str(line[-1]))
 
 
 # Train model
