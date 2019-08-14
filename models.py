@@ -25,7 +25,7 @@ class GAT(nn.Module):
         # 在整个图神经网络的最后一层，使用平均替代拼接，得到节点最终的embedding
         x = self.out_att(x, adj)
         if print_flag:
-            with open("./{}/{}_output.txt".format(self.experiment, self.dataset), "w") as output_f:
+            with open("./{}/GAT_{}_output.txt".format(self.experiment, self.dataset), "w") as output_f:
                 with open("./data/{}/{}.content".format(self.dataset, self.dataset), "r") as input_f:
                     input_content = input_f.readlines()
                     x_array = np.array(x.detach())
