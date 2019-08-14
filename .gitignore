@@ -4,3 +4,4 @@ __pycache__/
 .idea
 *.pkl
 try.py
+*output.txt
