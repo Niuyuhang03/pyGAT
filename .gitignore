@@ -5,8 +5,9 @@ __pycache__/
 *.pkl
 try.py
 *output.txt
+GAT_result/
 GAT_cora/
 GAT_FB15K237/
 GAT_FB15K237_rel/
-GAT_WN118RR/
-GAT_WN18RR_rel/
+GAT_WN18RR_sub30000/
+GAT_WN18RR_sub30000_rel/
