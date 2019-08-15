@@ -47,7 +47,7 @@ if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
 # Load data
-adj, features, rel, rel_dict, labels, idx_train, idx_val, idx_test, nclass = load_data(path='./data/'+ args.dataset + '/', dataset=args.dataset, process_rel=args.rel)
+adj, features, rel, rel_dict, labels, idx_train, idx_val, idx_test, nclass, names = load_data(path='./data/'+ args.dataset + '/', dataset=args.dataset, process_rel=args.rel)
 
 # Model and optimizer
 if args.rel:
@@ -108,9 +108,9 @@ def train(epoch):
 def compute_test():
     model.eval()
     if args.rel:
-        output = model(features, rel, rel_dict, adj, True)
+        output = model(features, rel, rel_dict, adj, names, True)
     else:
-        output = model(features, adj, True)
+        output = model(features, adj, names, True)
     loss_test = multi_labels_nll_loss(output[idx_test], labels[idx_test])
     acc_test, preds = accuracy(output[idx_test], labels[idx_test], args.cuda)
     print("pres:", preds)
