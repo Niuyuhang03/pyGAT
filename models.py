@@ -31,10 +31,10 @@ class GAT(nn.Module):
                     x_array = np.array(x.detach())
                     for idx in range(len(input_content)):
                         line = input_content[idx].split('\t')
-                        output_f.write(str(line[0]) + '\t')
+                        output_f.write(str(line[0]))
                         for i in x_array[idx]:
-                            output_f.write(str(i) + '\t')
-                        output_f.write(str(line[-1]))
+                            output_f.write('\t' + str(i))
+                        output_f.write('\n')
         # 增加一个全连接层
         x = self.linear_att(x)
         return F.log_softmax(x, dim=1)
