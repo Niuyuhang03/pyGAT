@@ -33,7 +33,7 @@ def load_data(path, dataset, process_rel):
         names = np.array([])
         idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
     else:
-        names = np.array(idx_features_labels[:, 0], dtype=np.int32)
+        names = np.array(idx_features_labels[:, 0])
         idx = np.array(idx_features_labels[:, 1], dtype=np.int32)
     idx_map = {j: i for i, j in enumerate(idx)}
     edges_unordered = np.genfromtxt("{}{}.cites".format(path, dataset), dtype=np.int32)
