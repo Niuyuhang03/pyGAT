@@ -30,7 +30,7 @@ def load_data(path, dataset, process_rel):
 
     # build graph
     if dataset == 'cora':
-        names = np.array([])
+        names = np.array(idx_features_labels[:, 0])
         idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
     else:
         names = np.array(idx_features_labels[:, 0])
