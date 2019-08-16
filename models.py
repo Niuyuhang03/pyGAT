@@ -18,7 +18,7 @@ class GAT(nn.Module):
         self.out_att = GraphAttentionLayer(nhid * nheads, nhid * nheads, dropout=dropout, alpha=alpha, concat=False)
         self.linear_att = nn.Linear(nhid * nheads, nclass)
 
-    def forward(self, x, adj, print_flag=False):
+    def forward(self, x, adj, names = None, print_flag=False):
         # 学习K个不同的attention，对应参数aij^k，W^k，然后在生成节点i的新特征时拼接起来：
         x = torch.cat([att(x, adj) for att in self.attentions], dim=1)
 
@@ -26,15 +26,13 @@ class GAT(nn.Module):
         x = self.out_att(x, adj)
         if print_flag:
             with open("./{}/GAT_{}_output.txt".format(self.experiment, self.dataset), "w") as output_f:
-                with open("./data/{}/{}.content".format(self.dataset, self.dataset), "r") as input_f:
-                    input_content = input_f.readlines()
-                    x_array = np.array(x.detach())
-                    for idx in range(len(input_content)):
-                        line = input_content[idx].split('\t')
-                        output_f.write(str(line[0]))
-                        for i in x_array[idx]:
-                            output_f.write('\t' + str(i))
-                        output_f.write('\n')
+                x_array = np.array(x.detach())
+                for idx in range(len(x_array)):
+                    line = names[idx].split('\t')
+                    output_f.write(str(line[0]))
+                    for i in x_array[idx]:
+                        output_f.write('\t' + str(i))
+                    output_f.write('\n')
         # 增加一个全连接层
         x = self.linear_att(x)
         return F.log_softmax(x, dim=1)
@@ -53,7 +51,7 @@ class GAT_rel(nn.Module):
         self.out_att = GraphAttentionLayer_rel(nrel, nhid * nheads, dropout=dropout, alpha=alpha, concat=False)
         self.linear_att = nn.Linear(nhid * nheads, nclass)
 
-    def forward(self, x, rel, rel_dict, adj, print_flag=False):
+    def forward(self, x, rel, rel_dict, adj, names = None, print_flag=False):
         # 学习K个不同的attention，对应参数aij^k，W^k，然后在生成节点i的新特征时拼接起来
         x = torch.cat([att(x, rel, rel_dict, adj) for att in self.attentions], dim=1)
 
@@ -61,15 +59,13 @@ class GAT_rel(nn.Module):
         x = self.out_att(x, rel, rel_dict, adj)
         if print_flag:
             with open("./{}/GAT_{}_output.txt".format(self.experiment, self.dataset), "w") as output_f:
-                with open("./data/{}/{}.content".format(self.dataset, self.dataset), "r") as input_f:
-                    input_content = input_f.readlines()
-                    x_array = np.array(x.detach())
-                    for idx in range(len(input_content)):
-                        line = input_content[idx].split('\t')
-                        output_f.write(str(line[0]) + '\t')
-                        for i in x_array[idx]:
-                            output_f.write(str(i) + '\t')
-                        output_f.write(str(line[-1]))
+                x_array = np.array(x.detach())
+                for idx in range(len(x_array)):
+                    line = names[idx].split('\t')
+                    output_f.write(str(line[0]))
+                    for i in x_array[idx]:
+                        output_f.write('\t' + str(i))
+                    output_f.write('\n')
         # 增加一个全连接层
         x = self.linear_att(x)
         return F.log_softmax(x, dim=1)

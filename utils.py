@@ -21,12 +21,20 @@ def load_data(path, dataset, process_rel):
     print('Loading {} dataset...'.format(dataset))
 
     idx_features_labels = np.genfromtxt("{}{}.content".format(path, dataset), dtype=np.dtype(str))
-    features = sp.csr_matrix(idx_features_labels[:, 1:-1], dtype=np.float32)
+    if dataset == 'cora':
+        features = sp.csr_matrix(idx_features_labels[:, 1:-1], dtype=np.float32)
+    else:
+        features = np.array(idx_features_labels[:, 2:-1], dtype=np.float32)
     labels = list(map(lambda x: x.split(','), idx_features_labels[:, -1]))
     labels, nclass = encode_onehot(labels)
 
     # build graph
-    idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
+    if dataset == 'cora':
+        names = np.array([])
+        idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
+    else:
+        names = np.array(idx_features_labels[:, 0])
+        idx = np.array(idx_features_labels[:, 1], dtype=np.int32)
     idx_map = {j: i for i, j in enumerate(idx)}
     edges_unordered = np.genfromtxt("{}{}.cites".format(path, dataset), dtype=np.int32)
     # 将每组关系中的entity用索引表示
@@ -53,7 +61,7 @@ def load_data(path, dataset, process_rel):
     rel_dict = {}
     if process_rel:
         idx_rel = np.genfromtxt("{}{}.rel".format(path, dataset), dtype=np.dtype(str))
-        rel = torch.FloatTensor(np.array(sp.csr_matrix(idx_rel[:, 1:], dtype=np.float32).todense()))
+        rel = torch.FloatTensor(np.array(idx_rel[:, 2:], dtype=np.float32))
         for index in range(len(edges_unordered)):
             e1, e2 = edges[index][:2]
             r = edges_unordered[index][2]
@@ -75,7 +83,9 @@ def load_data(path, dataset, process_rel):
         idx_val = range(len(idx_map) // 10 * 8, len(idx_map) // 10 * 9)
         idx_test = range(len(idx_map) // 10 * 9, len(idx_map))
 
-    features = torch.FloatTensor(np.array(features.todense()))
+    if dataset == 'cora':
+        features = features.todense()
+    features = torch.FloatTensor(np.array(features))
     labels = torch.LongTensor(labels)
 
     idx_train = torch.LongTensor(idx_train)
@@ -83,7 +93,7 @@ def load_data(path, dataset, process_rel):
     idx_test = torch.LongTensor(idx_test)
 
     print('Loading {} dataset finishes...'.format(dataset))
-    return adj, features, rel, rel_dict, labels, idx_train, idx_val, idx_test, nclass
+    return adj, features, rel, rel_dict, labels, idx_train, idx_val, idx_test, nclass, names
 
 
 def normalize_adj(mx):
