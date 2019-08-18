@@ -43,9 +43,12 @@ args.cuda = not args.no_cuda and torch.cuda.is_available()
 random.seed(args.seed)
 np.random.seed(args.seed)
 torch.manual_seed(args.seed)
+print("use cuda: {}".format(args.cuda))
 if args.cuda:
     torch.cuda.manual_seed(args.seed)
-print("use cuda: {}".format(args.cuda))
+else:
+    import sys
+    sys.exit(0)
 
 # Load data
 adj, features, rel, rel_dict, labels, idx_train, idx_val, idx_test, nclass, names = load_data(path='./data/'+ args.dataset + '/', dataset=args.dataset, process_rel=args.rel)
