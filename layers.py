@@ -28,10 +28,10 @@ class GraphAttentionLayer(nn.Module):
         self.f_2 = nn.Conv1d(out_features, 1, kernel_size=1, stride=1)
         self.bias = nn.Parameter(torch.zeros(out_features).type(torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor), requires_grad=True)
 
-        self.seq_dropout = nn.Dropout(dropout)
-        self.coefs_dropout = nn.Dropout(dropout)
+        self.seq_dropout = nn.Dropout(dropout, inplace=True)
+        self.coefs_dropout = nn.Dropout(dropout, inplace=True)
 
-        self.leakyrelu = nn.LeakyReLU(self.alpha)
+        self.leakyrelu = nn.LeakyReLU(self.alpha, inplace=True)
 
     def forward(self, input, adj):
         # fb中input.shape = [14435, 100], adj.shape = [14435, 14435]
@@ -42,10 +42,11 @@ class GraphAttentionLayer(nn.Module):
         f_1 = self.f_1(seq_fts)  # a1Wh1, fb中f_1.shape = [1, 1, 14435]
         f_2 = self.f_2(seq_fts)  # a2Wh2, fb中f_2.shape = [1, 1, 14435]
         logits = (torch.transpose(f_1, 2, 1) + f_2).squeeze(0)  # a(Wh1||Wh2), fb中logits.shape = [14435, 14435]
-        coefs = F.softmax(self.leakyrelu(logits) + adj, dim=1)  # softmax(leakyrelu(a(Wh1||Wh2))), fb中coefs.shape = [14435, 14435]
-
-        seq_fts = self.seq_dropout(torch.transpose(seq_fts.squeeze(0), 0, 1))  # fb中seq_fts.shape = [14435, 10]
-        coefs = self.coefs_dropout(coefs)  # fb中coefs.shape = [14435, 14435]
+        self.leakyrelu(logits)
+        coefs = F.softmax(logits + adj, dim=1)  # softmax(leakyrelu(a(Wh1||Wh2))), fb中coefs.shape = [14435, 14435]
+        seq_fts = torch.transpose(seq_fts.squeeze(0), 0, 1)
+        self.seq_dropout(seq_fts)  # fb中seq_fts.shape = [14435, 10]
+        self.coefs_dropout(coefs)  # fb中coefs.shape = [14435, 14435]
 
         ret = torch.mm(coefs, seq_fts) + self.bias # alphaWh, fb中ret.shape = [14435, 10]
 
@@ -80,9 +81,9 @@ class GraphAttentionLayer_rel(nn.Module):
         self.seq_transformation_rel = nn.Conv1d(in_rels, 1, kernel_size=1, stride=1, bias=False)
         self.bias = nn.Parameter(torch.zeros(out_features).type(torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor), requires_grad=True)
 
-        self.coefs_dropout = nn.Dropout(dropout)
+        self.coefs_dropout = nn.Dropout(dropout, inplace=True)
 
-        self.relu = nn.ReLU()
+        self.relu = nn.ReLU(inplace=True)
 
     def forward(self, input, rel, rel_dict, adj):
         # fb中input.shape = [14435, 100], rel.shape = [237, 100], adj.shape = [14435, 14435]
@@ -99,8 +100,9 @@ class GraphAttentionLayer_rel(nn.Module):
         logits = torch.FloatTensor(logits)
         if self.use_cuda:
             logits = logits.cuda()
-        coefs = F.softmax(self.relu(logits) + adj, dim=1)
-        coefs = self.coefs_dropout(coefs)  # fb中coefs.shape = [14435, 14435]
+        self.relu(logits)
+        coefs = F.softmax(logits + adj, dim=1)
+        self.coefs_dropout(coefs)  # fb中coefs.shape = [14435, 14435]
 
         ret = torch.mm(coefs, input) + self.bias  # fb中ret.shape = [14435, 100]
 
