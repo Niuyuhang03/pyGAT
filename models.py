@@ -6,16 +6,17 @@ import numpy as np
 
 
 class GAT(nn.Module):
-    def __init__(self, nfeat, nhid, nclass, dropout, alpha, nheads, dataset, experiment):
+    def __init__(self, nfeat, nhid, nclass, dropout, alpha, nheads, dataset, experiment, use_cuda):
         super(GAT, self).__init__()
         self.dropout = dropout
         self.dataset = dataset
         self.experiment = experiment
-        self.attentions = [GraphAttentionLayer(nfeat, nhid, dropout=dropout, alpha=alpha, concat=True) for _ in range(nheads)]
+        self.use_cuda = use_cuda
+        self.attentions = [GraphAttentionLayer(nfeat, nhid, dropout=dropout, alpha=alpha, concat=True, use_cuda=use_cuda) for _ in range(nheads)]
         for i, attention in enumerate(self.attentions):
             self.add_module('attention_{}'.format(i), attention)
 
-        self.out_att = GraphAttentionLayer(nhid * nheads, nhid * nheads, dropout=dropout, alpha=alpha, concat=False)
+        self.out_att = GraphAttentionLayer(nhid * nheads, nhid * nheads, dropout=dropout, alpha=alpha, concat=False, use_cuda=use_cuda)
         self.linear_att = nn.Linear(nhid * nheads, nclass)
 
     def forward(self, x, adj, names = None, print_flag=False):
@@ -39,16 +40,17 @@ class GAT(nn.Module):
 
 
 class GAT_rel(nn.Module):
-    def __init__(self, nrel, nhid, nclass, dropout, alpha, nheads, dataset, experiment):
+    def __init__(self, nrel, nhid, nclass, dropout, alpha, nheads, dataset, experiment, use_cuda):
         super(GAT_rel, self).__init__()
         self.dropout = dropout
         self.dataset = dataset
         self.experiment = experiment
-        self.attentions = [GraphAttentionLayer_rel(nrel, nhid, dropout=dropout, alpha=alpha, concat=True) for _ in range(nheads)]
+        self.use_cuda = use_cuda
+        self.attentions = [GraphAttentionLayer_rel(nrel, nhid, dropout=dropout, alpha=alpha, concat=True, use_cuda=use_cuda) for _ in range(nheads)]
         for i, attention in enumerate(self.attentions):
             self.add_module('attention_{}'.format(i), attention)
 
-        self.out_att = GraphAttentionLayer_rel(nrel, nhid * nheads, dropout=dropout, alpha=alpha, concat=False)
+        self.out_att = GraphAttentionLayer_rel(nrel, nhid * nheads, dropout=dropout, alpha=alpha, concat=False, use_cuda=use_cuda)
         self.linear_att = nn.Linear(nhid * nheads, nclass)
 
     def forward(self, x, rel, rel_dict, adj, names = None, print_flag=False):

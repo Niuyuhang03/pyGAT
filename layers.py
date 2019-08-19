@@ -12,12 +12,13 @@ class GraphAttentionLayer(nn.Module):
     Simple GAT layer, similar to https://arxiv.org/abs/1710.10903
     """
 
-    def __init__(self, in_features, out_features, dropout, alpha, concat=True, residual=False):
+    def __init__(self, in_features, out_features, dropout, alpha, concat=True, use_cuda=True, residual=False):
         super(GraphAttentionLayer, self).__init__()
         self.in_features = in_features
         self.out_features = out_features
         self.alpha = alpha
         self.concat = concat
+        self.use_cuda = use_cuda
         self.residual = residual
 
         self.seq_transformation = nn.Conv1d(in_features, out_features, kernel_size=1, stride=1, bias=False)
@@ -68,12 +69,13 @@ class GraphAttentionLayer_rel(nn.Module):
     GAT with relations. out_features has to be in_features to nfeat in GAT_rel
     """
 
-    def __init__(self, in_rels, out_features, dropout, alpha, concat=True):
+    def __init__(self, in_rels, out_features, dropout, alpha, concat=True, use_cuda=True):
         super(GraphAttentionLayer_rel, self).__init__()
         self.in_rels = in_rels
         self.out_features = out_features
         self.alpha = alpha
         self.concat = concat
+        self.use_cuda = use_cuda
 
         self.seq_transformation_rel = nn.Conv1d(in_rels, 1, kernel_size=1, stride=1, bias=False)
         self.bias = nn.Parameter(torch.zeros(out_features).type(torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor), requires_grad=True)
@@ -95,6 +97,8 @@ class GraphAttentionLayer_rel(nn.Module):
             e1, e2 = int(e1), int(e2)
             logits[e2][e1] = logits[e1][e2] = float(seq_fts_rel[0, 0, list(r)].max())
         logits = torch.FloatTensor(logits)
+        if self.use_cuda:
+            logits = logits.cuda()
         coefs = F.softmax(self.relu(logits) + adj, dim=1)
         coefs = self.coefs_dropout(coefs)  # fb中coefs.shape = [14435, 14435]
 
