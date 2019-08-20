@@ -43,8 +43,9 @@ class GraphAttentionLayer(nn.Module):
         f_2 = self.f_2(seq_fts)  # a2Wh2, fb中f_2.shape = [1, 1, 14435]
         logits = (torch.transpose(f_1, 2, 1) + f_2).squeeze(0)  # a(Wh1||Wh2), fb中logits.shape = [14435, 14435]
         coefs = F.softmax(self.leakyrelu(logits) + adj, dim=1)  # softmax(leakyrelu(a(Wh1||Wh2))), fb中coefs.shape = [14435, 14435]
-
-        seq_fts = self.seq_dropout(torch.transpose(seq_fts.squeeze(0), 0, 1))  # fb中seq_fts.shape = [14435, 10]
+        seq_fts = seq_fts.squeeze(0)
+        seq_fts = torch.transpose(seq_fts, 0, 1)
+        seq_fts = self.seq_dropout(seq_fts)  # fb中seq_fts.shape = [14435, 10]
         coefs = self.coefs_dropout(coefs)  # fb中coefs.shape = [14435, 14435]
 
         ret = torch.mm(coefs, seq_fts) + self.bias # alphaWh, fb中ret.shape = [14435, 10]
