@@ -52,10 +52,10 @@ class GAT_rel(nn.Module):
             self.add_module('attention_{}'.format(i), attention)
         if not use_mean:
             self.out_att = GraphAttentionLayer_rel(nrel, nfeat * nheads, dropout=dropout, alpha=alpha, concat=False, use_cuda=use_cuda)
-            self.linear_att = nn.Linear(nhid * nheads, nclass)
+            self.linear_att = nn.Linear(nfeat * nheads, nclass)
         else:
             self.out_att = GraphAttentionLayer_rel(nrel, nfeat, dropout=dropout, alpha=alpha, concat=False, use_cuda=use_cuda)
-            self.linear_att = nn.Linear(nhid, nclass)
+            self.linear_att = nn.Linear(nfeat, nclass)
 
     def forward(self, x, rel, rel_dict, adj, names = None, print_flag=False):
         # 学习K个不同的attention，对应参数aij^k，W^k，然后在生成节点i的新特征时拼接起来
