@@ -27,6 +27,7 @@ parser.add_argument('--weight_decay', type=float, default=5e-4, help='Weight dec
 parser.add_argument('--hidden', type=int, default=8, help='Number of hidden units.')
 parser.add_argument('--nb_heads', type=int, default=8, help='Number of head attentions.')
 parser.add_argument('--dropout', type=float, default=0.6, help='Dropout rate (1 - keep probability).')
+parser.add_argument('--mean', action='store_true', default=False, help='In Rel_GAT use mean or concat')
 # LeakyReLU在x<0的斜率
 parser.add_argument('--alpha', type=float, default=0.2, help='Alpha for the leaky_relu.')
 parser.add_argument('--patience', type=int, default=100, help='Patience')
@@ -55,7 +56,7 @@ adj, features, rel, rel_dict, labels, idx_train, idx_val, idx_test, nclass, name
 
 # Model and optimizer
 if args.rel:
-    model = GAT_rel(nrel=rel.shape[1], nhid=args.hidden, nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha, dataset=args.dataset, experiment=args.experiment, use_cuda=args.cuda)
+    model = GAT_rel(nrel=rel.shape[1], nfeat=features.shape[1], nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha, dataset=args.dataset, experiment=args.experiment, use_cuda=args.cuda, use_mean=args.mean)
 else:
     model = GAT(nfeat=features.shape[1], nhid=args.hidden, nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha, dataset=args.dataset, experiment=args.experiment, use_cuda=args.cuda)
 optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
