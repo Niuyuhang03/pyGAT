@@ -62,7 +62,7 @@ class GAT_rel(nn.Module):
         if not self.use_mean:
             x = torch.cat([att(x, rel, rel_dict, adj) for att in self.attentions], dim=1)
         else:
-            x = torch.mean([att(x, rel, rel_dict, adj) for att in self.attentions], dim=1, keepdim=True)
+            x = torch.mean(torch.stack([att(x, rel, rel_dict, adj) for att in self.attentions]), 0)
 
         # 在整个图神经网络的最后一层，使用平均替代拼接，得到节点最终的embedding
         x = self.out_att(x, rel, rel_dict, adj)
