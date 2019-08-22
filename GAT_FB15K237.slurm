@@ -5,4 +5,4 @@
 #SBATCH -c 5                # 申请CPU核数
 source /home/LAB/anaconda3/etc/profile.d/conda.sh
 conda activate cuda9.1
-CUDA_VISIBLE_DEVICES=1 python train.py --dataset FB15K237 --hidden 10 --nb_heads 10 --experiment GAT_FB15K237
+CUDA_VISIBLE_DEVICES=1 python train.py --dataset FB15K237 --hidden 10 --nb_heads 50 --experiment GAT_FB15K237
