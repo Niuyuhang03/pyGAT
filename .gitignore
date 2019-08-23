@@ -4,8 +4,6 @@ __pycache__/
 .idea
 *.pkl
 try.py
-*output.txt
-GAT_result/
 GAT_cora/
 GAT_FB15K237/
 GAT_FB15K237_rel/
