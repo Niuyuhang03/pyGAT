@@ -89,7 +89,7 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 | FB15K-237 |    关系    |  14414\*100   |    297846   | 237\*100 |   25    |   11s  | 3min30s|   18h    |
 |   WN18RR  |    实体    |  40943\*100   |    93003    |    -     |    4    |   43s  |  26min |45h(100 epochs)|
 |   WN18RR  |    关系    |  40943\*100   |    93003    |  11\*100 |    4    |   43s  |17min10s|   44h    |
-| WN18RR_sub30000 | 实体 |  30943\*100   |    37219    |    -     |    4    |   25s  |  |          |
+| WN18RR_sub30000 | 实体 |  30943\*100   |    37219    |    -     |    4    |   25s  |  15min |   50h    |
 | WN18RR_sub30000 | 关系 |  30943\*100   |    37219    |  11\*100 |    4    |   26s  |10min30s|   39h    |
 
 + pyGAT的output文件将作为ConvE、DistMult、ComplEx的输入，需要手动复制进去。
@@ -117,7 +117,7 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 
 |              |     cora   |  FB15K-237 |   WN18RR   |WN18RR_sub30000|
 | :----------: | :--------: | :--------: | :---------:| :---------:|
-|    实体GAT   | **0.8200** |   0.2952   |0.8609(100 epochs)|      |
+|    实体GAT   | **0.8200** |   0.2952   |0.8609(100 epochs)|0.8683|
 |    关系GAT   |      -     |   0.4434   |   0.8592   |   0.8666   |
 | RDF2VEC(nb)  |   0.4948   |   0.0185   |   0.6919   |   0.6840   |
 | RDF2VEC(svm) |   0.3021   |   0.1604   |   0.7817   |   0.6092   |
