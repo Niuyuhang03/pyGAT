@@ -96,7 +96,7 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 
 ## 目前实验结果
 
-### 关系GAT第一层nhead对比实验
+### GAT第一层nhead对比实验
 
 | nheads|实体FB15K-237|关系FB15K-237拼接|关系FB15K-237平均|
 | :---: | :---------: | :------------: | :------------: |
@@ -108,10 +108,10 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 + FB15K-237中，nheads为50。
 + WN18RR和WN18RR_sub30000中，nheads为10。
 
-|        |FB15K-237| WN18RR |WN18RR_sub30000|
-| :----: | :-----: | :----: | :-----------: |
-|  拼接  |         |        |     0.7949    |
-|  平均  |         |        |               |
+|        |关系FB15K-237|关系WN18RR|关系WN18RR_sub30000|
+| :----: | :---------: | :------: | :--------------: |
+|  拼接  |             |          |      0.7949      |
+|  平均  |             |          |                  |
 
 ### GAT结果和baseline结果
 
