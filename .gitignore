@@ -14,4 +14,6 @@ GAT_WN18RR_rel/
 GAT_WN18RR_sub30000/
 GAT_WN18RR_sub30000_rel/
 GAT_WN18RR_sub30000_rel_mean/
+GAT_FB15K237_head30/
+GAT_FB15K237_rel_head30
 !GAT_result/*
