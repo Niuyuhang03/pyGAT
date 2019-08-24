@@ -60,9 +60,9 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 
     ![WN18RR](https://i.loli.net/2019/08/22/uTKV6FnxfwBdc2b.png)
 
-  + WN18RR_sub30000共30943个实体，11种关系，4种label，37219个三元组。实体和关系的embeddings都为100维。**相比WN18RR，删除了10000个标签为n的实体**。**实体和labels**的分布如下：
+  + WN18RR_sub30000共30943个实体，11种关系，4种label，52201个三元组。实体和关系的embeddings都为100维。**相比WN18RR，删除了10000个标签为n的实体**。**实体和labels**的分布如下：
 
-    ![WN18RR_sub30000](https://i.loli.net/2019/08/22/uaFSCfk76R8OpVB.png)
+    ![WN18RR_sub30000](https://i.loli.net/2019/08/24/VQM6JxOFrwDGIso.png)
 
 + 注意事项：
 
