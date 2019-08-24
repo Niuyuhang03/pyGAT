@@ -100,7 +100,7 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 
 | nheads|实体FB15K-237|关系FB15K-237拼接|关系FB15K-237平均|
 | :---: | :---------: | :------------: | :------------: |
-|   50  |             |                |                |
+|   50  | 0.3133 |                |                |
 |   30  |    0.3432   |                |                |
 
 ### 关系GAT第二层采用拼接/平均对比实验
