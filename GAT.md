@@ -40,15 +40,13 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
   + 申请1个gpu时，`CUDA_VISIBLE_DEVICES`应设置为0，可用于运行GAT-cora、ConvE、DistMult、ComplEx。
   + `CUDA_VISIBLE_DEVICES`若设置为1，则会使`torch.cuda.is_available()=False`，没有使用cuda。可用于运行GAT-FB15K237、GAT-WN18RR、GAT-WN18RR_sub30000。这些数据集如果使用`CUDA_VISIBLE_DEVICES=0`会出现内存不足。
 
-# 数据集处理
+# TransE
 
-## 实体和关系embeddings
++ 代码为[OpenKE](https://github.com/Niuyuhang03/OpenKE)的`GAT_data_process`分支的`TransE`模型。提交`train_FB15K237.slurm`和`train_WN18RR.slurm`运行代码 。得到的结果为实体和关系的embeddings。
 
-+ 代码为[OpenKE](https://github.com/Niuyuhang03/OpenKE)的`GAT_data_process`分支的`TransE`模型。运行方式：提交`train_FB15K237.slurm`和`train_WN18RR.slurm` 。
+# TransE->pyGAT数据处理
 
-## label标注
-
-+ label标注代码同上。其中原始数据由OpenKE和[DKRL](https://github.com/xrb92/DKRL)得到，具体数据来源见运行文件注释。直接运行`./FB15K237_result/FB15K237_process.py`、`./WN18RR/WN18RR_process.py`、`./WN18RR/WN18RR_sub30000_process.py`，会生成新数据文件`.content`、`.rel`、`.cites`，输出统计信息。
++ 对实体的label进行标注，代码同样为[OpenKE](https://github.com/Niuyuhang03/OpenKE)的`GAT_data_process`分支。其中原始数据由OpenKE和[DKRL](https://github.com/xrb92/DKRL)得到，具体数据来源见运行文件注释。直接运行`./FB15K237_result/FB15K237_process.py`、`./WN18RR/WN18RR_process.py`、`./WN18RR/WN18RR_sub30000_process.py`。得到结果为新数据文件`.content`、`.rel`、`.cites`，同时输出统计信息。**处理结果需要手动将复制到rgcn、RDF2VEC、rgcn、pyGAT项目中。**
 
 + 数据详情：
 
@@ -66,19 +64,17 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 
 + 注意事项：
 
-    + 直接重新运行代码可能会在git提示输出文件内容有修改，实际为输出内容的label顺序更换，但内容未变化。可以直接通过`git checkout filename`撤销对文件的变化。
-    + **每次更新数据集，需要手动将数据复制到rgcn、RDF2VEC、rgcn、pyGAT**项目中。
-
-## 生成ConvE、DistMult、ComplEx数据
-
-
+    + 无任何修改，直接重新运行代码时，可能会在git提示输出文件内容有修改，实际为输出内容的label顺序更换，但内容未变化。可通过git命令直接撤销对输出文件的变化。
 
 # pyGAT
 
-+ 模型代码为[pyGAT](https://github.com/Niuyuhang03/pyGAT)的`similar_impl_tensorflow_with_comment`分支。运行FB、WN时间一般在18-72小时之间。
++ 模型代码为[pyGAT](https://github.com/Niuyuhang03/pyGAT)的`similar_impl_tensorflow_with_comment`分支。运行FB、WN时间一般在18-72小时之间。提交`GAT_dataset.slurm`运行。输出文件为新的`nEntity*100`维的实体embeddings结果。
 + 注意事项：
   + 在**关系**gat中，nhidden参数无效，nhidden永远等于nfeat，除全连接层外没有修改列维度的操作。
-  + GAT的.slurm文件中，`--experiment`参数为文件夹名称，必须和输出文件的文件夹名称相同。
+  + GAT的.slurm文件中，`--experiment`参数含义为输出文件文件夹名称，必须和`#SBATCH -o`的输出文件的文件夹名称相同。
+  + cora数据集可以使用`CUDA_VISIBLE_DEVICES=0`来使用GPU运行。其他几乎所有数据集都要设置`CUDA_VISIBLE_DEVICES=1`，以保证`torch.cuda.is_available()=False`，才能不会出现out of memory。
+  + 通常会每跑完一次，手动复制`GAT_dataset_result.log`为`GAT_dataset_result_final.log`，防止下一次提交覆盖log。
+  + 通常会将跑完后可用于ConvE输入的结果`GAT_dataset_output.txt`保存到`./GAT_result/dataset/`中，以便ConvE使用。
 
 ## GAT数据集
 
@@ -89,10 +85,8 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 | FB15K-237 |    关系    |  14414\*100   |    297846   | 237\*100 |   25    |   11s  | 3min30s|   18h    |
 |   WN18RR  |    实体    |  40943\*100   |    93003    |    -     |    4    |   43s  |  26min |45h(100 epochs)|
 |   WN18RR  |    关系    |  40943\*100   |    93003    |  11\*100 |    4    |   43s  |17min10s|   44h    |
-| WN18RR_sub30000 | 实体 |  30943\*100   |    37219    |    -     |    4    |   25s  |  15min |   50h    |
-| WN18RR_sub30000 | 关系 |  30943\*100   |    37219    |  11\*100 |    4    |   26s  |  5min  |   21h    |
-
-+ pyGAT的output文件将作为ConvE、DistMult、ComplEx的输入，需要手动复制进去。
+| WN18RR_sub30000 | 实体 |  30943\*100   |    52201    |    -     |    4    |   25s  |  15min |   50h    |
+| WN18RR_sub30000 | 关系 |  30943\*100   |    52201    |  11\*100 |    4    |   26s  |  5min  |   21h    |
 
 ## 目前实验结果
 
@@ -101,7 +95,7 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 | nheads|实体FB15K-237|关系FB15K-237拼接|关系FB15K-237平均|
 | :---: | :---------: | :------------: | :------------: |
 |   50  | 0.3133 |                |                |
-|   30  |    0.3432   |                |                |
+|   30  |    0.3432   | 0.4837 |                |
 
 ### 关系GAT第二层采用拼接/平均对比实验
 
@@ -123,18 +117,29 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 | RDF2VEC(svm) |   0.3021   |   0.1604   |  0.7817  |   0.7815   |
 |     R-GCN    |   0.7374   | **0.5382** |**0.9759**| **0.9478** |
 
-# RDF2VEC
+# pyGAT->ConvE数据处理
 
-+ 代码为[RDF2VEC](https://github.com/Niuyuhang03/RDF2VEC_MultiLabel)，直接提交`RDF2Vec.slurm`运行。
++ 代码为！！！！！！！！！！的！！！！！分支。运行方式为！！！！！
++ 由于要保证ConvE等三个模型所使用的数据集中的实体和关系全部有embeddings，因此要根据pyGAT每个作业输出的`GAT_dataset_output.log`进行处理，删除掉ConvE数据中不在.rel和.content文件内的实体、关系和三元组。
+
+# ConvE
+
++ 代码为[ConvE](https://github.com/Niuyuhang03/ConvE)的`master_with_comment`分支。运行方式：
+  + 第一次运行需要执行`sh preprocess.sh`，将所有数据集的.txt文件处理为.json文件。
+  + 此后提交每个`model_dataset.slurm`文件运行。
++ 注意事项
+  + 参数`process`无效，代码中一定会执行process函数。
+  + 都可以使用`CUDA_VISIBLE_DEVICES=0`来使用GPU运行。
+
+# Baseline
+
+## RDF2VEC
+
++ 代码为[RDF2VEC](https://github.com/Niuyuhang03/RDF2VEC_MultiLabel)的`master`分支，直接提交`RDF2Vec.slurm`运行三个数据集。
 + 采用朴素贝叶斯和svm两种模型。
 
-# R-GCN
+## R-GCN
 
-# ConvE、DistMult、ComplEx
-
-+ 代码为[ConvE](https://github.com/Niuyuhang03/ConvE)的`master_with_comment`分支。
-+ 运行方式：
-  + 第一次运行需要执行`sh preprocess.sh`，处理.txt为.json。
-  + 此后为提交每个`model_dataset.slurm`文件。
++ 代码为！！！！的！！！！分支。提交`rgcn_dataset.slurm`运行代码。
 + 注意事项
-  + 参数`process`无效，代码中一定会process。
+  + FB15K237可能会出现内存爆炸，需要设置epoch最大为230。WN数据集无此情况。
