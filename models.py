@@ -12,6 +12,7 @@ class GAT(nn.Module):
         self.dataset = dataset
         self.experiment = experiment
         self.use_cuda = use_cuda
+        self.use_mean = use_mean
         self.attentions = [GraphAttentionLayer(nfeat, nhid, dropout=dropout, alpha=alpha, concat=True, use_cuda=use_cuda) for _ in range(nheads)]
         for i, attention in enumerate(self.attentions):
             self.add_module('attention_{}'.format(i), attention)
