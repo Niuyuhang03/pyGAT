@@ -130,6 +130,7 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 + 注意事项
   + 参数`process`无效，代码中一定会执行process函数。
   + 都可以使用`CUDA_VISIBLE_DEVICES=0`来使用GPU运行。
+  + 每次修改过数据，都需要执行`sh preprocess.sh`
 
 # Baseline
 
