@@ -55,7 +55,7 @@ adj, features, rel, rel_dict, labels, idx_train, idx_val, idx_test, nclass, name
 if args.rel:
     model = GAT_rel(nrel=rel.shape[1], nfeat=features.shape[1], nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha, dataset=args.dataset, experiment=args.experiment, use_cuda=args.cuda, use_mean=args.mean)
 else:
-    model = GAT(nfeat=features.shape[1], nhid=args.hidden, nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha, dataset=args.dataset, experiment=args.experiment, use_cuda=args.cuda)
+    model = GAT(nfeat=features.shape[1], nhid=args.hidden, nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha, dataset=args.dataset, experiment=args.experiment, use_cuda=args.cuda, use_mean=args.mean)
 optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
 
 if args.cuda:
