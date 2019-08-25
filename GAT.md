@@ -121,7 +121,9 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 
 # pyGAT->ConvE数据处理
 
-+ 代码为！！！！！！！！！！的！！！！！分支。运行方式为！！！！！
++ 代码为[data_processing](https://github.com/KarCute/data_processing)的`master`分支。运行方式：
+    + 直接运行`data_processingv`
+    + 参数为 `-d 原数据（对比数据）` `-f 需要削减的数据`
 + 由于要保证ConvE等三个模型所使用的数据集中的实体和关系全部有embeddings，因此要根据pyGAT每个作业输出的`GAT_dataset_output.log`进行处理，删除掉ConvE数据中不在.rel和.content文件内的实体、关系和三元组。
 
 # ConvE
@@ -143,6 +145,6 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 
 ## R-GCN
 
-+ 代码为！！！！的！！！！分支。提交`rgcn_dataset.slurm`运行代码。
++ 代码为[R-GCN](https://github.com/KarCute/rgcn_pytorch_implementation)的`master`分支。提交`rgcn_dataset.slurm`运行代码。
 + 注意事项
   + FB15K237可能会出现内存爆炸，需要设置epoch最大为230。WN数据集无此情况。
