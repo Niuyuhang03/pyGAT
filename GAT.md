@@ -121,8 +121,7 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 
 # pyGAT->ConvE数据处理
 
-+ 代码为！！！！！！！！！！的！！！！！分支。运行方式为！！！！！
-+ 由于要保证ConvE等三个模型所使用的数据集中的实体和关系全部有embeddings，因此要根据pyGAT每个作业输出的`GAT_dataset_output.log`进行处理，删除掉ConvE数据中不在.rel和.content文件内的实体、关系和三元组。
++ 代码为[ConvE](https://github.com/Niuyuhang03/ConvE)的`master_with_comment`分支。运行方式为先运行`data_processing.py`删除没有embeddings的三元组。再运行`sh preprocess.sh`将`train.txt` `valid.txt` `test.txt`变为`.json`文件。最后将pyGAT中输出的实体embeddings结果`/pyGAT/GAT_dataset/GAT_dataset_output.txt`复制到`/ConvE/data/dataset/`的`dataset.content`中。将pyGAT的关系embeddings`/pyGAT/data/dataset/GAT_dataset.rel`复制到`/ConvE/data/dataset/`的`dataset.rel`中。
 
 # ConvE
 
