@@ -125,23 +125,20 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 
 # ConvE
 
-+ 代码为[ConvE](https://github.com/Niuyuhang03/ConvE)的`master_with_comment`分支。运行方式：
-  + 第一次运行需要执行`sh preprocess.sh`，将所有数据集的.txt文件处理为.json文件。
-  + 此后提交每个`model_dataset.slurm`文件运行。
++ 代码为[ConvE](https://github.com/Niuyuhang03/ConvE)的`master_with_comment`分支。每个数据集和模型提交一个`model_dataset.slurm`文件运行。
 + 注意事项
   + 参数`process`无效，代码中一定会执行process函数。
   + 都可以使用`CUDA_VISIBLE_DEVICES=0`来使用GPU运行。
-  + 每次修改过数据，都需要执行`sh preprocess.sh`
+  + 每次修改过数据，都需要执行“pyGAT->ConvE数据处理”部分。
 
 # Baseline
 
 ## RDF2VEC
 
-+ 代码为[RDF2VEC](https://github.com/Niuyuhang03/RDF2VEC_MultiLabel)的`master`分支，直接提交`RDF2Vec.slurm`运行三个数据集。
++ 代码为[RDF2VEC](https://github.com/Niuyuhang03/RDF2VEC_MultiLabel)的`master`分支，直接提交`RDF2Vec.slurm`运行全部三个数据集。
 + 采用朴素贝叶斯和svm两种模型。
 
 ## R-GCN
 
-+ 代码为[R-GCN](https://github.com/KarCute/rgcn_pytorch_implementation)的`master`分支。提交`rgcn_dataset.slurm`运行代码。
-+ 注意事项
-  + FB15K237可能会出现内存爆炸，需要设置epoch最大为230。WN数据集无此情况。
++ 代码为[R-GCN](https://github.com/KarCute/rgcn_pytorch_implementation)的`master`分支。对每个数据集提交一个`rgcn_dataset.slurm`运行代码。
++ FB15K237可能会出现内存爆炸，需要设置epoch最大为230。WN数据集无此情况。
