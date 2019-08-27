@@ -144,6 +144,7 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
   + 参数`process`无效，代码中一定会执行process函数。
   + 都可以使用`CUDA_VISIBLE_DEVICES=0`来使用GPU运行。
   + 每次修改过数据，都需要执行“pyGAT->ConvE数据处理”部分。
+  + 不能同时运行一个数据集的多个实验（process函数会将json转换为存在硬盘中的结果，运行多个时会删除其他作业的数据）
 
 # Baseline
 
