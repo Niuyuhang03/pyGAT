@@ -17,9 +17,6 @@ class GAT(nn.Module):
         for i, attention in enumerate(self.attentions):
             self.add_module('attention_{}'.format(i), attention)
 
-        self.out_att = GraphAttentionLayer(nhid * nheads, nhid * nheads, dropout=dropout, alpha=alpha, concat=False, use_cuda=use_cuda)
-        self.linear_att = nn.Linear(nhid * nheads, nclass)
-
         if not use_mean:
             self.out_att = GraphAttentionLayer(nhid * nheads, nhid * nheads, dropout=dropout, alpha=alpha, concat=False, use_cuda=use_cuda)
             self.linear_att = nn.Linear(nhid * nheads, nclass)
@@ -59,6 +56,7 @@ class GAT_rel(nn.Module):
         self.attentions = [GraphAttentionLayer_rel(nrel, nfeat, dropout=dropout, alpha=alpha, concat=True, use_cuda=use_cuda) for _ in range(nheads)]
         for i, attention in enumerate(self.attentions):
             self.add_module('attention_{}'.format(i), attention)
+
         if not use_mean:
             self.out_att = GraphAttentionLayer_rel(nrel, nfeat * nheads, dropout=dropout, alpha=alpha, concat=False, use_cuda=use_cuda)
             self.linear_att = nn.Linear(nfeat * nheads, nclass)

@@ -88,7 +88,19 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 | WN18RR_sub30000 | 实体 |  30943\*100   |    52201    |    -     |    4    |   25s  |  15min |   50h    |
 | WN18RR_sub30000 | 关系 |  30943\*100   |    52201    |  11\*100 |    4    |   26s  |  5min  |   21h    |
 
-## 目前实验结果
+## 模型结构和目前实验结果
+
+### 模型结构
+
+输入实体n\*nfeat，输入关系n\*nrel：
+
++ 实体GAT拼接：第一层结果n\*nhid，将nhead个n\*nhid拼接为n*(nhid\*nhead)，第二层结果n\*(nhid\*nhead)，全连接层结果n\*nclass。
+
++ 实体GAT平均：第一层结果n\*nhid，将nhead个n\*nhid平均为n\*nhid，第二层结果n\*nfeat，全连接层结果n\*nclass。
+
++ 关系GAT拼接：第一层结果n\*nfeat，将nhead个n\*nfeat拼接为n*(nfeat\*nhead)，第二层结果n\*(nfeat\*nhead)，全连接层结果n\*nclass。
+
++ 关系GAT平均：第一层结果n\*nfeat，将nhead个n\*nfeat平均为n\*nfeat，第二层结果n\*nfeat，全连接层结果n\*nclass。
 
 ### FB15K237对比实验
 
@@ -96,6 +108,8 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 | :----: | :------------: | :------------: | :-------------: | :------------: |
 |nhead 50|      0.3133    |                |      0.4985     |                |
 |nhead 30|      0.3432    |                |      0.4837     |                |
+
++ nhidden实体FB15K-237为10，关系FB15K-237为100。
 
 ### WN18RR对比实验
 
