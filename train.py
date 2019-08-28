@@ -122,10 +122,6 @@ def compute_test():
 
 
 # Train model
-files = glob.glob('./{}/*.pkl'.format(args.experiment))
-for file in files:
-    os.remove(file)
-
 t_total = time.time()
 loss_values = []
 bad_counter = 0
