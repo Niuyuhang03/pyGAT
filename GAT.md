@@ -117,11 +117,15 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 | :----: | :------------: | :------------: | :-------------: | :------------: |
 |nhead 10|                |                |     0.8573      |                |
 
++ nhidden实体WN18RR为10，关系WN18RR为100。
+
 ### WN18RR_sub30000对比实验
 
 |        |实体WN18RR_sub30000拼接|实体WN18RR_sub30000平均|关系WN18RR_sub30000拼接|关系WN18RR_sub30000平均|
 | :----: | :------------: | :------------: | :-------------: | :------------: |
-|nhead 10|                |                |     0.8554      |                |
+|nhead 10|     0.8583     |     0.8554      |                |
+
++ nhidden实体WN18RR_sub30000为10，关系WN18RR_sub30000为100。
 
 ### GAT结果和baseline结果
 
