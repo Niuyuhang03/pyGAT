@@ -68,29 +68,22 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 
 # pyGAT
 
-+ 模型代码为[pyGAT](https://github.com/Niuyuhang03/pyGAT)的`similar_impl_tensorflow_with_comment`分支。运行FB、WN时间一般在18-72小时之间。提交`GAT_dataset.slurm`运行。输出文件为新的`nEntity*100`维的实体embeddings结果。
++ 模型代码为[pyGAT](https://github.com/Niuyuhang03/pyGAT)的`similar_impl_tensorflow_with_comment`分支。运行FB、WN时间一般在18-72小时之间。提交`GAT_dataset.slurm`运行。输出文件`GAT_dataset_output.txt`为新的实体embeddings结果。**需要择优将output复制到`./pyGAT/GAT_result/`对应文件夹，以便ConvE使用。**
 + 注意事项：
   + 在**关系**gat中，nhidden参数无效，nhidden永远等于nfeat，除全连接层外没有修改列维度的操作。
   + GAT的.slurm文件中，`--experiment`参数含义为输出文件文件夹名称，必须和`#SBATCH -o`的输出文件的文件夹名称相同。
   + cora数据集可以使用`CUDA_VISIBLE_DEVICES=0`来使用GPU运行。其他几乎所有数据集都要设置`CUDA_VISIBLE_DEVICES=1`，以保证`torch.cuda.is_available()=False`，才能不会出现out of memory。
-  + 通常会每跑完一次，手动复制`GAT_dataset_result.log`为`GAT_dataset_result_final.log`，防止下一次提交覆盖log。
-  + 通常会将跑完后可用于ConvE输入的结果`GAT_dataset_output.txt`保存到`./GAT_result/dataset/`中，以便ConvE使用。
 
 ## GAT数据集
 
-|  数据集   |  实体/关系  |dataset.content|dataset.cites|dataset.rel|classes|数据处理时间|运行1个epoch时间|总时间|
-| :-------: | :--------: | :-----------: | :---------: | :------: | :-----: | :----: | :----: | :------: |
-|   cora    |    实体    |  2708\*1433   |     5429    |    -     |    7    |   6s   |  0.05s |   30s    |
-| FB15K-237 |    实体    |  14414\*100   |    297846   |    -     |   25    |   11s  | 2min30s|   34h    |
-| FB15K-237 |    关系    |  14414\*100   |    297846   | 237\*100 |   25    |   11s  | 3min30s|   18h    |
-|   WN18RR  |    实体    |  40943\*100   |    93003    |    -     |    4    |   43s  |  26min |45h(100 epochs)|
-|   WN18RR  |    关系    |  40943\*100   |    93003    |  11\*100 |    4    |   43s  |17min10s|   44h    |
-| WN18RR_sub30000 | 实体 |  30943\*100   |    52201    |    -     |    4    |   25s  |  15min |   50h    |
-| WN18RR_sub30000 | 关系 |  30943\*100   |    52201    |  11\*100 |    4    |   26s  |  5min  |   21h    |
+|  数据集   |  实体/关系  |dataset.content|dataset.cites|dataset.rel|classes|
+| :-------: | :--------: | :-----------: | :---------: | :------: | :-----: |
+|   cora    |    实体    |  2708\*1433   |     5429    |    -     |    7    |
+| FB15K-237 |    关系    |  14414\*100   |    297846   | 237\*100 |   25    |
+|   WN18RR  |    关系    |  40943\*100   |    93003    |  11\*100 |    4    |
+| WN18RR_sub30000 | 关系 |  30943\*100   |    52201    |  11\*100 |    4    |
 
-## 模型结构和目前实验结果
-
-### 模型结构
+## 模型结构
 
 输入实体n\*nfeat，输入关系n\*nrel：
 
@@ -102,7 +95,7 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 
 + 关系GAT平均：第一层结果n\*nfeat，将nhead个n\*nfeat平均为n\*nfeat，第二层结果n\*nfeat，全连接层结果n\*nclass。
 
-### FB15K237对比实验
+## FB15K237对比实验
 
 |        |实体FB15K-237拼接|实体FB15K-237平均|关系FB15K-237拼接|关系FB15K-237平均|
 | :----: | :------------: | :------------: | :-------------: | :------------: |
@@ -111,7 +104,7 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 
 + nhidden实体FB15K-237为10，关系FB15K-237为100。
 
-### WN18RR对比实验
+## WN18RR对比实验
 
 |        | 实体WN18RR拼接  | 实体WN18RR平均 |  关系WN18RR拼接  |  关系WN18RR平均 |
 | :----: | :------------: | :------------: | :-------------: | :------------: |
@@ -119,7 +112,7 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 
 + nhidden实体WN18RR为10，关系WN18RR为100。
 
-### WN18RR_sub30000对比实验
+## WN18RR_sub30000对比实验
 
 |        |实体WN18RR_sub30000拼接|实体WN18RR_sub30000平均|关系WN18RR_sub30000拼接|关系WN18RR_sub30000平均|
 | :----: | :------------: | :------------: | :-------------: | :------------: |
@@ -127,19 +120,9 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 
 + nhidden实体WN18RR_sub30000为10，关系WN18RR_sub30000为100。
 
-### GAT结果和baseline结果
-
-|              |     cora   |  FB15K-237 |   WN18RR   |WN18RR_sub30000|
-| :----------: | :--------: | :--------: | :---------:| :---------:|
-|    实体GAT   | **0.8200** |   0.2952   |0.8609(100 epochs)|(0.8683)|
-|    关系GAT   |      -     |   0.4434   |  0.8592  |   (0.8168)   |
-| RDF2VEC(nb)  |   0.4948   |   0.0185   |  0.6919  |   0.6943   |
-| RDF2VEC(svm) |   0.3021   |   0.1604   |  0.7817  |   0.7815   |
-|     R-GCN    |   0.7374   | **0.5382** |**0.9759**| **0.9478** |
-
 # pyGAT->ConvE数据处理
 
-+ 代码为[ConvE](https://github.com/Niuyuhang03/ConvE)的`master_with_comment`分支。先运行`sh preprocess.sh`将`train.txt` `valid.txt` `test.txt`变为`.json`文件。再将pyGAT中输出的实体embeddings结果`/pyGAT/GAT_dataset/GAT_dataset_output.txt`复制到`/ConvE/data/dataset/`的`dataset.content`中。将pyGAT的关系embeddings`/pyGAT/data/dataset/dataset.rel`复制到`/ConvE/data/dataset/`的`dataset.rel`中。
++ 代码为[ConvE](https://github.com/Niuyuhang03/ConvE)的`master_with_comment`分支，运行`sh preprocess.sh`，会将`train.txt` `valid.txt` `test.txt`变为`.json`文件，并从pyGAT中复制结果到ConvE。
 
 # ConvE
 
@@ -161,3 +144,11 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 
 + 代码为[R-GCN](https://github.com/KarCute/rgcn_pytorch_implementation)的`master`分支。对每个数据集提交一个`rgcn_dataset.slurm`运行代码。
 + FB15K237可能会出现内存爆炸，需要设置epoch最大为230。WN数据集无此情况。
+
+## baseline结果
+
+|              |     cora   |  FB15K-237 |   WN18RR   |WN18RR_sub30000|
+| :----------: | :--------: | :--------: | :---------:| :---------:|
+| RDF2VEC(nb)  |   0.4948   |   0.0185   |  0.6919  |   0.6943   |
+| RDF2VEC(svm) |   0.3021   |   0.1604   |  0.7817  |   0.7815   |
+|     R-GCN    | **0.7374** | **0.5382** |**0.9759**| **0.9478** |
