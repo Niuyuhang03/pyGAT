@@ -1,10 +1,8 @@
+import os
 import numpy as np
 import scipy.sparse as sp
 import torch
 from collections import Counter
-
-
-np.set_printoptions(threshold=np.inf)
 
 
 def encode_onehot(labels):
@@ -74,14 +72,28 @@ def load_data(path, dataset, process_rel):
     else:
         rel = torch.FloatTensor()
 
+    if os.exists("{}{}.dele".format(path, dataset)):
+        delete_entities_names = np.genfromtxt("{}{}.dele".format(path, dataset), dtype=np.dtype(str))
+        delete_entities_arg = np.array([np.where(names==ent_names)[0][0] for ent_names in delete_entities_names])
+        delete_entities_idx =list(map(idx_map.get, delete_entities_arg))
+        new_idx = []
+        for index in range(len(idx_map)):
+            if not index in delete_entities_idx:
+                new_idx.append(index)
+
     if dataset == 'cora':  # cora采用固定划分法，train中每个class取20个，valid大小300，test大小1000
         idx_train = range(140)
         idx_val = range(200, 500)
         idx_test = range(500, 1500)
-    else:  # 其他数据集采用train:val:test = 6:2:2划分
-        idx_train = range(len(idx_map) // 10 * 8)
-        idx_val = range(len(idx_map) // 10 * 8, len(idx_map) // 10 * 9)
-        idx_test = range(len(idx_map) // 10 * 9, len(idx_map))
+    else:  # 其他数据集采用train:val:test = 8:1:1划分
+        if os.exists("{}{}.dele".format(path, dataset)):
+            idx_train = new_idx[:len(new_idx) // 10 * 8]
+            idx_val = new_idx[len(new_idx) // 10 * 8 : len(new_idx) // 10 * 9]
+            idx_test = new_idx[len(new_idx) // 10 * 9 :]
+        else:
+            idx_train = range(len(idx_map) // 10 * 8)
+            idx_val = range(len(idx_map) // 10 * 8, len(idx_map) // 10 * 9)
+            idx_test = range(len(idx_map) // 10 * 9, len(idx_map))
 
     if dataset == 'cora':
         features = features.todense()
