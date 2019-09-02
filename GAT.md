@@ -52,9 +52,9 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 
 + 数据详情：
 
-  + FB15K237共14414个实体，237种关系，25种label，297846个三元组。实体和关系的embeddings都为100维。**每种labels**的分布如下：
+  + FB15K237共14414个实体（其中127种未被用到），237种关系，25种label，310116个三元组。实体和关系的embeddings都为100维。**每种labels**的分布如下：
 
-    ![FB15K237](https://i.loli.net/2019/08/22/t5m8TNrvK1jFxpw.png)
+    ![FB15K237](https://i.loli.net/2019/09/02/giJ4fAXeovqMDEt.png)
 
   + WN18RR共40943个实体，11种关系，4种label，93003个三元组。实体和关系的embeddings都为100维。**实体和labels**的分布如下：
 
