@@ -134,6 +134,6 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 
 |              |     cora   |  FB15K-237 |   WN18RR   |
 | :----------: | :--------: | :--------: | :---------:|
-| RDF2VEC(nb)  |   0.4948   |   0.0185   |  0.6919  |
-| RDF2VEC(svm) |   0.3021   |   0.1604   |  0.7817  |
+| RDF2VEC(nb)  |   0.4973   |   0.0191   |  0.6920  |
+| RDF2VEC(svm) |   0.3021   |   0.1605   |  0.7817  |
 |     R-GCN    | **0.7374** | **0.5382** |**0.9759**|
