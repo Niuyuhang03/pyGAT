@@ -38,7 +38,7 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 
   + sugon gpu较少，提交可能会出现`Priority`即排队状态。若排队超过1min建议删除此行，使用dell gpu运行耗时较短任务。
   + 申请1个gpu时，`CUDA_VISIBLE_DEVICES`应设置为0，可用于运行GAT-cora、ConvE、DistMult、ComplEx。
-  + `CUDA_VISIBLE_DEVICES`若设置为1，则会使`torch.cuda.is_available()=False`，没有使用cuda。可用于运行GAT-FB15K237、GAT-WN18RR、GAT-WN18RR_sub30000。这些数据集如果使用`CUDA_VISIBLE_DEVICES=0`会出现内存不足。
+  + `CUDA_VISIBLE_DEVICES`若设置为1，则会使`torch.cuda.is_available()=False`，没有使用cuda。可用于运行GAT-FB15K237、GAT-WN18RR。这些数据集如果使用`CUDA_VISIBLE_DEVICES=0`会出现内存不足。
 
 # TransE
 
@@ -46,7 +46,7 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 
 # TransE->pyGAT数据处理
 
-+ 对实体的label进行标注，代码同样为[OpenKE](https://github.com/Niuyuhang03/OpenKE)的`GAT_data_process`分支。其中原始数据由OpenKE和[DKRL](https://github.com/xrb92/DKRL)得到，具体数据来源见运行文件注释。直接运行`./FB15K237_result/FB15K237_process.py`、`./WN18RR/WN18RR_process.py`、`./WN18RR/WN18RR_sub30000_process.py`。得到结果为新数据文件`.content`、`.rel`、`.cites`，同时输出统计信息。**处理结果需要手动将复制到rgcn、RDF2VEC、rgcn、pyGAT项目中。**
++ 对实体的label进行标注，代码同样为[OpenKE](https://github.com/Niuyuhang03/OpenKE)的`GAT_data_process`分支。其中原始数据由OpenKE和[DKRL](https://github.com/xrb92/DKRL)得到，具体数据来源见运行文件注释。直接运行`./FB15K237_result/FB15K237_process.py`。得到结果为新数据文件`.content`、`.rel`、`.cites`，同时输出统计信息。**处理结果需要手动将复制到rgcn、RDF2VEC、rgcn、pyGAT项目中。**
 
 + 无任何修改，直接重新运行代码时，可能会在git提示输出文件内容有修改，实际为输出内容的label顺序更换，但内容未变化。可通过git命令直接撤销对输出文件的变化。
 
@@ -59,10 +59,6 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
   + WN18RR共40943个实体，11种关系，4种label，93003个三元组。实体和关系的embeddings都为100维。**实体和labels**的分布如下：
 
     ![WN18RR](https://i.loli.net/2019/08/22/uTKV6FnxfwBdc2b.png)
-
-  + WN18RR_sub30000共30943个实体，11种关系，4种label，52201个三元组。实体和关系的embeddings都为100维。**相比WN18RR，删除了10000个标签为n的实体**。**实体和labels**的分布如下：
-
-    ![WN18RR_sub30000](https://i.loli.net/2019/08/24/VQM6JxOFrwDGIso.png)
 
 # pyGAT
 
@@ -79,7 +75,6 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 |   cora    |    实体    |  2708\*1433   |     5429    |    -     |    7    |
 | FB15K-237 |    关系    |  14414\*100   |    297846   | 237\*100 |   25    |
 |   WN18RR  |    关系    |  40943\*100   |    93003    |  11\*100 |    4    |
-| WN18RR_sub30000 | 关系 |  30943\*100   |    52201    |  11\*100 |    4    |
 
 ## 模型结构
 
@@ -110,14 +105,6 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 
 + nhidden实体WN18RR为10，关系WN18RR为100。
 
-## WN18RR_sub30000对比实验
-
-|        |实体WN18RR_sub30000拼接|实体WN18RR_sub30000平均|关系WN18RR_sub30000拼接|关系WN18RR_sub30000平均|
-| :----: | :------------: | :------------: | :-------------: | :------------: |
-|nhead 10|     0.8583     |     0.8583     |     0.8554      |     0.8576     |
-
-+ nhidden实体WN18RR_sub30000为10，关系WN18RR_sub30000为100。
-
 # pyGAT->ConvE数据处理
 
 + 代码为[ConvE](https://github.com/Niuyuhang03/ConvE)的`master_with_comment`分支，运行`sh preprocess.sh`，会将`train.txt` `valid.txt` `test.txt`变为`.json`文件，并从`pyGAT/GAT_result/`中复制结果到`ConvE/data/`。
@@ -145,8 +132,8 @@ CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 1
 
 ## baseline结果
 
-|              |     cora   |  FB15K-237 |   WN18RR   |WN18RR_sub30000|
-| :----------: | :--------: | :--------: | :---------:| :---------:|
-| RDF2VEC(nb)  |   0.4948   |   0.0185   |  0.6919  |   0.6943   |
-| RDF2VEC(svm) |   0.3021   |   0.1604   |  0.7817  |   0.7815   |
-|     R-GCN    | **0.7374** | **0.5382** |**0.9759**| **0.9478** |
+|              |     cora   |  FB15K-237 |   WN18RR   |
+| :----------: | :--------: | :--------: | :---------:|
+| RDF2VEC(nb)  |   0.4948   |   0.0185   |  0.6919  |
+| RDF2VEC(svm) |   0.3021   |   0.1604   |  0.7817  |
+|     R-GCN    | **0.7374** | **0.5382** |**0.9759**|

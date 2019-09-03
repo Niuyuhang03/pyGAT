@@ -72,7 +72,7 @@ def load_data(path, dataset, process_rel):
     else:
         rel = torch.FloatTensor()
 
-    if os.exists("{}{}.dele".format(path, dataset)):
+    if os.path.exists("{}{}.dele".format(path, dataset)):
         delete_entities_names = np.genfromtxt("{}{}.dele".format(path, dataset), dtype=np.dtype(str))
         delete_entities_arg = np.array([np.where(names==ent_names)[0][0] for ent_names in delete_entities_names])
         delete_entities_idx =list(map(idx_map.get, delete_entities_arg))
@@ -86,7 +86,7 @@ def load_data(path, dataset, process_rel):
         idx_val = range(200, 500)
         idx_test = range(500, 1500)
     else:  # 其他数据集采用train:val:test = 8:1:1划分
-        if os.exists("{}{}.dele".format(path, dataset)):
+        if os.path.exists("{}{}.dele".format(path, dataset)):
             idx_train = new_idx[:len(new_idx) // 10 * 8]
             idx_val = new_idx[len(new_idx) // 10 * 8 : len(new_idx) // 10 * 9]
             idx_test = new_idx[len(new_idx) // 10 * 9 :]
