@@ -24,7 +24,7 @@ class GAT(nn.Module):
             self.out_att = GraphAttentionLayer(nhid, nfeat, dropout=dropout, alpha=alpha, concat=False, use_cuda=use_cuda)
             self.linear_att = nn.Linear(nfeat, nclass)
 
-    def forward(self, x, adj, names = None, print_flag=False):
+    def forward(self, x, adj, names=None, print_flag=False):
         if not self.use_mean:
             x = torch.cat([att(x, adj) for att in self.attentions], dim=1)
         else:

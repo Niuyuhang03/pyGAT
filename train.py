@@ -1,6 +1,5 @@
 from __future__ import division
 from __future__ import print_function
-
 import time
 import argparse
 import numpy as np
@@ -12,7 +11,6 @@ import torch.optim as optim
 import os
 import glob
 from torch.autograd import Variable
-
 from utils import load_data, accuracy, multi_labels_nll_loss
 from models import GAT, GAT_rel
 
@@ -40,11 +38,11 @@ parser.add_argument('--experiment', type=str, default='GAT', help='Name of curre
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
+print("using cuda successfully:{}".format(args.cuda))
 
 random.seed(args.seed)
 np.random.seed(args.seed)
 torch.manual_seed(args.seed)
-print("use cuda: {}".format(args.cuda))
 if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
