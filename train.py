@@ -38,6 +38,7 @@ parser.add_argument('--experiment', type=str, default='GAT', help='Name of curre
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
+print("lr {}, weight_decay {}, hidden {}, nb_heads {}, mean {}, alpha {}, dataset {}, rel {}".format(args.lr, args.weight_decay, args.hidden, args.nb_heads, args.mean, args.alpha, args.dataset, args.rel))
 print("using cuda successfully:{}".format(args.cuda))
 
 random.seed(args.seed)

@@ -48,7 +48,7 @@ class GraphAttentionLayer(nn.Module):
         seq_fts = self.seq_dropout(seq_fts)  # fb中seq_fts.shape = [14435, 10]
         coefs = self.coefs_dropout(coefs)  # fb中coefs.shape = [14435, 14435]
 
-        ret = torch.mm(coefs, seq_fts) + self.bias # alphaWh, fb中ret.shape = [14435, 10]
+        ret = torch.mm(coefs, seq_fts) + self.bias  # alphaWh, fb中ret.shape = [14435, 10]
 
         if self.residual:
             if seq.size()[-1] != ret.size()[-1]:
