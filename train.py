@@ -39,6 +39,8 @@ parser.add_argument('--experiment', type=str, default='GAT', help='Name of curre
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 print("using cuda successfully:{}".format(args.cuda))
+if not args.cuda:
+    exit()
 
 random.seed(args.seed)
 np.random.seed(args.seed)
