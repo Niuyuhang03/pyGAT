@@ -6,13 +6,11 @@
 
 # TransE->pyGAT数据处理
 
-+ 对实体的label进行标注，代码同样为[OpenKE](https://github.com/Niuyuhang03/OpenKE) 的`GAT_data_process`分支。其中原始数据由OpenKE和[DKRL](https://github.com/xrb92/DKRL) 得到，具体数据来源见运行文件注释。直接运行`./FB15K237_result/FB15K237_process.py`。得到结果为新数据文件`.content`、`.rel`、`.cites`，同时输出统计信息。**处理结果需要手动将复制到rgcn、RDF2VEC、rgcn、pyGAT项目中。**
++ 对实体的label进行标注，代码同样为[OpenKE](https://github.com/Niuyuhang03/OpenKE) 的`GAT_data_process`分支。其中原始数据由OpenKE和[DKRL](https://github.com/xrb92/DKRL) 得到，具体数据来源见运行文件注释。直接运行`./FB15K237_result/FB15K237_process.py`。得到结果为新数据文件`.content`、`.rel`、`.cites`，同时输出统计信息。**处理结果需要手动将复制到RDF2VEC、rgcn、pyGAT项目中。**
 
 + 无任何修改，直接重新运行代码时，可能会在git提示输出文件内容有修改，实际为输出内容的label顺序更换，但内容未变化。可通过git命令直接撤销对输出文件的变化。
 
 + nltk需要下载语料，`import nltk; nltk.download('wordnet')`
-
-+ fb15k237中部分结果难以分类别，设置label为file，共127个实体，存储在.dele中。
 
 + 数据详情：
 
@@ -20,8 +18,10 @@
 
     ![FB15K237](https://i.loli.net/2020/04/21/AlDC1eYysnk24Uv.png)
 
-  + WN18RR共40943个实体，11种关系，4种label，93003个三元组。实体和关系的embeddings都为100维。**实体和labels**的分布如下：
+  + ==fb15k237中部分结果难以分类别，设置label为file，共127个实体，存储在.dele中。==
 
+  + WN18RR共40943个实体，11种关系，4种label，93003个三元组。实体和关系的embeddings都为100维。**实体和labels**的分布如下：
+  
     ![WN18RR](https://i.loli.net/2020/04/21/sRAFfEKx5IkYZjB.png)
 
 # pyGAT
