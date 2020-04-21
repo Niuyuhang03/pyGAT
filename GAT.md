@@ -6,7 +6,7 @@
 
 # TransE->pyGAT数据处理
 
-+ 对实体的label进行标注，代码同样为[OpenKE](https://github.com/Niuyuhang03/OpenKE) 的`GAT_data_process`分支。其中原始数据由OpenKE和[DKRL](https://github.com/xrb92/DKRL) 得到，具体数据来源见运行文件注释。直接运行`./FB15K237_result/FB15K237_process.py`。得到结果为新数据文件`.content`、`.rel`、`.cites`，同时输出统计信息。**处理结果需要手动将复制到RDF2VEC、rgcn、pyGAT项目中。**
++ 对实体的label进行标注，代码同样为[OpenKE](https://github.com/Niuyuhang03/OpenKE) 的`GAT_data_process`分支。其中原始数据由OpenKE和[DKRL](https://github.com/xrb92/DKRL) 得到，具体数据来源见运行文件注释。直接运行`./FB15K237_result/FB15K237_process.py`。得到结果为新数据文件`.content`、`.rel`、`.cites`，同时输出统计信息。**处理结果需要手动将复制到pyGAT项目中。**
 
 + 无任何修改，直接重新运行代码时，可能会在git提示输出文件内容有修改，实际为输出内容的label顺序更换，但内容未变化。可通过git命令直接撤销对输出文件的变化。
 
@@ -37,7 +37,7 @@
 |  数据集   |  实体/关系  |dataset.content|dataset.cites|dataset.rel|classes|
 | :-------: | :--------: | :-----------: | :---------: | :------: | :-----: |
 |   cora    |    实体    |  2708\*1433   |     5429    |    -     |    7    |
-| FB15K-237 |    关系    |  14414\*100   |    297846   | 237\*100 |   25    |
+| FB15K-237 |    关系    | 14541\*100 | 310116   | 237\*100 |   25    |
 |   WN18RR  |    关系    |  40943\*100   |    93003    |  11\*100 |    4    |
 
 ## 模型结构
