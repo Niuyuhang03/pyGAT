@@ -1,64 +1,28 @@
 # GPU集群提交任务格式
 
-## 环境配置
-
-+ 用户`niuyh`下有已经配置好的conda虚拟环境`cuda9.1`。
-
-+ 若配置新环境，推荐使用conda虚拟环境配置。`source /home/LAB/anaconda3/etc/profile.d/conda.sh`激活conda3，`conda create -n my_env_name python=3.6`新建虚拟环境，`conda activate my_env_name`进入虚拟环境，通过
-
-  ```
-  conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
-  conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge/
-  conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/msys2/
-  conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/
-  conda config --set show_channel_urls yes
-  ```
-
-  进行conda换源。**进入虚拟环境后**，通过`conda install xxx`或`python3 -m pip install xxx -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt --user`安装包，`conda deactivate`退出虚拟环境。注意cuda已经由管理员安装。
-
-## 提交作业
-
-+ 编写提交脚本，后缀一般为`.slurm`或`.sh`：
-
-```bash
-#!/bin/bash
-#SBATCH -o GAT_WN18RR_result.log         # 输出日志，可以查看ckpt文件夹
-#SBATCH -J WN_100            			 # 任务名称
-#SBATCH --gres=gpu:V100:1                # 申请一张GPUV100
-#SBATCH -c 5             			     # 申请CPU核数
-#SBATCH -p sugon         			     # 若指定使用曙光gpu，则没有时间限制。否则限时48h。
-source /home/LAB/anaconda3/etc/profile.d/conda.sh		# 激活conda3
-conda activate cuda9.1									# 激活conda虚拟环境
-CUDA_VISIBLE_DEVICES=0 python train.py --dataset WN18RR --hidden 10 --nb_heads 10 --epochs 100 --experiment GAT_WN18RR_epochs100			# 运行任务
-```
-
-+ 运行方法：在同级路径下`sbatch xxx.slurm`提交任务，使用`squeue -u niuyh`查看运行状态，使用`tail -f xxx.log`动态查看输出日志（任务较大时输出可能不及时），使用`scancel jobid`取消任务（jobid详见squeue第一列）。**如果输出日志有文件夹，需要先手动新建文件夹再提交**。
-
-+ 注意事项：
-
-  + sugon gpu较少，提交可能会出现`Priority`即排队状态。若排队超过1min建议删除此行，使用dell gpu运行耗时较短任务。
-  + 申请1个gpu时，`CUDA_VISIBLE_DEVICES`应设置为0，可用于运行GAT-cora、ConvE、DistMult、ComplEx。
-  + `CUDA_VISIBLE_DEVICES`若设置为1，则会使`torch.cuda.is_available()=False`，没有使用cuda。可用于运行GAT-FB15K237、GAT-WN18RR。这些数据集如果使用`CUDA_VISIBLE_DEVICES=0`会出现内存不足。
-
 # TransE
 
-+ 代码为[OpenKE](https://github.com/Niuyuhang03/OpenKE)的`GAT_data_process`分支的`TransE`模型。提交`train_FB15K237.slurm`和`train_WN18RR.slurm`运行代码 。得到的结果为实体和关系的embeddings。
++ 代码为[OpenKE](https://github.com/Niuyuhang03/OpenKE) 的`GAT_data_process`分支的`TransE`模型。提交`train_FB15K237.slurm`和`train_WN18RR.slurm`运行代码 。得到的结果为实体和关系的embeddings。
 
 # TransE->pyGAT数据处理
 
-+ 对实体的label进行标注，代码同样为[OpenKE](https://github.com/Niuyuhang03/OpenKE)的`GAT_data_process`分支。其中原始数据由OpenKE和[DKRL](https://github.com/xrb92/DKRL)得到，具体数据来源见运行文件注释。直接运行`./FB15K237_result/FB15K237_process.py`。得到结果为新数据文件`.content`、`.rel`、`.cites`，同时输出统计信息。**处理结果需要手动将复制到rgcn、RDF2VEC、rgcn、pyGAT项目中。**
++ 对实体的label进行标注，代码同样为[OpenKE](https://github.com/Niuyuhang03/OpenKE) 的`GAT_data_process`分支。其中原始数据由OpenKE和[DKRL](https://github.com/xrb92/DKRL) 得到，具体数据来源见运行文件注释。直接运行`./FB15K237_result/FB15K237_process.py`。得到结果为新数据文件`.content`、`.rel`、`.cites`，同时输出统计信息。**处理结果需要手动将复制到rgcn、RDF2VEC、rgcn、pyGAT项目中。**
 
 + 无任何修改，直接重新运行代码时，可能会在git提示输出文件内容有修改，实际为输出内容的label顺序更换，但内容未变化。可通过git命令直接撤销对输出文件的变化。
 
++ nltk需要下载语料，`import nltk; nltk.download('wordnet')`
+
++ fb15k237中部分结果难以分类别，设置label为file，共127个实体，存储在.dele中。
+
 + 数据详情：
 
-  + FB15K237共14414个实体（其中127种未被用到），237种关系，25种label，310116个三元组。实体和关系的embeddings都为100维。**每种labels**的分布如下：
+  + FB15K237共14541个实体，237种关系，25种label，310116个三元组。实体和关系的embeddings都为100维。**每种labels**的分布如下：
 
-    ![FB15K237](https://i.loli.net/2019/09/02/giJ4fAXeovqMDEt.png)
+    ![FB15K237](https://i.loli.net/2020/04/21/AlDC1eYysnk24Uv.png)
 
   + WN18RR共40943个实体，11种关系，4种label，93003个三元组。实体和关系的embeddings都为100维。**实体和labels**的分布如下：
 
-    ![WN18RR](https://i.loli.net/2019/08/22/uTKV6FnxfwBdc2b.png)
+    ![WN18RR](https://i.loli.net/2020/04/21/sRAFfEKx5IkYZjB.png)
 
 # pyGAT
 
