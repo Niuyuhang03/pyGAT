@@ -51,8 +51,8 @@ def load_data(path, dataset, process_rel):
 
     # Tricky implementation of official GAT
     adj = (adj + sp.eye(adj.shape[0])).todense()
-    adj[adj==0] = -9e15
-    adj[adj>=1] = 0
+    adj[adj == 0] = -9e15
+    adj[adj >= 1] = 0
     adj = torch.FloatTensor(np.array(adj))
 
     # 生成relation embeddings的结果rel和entities之间rel的对应字典rel_dict，该字典中ent1和ent2的所有关系都存入ent1+ent2中
@@ -74,7 +74,7 @@ def load_data(path, dataset, process_rel):
 
     if os.path.exists("{}{}.dele".format(path, dataset)):
         delete_entities_names = np.genfromtxt("{}{}.dele".format(path, dataset), dtype=np.dtype(str))
-        delete_entities_arg = np.array([np.where(names==ent_names)[0][0] for ent_names in delete_entities_names])
+        delete_entities_arg = np.array([np.where(names == ent_names)[0][0] for ent_names in delete_entities_names])
         delete_entities_idx =list(map(idx_map.get, delete_entities_arg))
         new_idx = []
         for index in range(len(idx_map)):
@@ -88,15 +88,14 @@ def load_data(path, dataset, process_rel):
     else:  # 其他数据集采用train:val:test = 8:1:1划分
         if os.path.exists("{}{}.dele".format(path, dataset)):
             idx_train = new_idx[:len(new_idx) // 10 * 8]
-            idx_val = new_idx[len(new_idx) // 10 * 8 : len(new_idx) // 10 * 9]
-            idx_test = new_idx[len(new_idx) // 10 * 9 :]
+            idx_val = new_idx[len(new_idx) // 10 * 8: len(new_idx) // 10 * 9]
+            idx_test = new_idx[len(new_idx) // 10 * 9:]
         else:
             idx_train = range(len(idx_map) // 10 * 8)
             idx_val = range(len(idx_map) // 10 * 8, len(idx_map) // 10 * 9)
             idx_test = range(len(idx_map) // 10 * 9, len(idx_map))
 
-    if dataset == 'cora':
-        features = features.todense()
+    features = features.todense()
     features = torch.FloatTensor(np.array(features))
     labels = torch.LongTensor(labels)
 
