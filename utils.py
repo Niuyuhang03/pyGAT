@@ -94,8 +94,8 @@ def load_data(path, dataset, process_rel):
             idx_train = range(len(idx_map) // 10 * 8)
             idx_val = range(len(idx_map) // 10 * 8, len(idx_map) // 10 * 9)
             idx_test = range(len(idx_map) // 10 * 9, len(idx_map))
-
-    features = features.todense()
+    if dataset == 'cora':
+        features = features.todense()
     features = torch.FloatTensor(np.array(features))
     labels = torch.LongTensor(labels)
 
