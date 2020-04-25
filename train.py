@@ -100,12 +100,12 @@ def train(epoch):
     loss_val = multi_labels_nll_loss(output[idx_val], labels[idx_val])
     acc_val, preds = accuracy(output[idx_val], labels[idx_val], args.cuda)
     print('Epoch: {:04d}'.format(epoch+1),
-          'loss_train: {:.4f}'.format(loss_train.data[0]),
+          'loss_train: {:.4f}'.format(loss_train.item()),
           'acc_train: {:.4f}'.format(acc_train),
-          'loss_val: {:.4f}'.format(loss_val.data[0]),
+          'loss_val: {:.4f}'.format(loss_val.item()),
           'acc_val: {:.4f}'.format(acc_val),
           'time: {:.4f}s'.format(time.time() - t))
-    return loss_val.data[0]
+    return loss_val.item()
 
 
 def compute_test():
@@ -118,7 +118,7 @@ def compute_test():
     acc_test, preds = accuracy(output[idx_test], labels[idx_test], args.cuda)
     print("pres:", preds)
     print("Test set results:",
-          "loss= {:.4f}".format(loss_test.data[0]),
+          "loss= {:.4f}".format(loss_test.item()),
           "accuracy= {:.4f}".format(acc_test))
 
 
