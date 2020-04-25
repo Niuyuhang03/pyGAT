@@ -145,5 +145,5 @@ def accuracy(output, labels, is_cuda):
 def multi_labels_nll_loss(output, labels):
     # labels和output按位点乘，结果相加，除以labels中1的总数，作为适用于多标签的nll_loss。
     loss = -labels.type_as(output).mul(output).sum()
-    cnt = len(np.where(labels)[1])
+    cnt = len(torch.nonzero(labels, as_tuple=True)[0])
     return loss / cnt
