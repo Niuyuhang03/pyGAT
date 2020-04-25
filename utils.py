@@ -127,17 +127,15 @@ def normalize_features(mx):
 
 
 def accuracy(output, labels, is_cuda):
-    output = np.array(output.detach())
-    cnt = len(np.where(labels)[1])
-    counter = Counter(np.where(labels)[0])
-    preds = np.zeros_like(labels)
-    for idx in range(labels.shape[0]):
-        labels_1_length = counter[idx]
-        predict_1_index = np.argsort(-output[idx])[:labels_1_length]
-        preds[idx][predict_1_index] = 1
-    preds = torch.FloatTensor(preds)
+    label_1_num = torch.sum(labels, dim=1, dtype=torch.int8)  # labels每行1的个数
+    cnt = labels.sum().item()  # labels所有1的个数
+    indices = torch.sort(output, descending=True)[1]  # output按行排序，得到下标
+    preds = torch.zeros_like(labels, dtype=torch.int8)
     if is_cuda:
         preds = preds.cuda()
+    for i in range(label_1_num.shape[0]):
+        predict_1_index = indices[i][:label_1_num[i]]
+        preds[i][predict_1_index] = 1
     correct = preds.type_as(labels).mul(labels).sum()
     return correct.item() / cnt, preds
 
@@ -145,5 +143,4 @@ def accuracy(output, labels, is_cuda):
 def multi_labels_nll_loss(output, labels):
     # labels和output按位点乘，结果相加，除以labels中1的总数，作为适用于多标签的nll_loss。
     loss = -labels.type_as(output).mul(output).sum()
-    cnt = len(torch.nonzero(labels, as_tuple=True)[0])
-    return loss / cnt
+    return loss
