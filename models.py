@@ -73,7 +73,7 @@ class GAT_rel(nn.Module):
         x = self.out_att(x, rel, rel_dict, adj)
         if print_flag:
             with open("./{}/GAT_{}_output.txt".format(self.experiment, self.dataset), "w") as output_f:
-                x_array = np.array(x.detach())
+                x_array = x.cpu().detach().numpy()
                 for idx in range(len(x_array)):
                     line = names[idx].split('\t')
                     output_f.write(str(line[0]))
