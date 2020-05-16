@@ -59,16 +59,17 @@ def load_data(path, dataset, process_rel):
     rel_dict = {}
     if process_rel:
         idx_rel = np.genfromtxt("{}{}.rel".format(path, dataset), dtype=np.dtype(str))
+        rel_index_dic = {j: i for i, j in enumerate(np.array(idx_rel[:, 1], dtype=np.int32))}  # rel的id到序号到映射，解决relid有断开问题
         rel = torch.FloatTensor(np.array(idx_rel[:, 2:], dtype=np.float32))
         for index in range(len(edges_unordered)):
             e1, e2 = edges[index][:2]
             r = edges_unordered[index][2]
-            if rel_dict.get(e1, None) is not None:
-                rel_dict[str(e1) + '+' + str(e2)] = rel_dict[str(e1) + '+' + str(e2)].add(r)
-            elif rel_dict.get(e2, None) is not None:
-                rel_dict[str(e2) + '+' + str(e1)] = rel_dict[str(e2) + '+' + str(e1)].add(r)
+            if rel_dict.get(str(e1) + '+' + str(e2), None) is not None:
+                rel_dict[str(e1) + '+' + str(e2)] = rel_dict[str(e1) + '+' + str(e2)].add(rel_index_dic[r])
+            elif rel_dict.get(str(e2) + '+' + str(e1), None) is not None:
+                rel_dict[str(e2) + '+' + str(e1)] = rel_dict[str(e2) + '+' + str(e1)].add(rel_index_dic[r])
             else:
-                rel_dict[str(e1)+'+'+str(e2)] = {r}
+                rel_dict[str(e1) + '+' + str(e2)] = set([rel_index_dic[r]])
     else:
         rel = torch.FloatTensor()
 

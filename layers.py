@@ -96,7 +96,7 @@ class GraphAttentionLayer_rel(nn.Module):
         for e1e2, r in rel_dict.items():
             e1, e2 = e1e2.split('+')
             e1, e2 = int(e1), int(e2)
-            logits[e2][e1] = logits[e1][e2] = float(seq_fts_rel[0, 0, list(r)].max())
+            logits[e2][e1] = logits[e1][e2] = float(seq_fts_rel[0, 0, list(r)].max())  # 取所有e1和e2之间的r的Conv1d后的最大值
         # logits = torch.FloatTensor(logits)
         if self.use_cuda:
             logits = logits.cuda()
