@@ -3,6 +3,7 @@
 #SBATCH -J FB_4r             # 任务名称
 #SBATCH --gres=gpu:V100:1               # 申请一张GPUV100
 #SBATCH -c 5                # 申请CPU核数
+#SBATCH -p sugon
 time=`date +%Y%m%d-%H%M%S`
 mkdir ./GAT_FB15K237_4000_rel/${time}
 source /home/LAB/anaconda3/etc/profile.d/conda.sh
