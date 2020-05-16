@@ -65,9 +65,9 @@ def load_data(path, dataset, process_rel):
             e1, e2 = edges[index][:2]
             r = edges_unordered[index][2]
             if rel_dict.get(str(e1) + '+' + str(e2), None) is not None:
-                rel_dict[str(e1) + '+' + str(e2)] = rel_dict[str(e1) + '+' + str(e2)].add(rel_index_dic[r])
+                rel_dict[str(e1) + '+' + str(e2)].add(rel_index_dic[r])
             elif rel_dict.get(str(e2) + '+' + str(e1), None) is not None:
-                rel_dict[str(e2) + '+' + str(e1)] = rel_dict[str(e2) + '+' + str(e1)].add(rel_index_dic[r])
+                rel_dict[str(e2) + '+' + str(e1)].add(rel_index_dic[r])
             else:
                 rel_dict[str(e1) + '+' + str(e2)] = set([rel_index_dic[r]])
     else:
