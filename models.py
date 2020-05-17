@@ -11,10 +11,10 @@ class GAT(nn.Module):
         self.dropout = dropout
         self.dataset = dataset
         self.experiment = experiment
-        self.attentions = [GraphAttentionLayer(nfeat, nhid, dropout=dropout, alpha=alpha, concat=True, use_cuda=use_cuda) for _ in range(nheads)]
+        self.attentions = [GraphAttentionLayer(nfeat, nhid, dropout=dropout, alpha=alpha, concat=True, use_cuda=use_cuda) for _ in range(nheads)]  # nfeat -> nhid
         for i, attention in enumerate(self.attentions):
             self.add_module('attention_{}'.format(i), attention)
-        self.out_att = GraphAttentionLayer(nhid * nheads, nfeat, dropout=dropout, alpha=alpha, concat=False, use_cuda=use_cuda)
+        self.out_att = GraphAttentionLayer(nhid * nheads, nfeat, dropout=dropout, alpha=alpha, concat=False, use_cuda=use_cuda)  # nhid * nheads -> nfeat
         self.linear_att = nn.Linear(nfeat, nclass)
 
     def forward(self, x, adj, names=None, print_flag=False):
@@ -40,10 +40,10 @@ class GAT_rel(nn.Module):
         self.dropout = dropout
         self.dataset = dataset
         self.experiment = experiment
-        self.attentions = [GraphAttentionLayer_rel(nfeat, dropout=dropout, alpha=alpha, concat=True, use_cuda=use_cuda) for _ in range(nheads)]
+        self.attentions = [GraphAttentionLayer_rel(nfeat, nfeat, dropout=dropout, alpha=alpha, concat=True, use_cuda=use_cuda) for _ in range(nheads)]  # nfeat -> nfeat
         for i, attention in enumerate(self.attentions):
             self.add_module('attention_{}'.format(i), attention)
-        self.out_att = GraphAttentionLayer_rel(nfeat * nheads, dropout=dropout, alpha=alpha, concat=False, use_cuda=use_cuda)
+        self.out_att = GraphAttentionLayer_rel(nfeat, nfeat * nheads, dropout=dropout, alpha=alpha, concat=False, use_cuda=use_cuda)  # nfeat * nheads -> nfeat * nheads
         self.linear_att1 = nn.Linear(nfeat * nheads, nfeat)
         self.linear_att2 = nn.Linear(nfeat, nclass)
 
