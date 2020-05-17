@@ -70,16 +70,15 @@ class GraphAttentionLayer_rel(nn.Module):
     GAT with relations. out_features has to be in_features to nfeat in GAT_rel
     """
 
-    def __init__(self, in_rels, out_features, dropout, alpha, concat=True, use_cuda=True):
+    def __init__(self, inout_features, dropout, alpha, concat=True, use_cuda=True):
         super(GraphAttentionLayer_rel, self).__init__()
-        self.in_rels = in_rels
-        self.out_features = out_features
+        self.inout_features = inout_features
         self.alpha = alpha
         self.concat = concat
         self.use_cuda = use_cuda
 
-        self.seq_transformation_rel = nn.Conv1d(in_rels, 1, kernel_size=1, stride=1, bias=False)
-        self.bias = nn.Parameter(torch.zeros(out_features).type(torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor), requires_grad=True)
+        self.seq_transformation_rel = nn.Conv1d(inout_features, 1, kernel_size=1, stride=1, bias=False)
+        self.bias = nn.Parameter(torch.zeros(inout_features).type(torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor), requires_grad=True)
 
         self.coefs_dropout = nn.Dropout(dropout)
 
@@ -111,4 +110,4 @@ class GraphAttentionLayer_rel(nn.Module):
             return ret
 
     def __repr__(self):
-        return self.__class__.__name__ + ' (' + str(self.in_features) + ' -> ' + str(self.out_features) + ')'
+        return self.__class__.__name__ + ' (' + str(self.inout_features) + ' -> ' + str(self.inout_features) + ')'
