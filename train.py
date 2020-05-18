@@ -101,7 +101,7 @@ def train(epoch):
     elif args.model_name == 'GAT':
         output = model(features, adj)
     else:
-        output = model(features)
+        output = model(features, rel, rel_dict, adj)
     loss_train = multi_labels_nll_loss(output[idx_train], labels[idx_train])
     acc_train, preds = accuracy(output[idx_train], labels[idx_train], args.cuda)
     loss_train.backward()
