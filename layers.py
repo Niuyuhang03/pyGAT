@@ -184,7 +184,7 @@ class RWRLayer(nn.Module):
         # adj = adj.cuda()
         # np.set_printoptions(threshold=np.inf)
 
-        attention = torch.where(adj > 0, e, zero_vec)
+        attention = torch.where(adj >= 0, e, zero_vec)
         attention = F.softmax(attention, dim=1)
         attention = F.dropout(attention, self.dropout, training=self.training)
         h_prime = torch.matmul(attention, h)
@@ -239,7 +239,7 @@ class StructuralFingerprintLayer(nn.Module):
         # k_vec = -9e15 * torch.ones_like(e)
 
         np.set_printoptions(threshold=np.inf)
-        attention = torch.where(adj > 0, e, zero_vec)  # 第一个参数是条件，第二个参数是满足时的值，第三个参数时不满足时的值
+        attention = torch.where(adj >= 0, e, zero_vec)  # 第一个参数是条件，第二个参数是满足时的值，第三个参数时不满足时的值
         attention = F.softmax(attention, dim=1)  # alpha
         attention = F.dropout(attention, self.dropout, training=self.training)
         h_prime = torch.matmul(attention, h)  # h=alpha * W * h
@@ -308,7 +308,7 @@ class GraphAttentionLayer_all(nn.Module):
         zero_vec = -9e15 * torch.ones_like(e)
         # k_vec = -9e15 * torch.ones_like(e)
         np.set_printoptions(threshold=np.inf)
-        attention = torch.where(adj > 0, e, zero_vec)  # 第一个参数是条件，第二个参数是满足时的值，第三个参数时不满足时的值
+        attention = torch.where(adj >= 0, e, zero_vec)  # 第一个参数是条件，第二个参数是满足时的值，第三个参数时不满足时的值
 
         attention = F.softmax(attention, dim=1)  # alpha
         attention = F.dropout(attention, self.dropout, training=self.training)
