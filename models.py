@@ -76,13 +76,15 @@ class ADSF(nn.Module):
         self.attentions = [StructuralFingerprintLayer(nfeat, nhid, dropout=dropout, alpha=alpha, adj_ad=adj_ad, adj=adj, concat=True) for _ in range(nheads)]
         for i, attention in enumerate(self.attentions):
             self.add_module('attention_{}'.format(i), attention)  # 按attention_i名使用layer，似乎未用到
-        self.out_att = StructuralFingerprintLayer(nhid * nheads, nclass, dropout=dropout, alpha=alpha, adj_ad=adj_ad, adj=adj, concat=False)
+        self.out_att = StructuralFingerprintLayer(nhid * nheads, nfeat, dropout=dropout, alpha=alpha, adj_ad=adj_ad, adj=adj, concat=False)
+        self.linear_att = nn.Linear(nfeat, nclass)
 
     def forward(self, x, names=None, print_flag=False):
         x = F.dropout(x, self.dropout, training=self.training)
         x = torch.cat([att(x) for att in self.attentions], dim=1)
         x = F.dropout(x, self.dropout, training=self.training)
         x = F.elu(self.out_att(x))
+        x = self.linear_att(x)
         return F.log_softmax(x, dim=1)
 
 
@@ -94,11 +96,13 @@ class RWR_process(nn.Module):
         self.attentions = [RWRLayer(nfeat, nhid, dropout=dropout, alpha=alpha, adj_ad=adj_ad, adj=adj, dataset_str=dataset_str, concat=True) for _ in range(nheads)]
         for i, attention in enumerate(self.attentions):
             self.add_module('attention_{}'.format(i), attention)
-        self.out_att = RWRLayer(nhid * nheads, nclass, dropout=dropout, alpha=alpha, adj_ad=adj_ad, adj=adj, dataset_str=dataset_str, concat=False)
+        self.out_att = RWRLayer(nhid * nheads, nfeat, dropout=dropout, alpha=alpha, adj_ad=adj_ad, adj=adj, dataset_str=dataset_str, concat=False)
+        self.linear_att = nn.Linear(nfeat, nclass)
 
     def forward(self, x, names=None, print_flag=False):
         x = F.dropout(x, self.dropout, training=self.training)
         x = torch.cat([att(x) for att in self.attentions], dim=1)
         x = F.dropout(x, self.dropout, training=self.training)
         x = F.elu(self.out_att(x))
+        x = self.linear_att(x)
         return F.log_softmax(x, dim=1)
