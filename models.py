@@ -102,7 +102,7 @@ class ADSF(nn.Module):
 
 class GAT_all(nn.Module):
     def __init__(self, nfeat, nclass, dropout, alpha, nheads, dataset, adj_ad, adj, experiment):
-        super(GAT_rel, self).__init__()
+        super(GAT_all, self).__init__()
         self.dropout = dropout
         self.dataset = dataset
         self.experiment = experiment
