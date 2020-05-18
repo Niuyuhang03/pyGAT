@@ -5,36 +5,32 @@ import argparse
 import numpy as np
 import random
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
 import os
 import glob
 from torch.autograd import Variable
 from utils import load_data, accuracy, multi_labels_nll_loss
-from models import GAT, GAT_rel
+from models import GAT, GAT_rel, ADSF, RWR_process
 
 
 # Training settings
 parser = argparse.ArgumentParser()
 parser.add_argument('--no-cuda', action='store_true', default=False, help='Disables CUDA training.')
 parser.add_argument('--fastmode', action='store_true', default=False, help='Validate during training pass.')
-parser.add_argument('--seed', type=int, default=42, help='Random seed.')
+parser.add_argument('--seed', type=int, default=72, help='Random seed.')
 parser.add_argument('--epochs', type=int, default=1000, help='Number of epochs to train.')
 parser.add_argument('--lr', type=float, default=0.005, help='Initial learning rate.')
 parser.add_argument('--weight_decay', type=float, default=5e-4, help='Weight decay (L2 loss on parameters).')
 parser.add_argument('--hidden', type=int, default=8, help='Number of hidden units.')
 parser.add_argument('--nb_heads', type=int, default=8, help='Number of head attentions.')
 parser.add_argument('--dropout', type=float, default=0.6, help='Dropout rate (1 - keep probability).')
-# LeakyReLU在x<0的斜率
 parser.add_argument('--alpha', type=float, default=0.2, help='Alpha for the leaky_relu.')
 parser.add_argument('--patience', type=int, default=100, help='Patience')
-# 数据集
 parser.add_argument('--dataset', type=str, default='cora', help='DataSet of model')
-# 是否考虑relation类型
-parser.add_argument('--rel', action='store_true', default=False, help='Process relation')
+# sparse:rwr, no sparse:adsf
 # 实验名称，用于生成.pkl文件夹
 parser.add_argument('--experiment', type=str, default='GAT', help='Name of current experiment.')
+parser.add_argument('--model_name', type=str, default='GAT', help='GAT, GAT_rel, GAT_rwr, GAT_adsf, GAT_all')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -49,28 +45,50 @@ if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
 # Load data
-adj, features, rel, rel_dict, labels, idx_train, idx_val, idx_test, nclass, names = load_data(path='./data/'+ args.dataset + '/', dataset=args.dataset, process_rel=args.rel)
+adj, features, rel, rel_dict, labels, idx_train, idx_val, idx_test, nclass, names, adj_ad = load_data(path='./data/'+ args.dataset + '/', dataset=args.dataset, model_name=args.model_name)
 
 # Model and optimizer
-if args.rel:
+if args.model_name == 'GAT_rel':
     model = GAT_rel(nfeat=features.shape[1], nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha, dataset=args.dataset, experiment=args.experiment, use_cuda=args.cuda)
-else:
+elif args.model_name == 'GAT':
     model = GAT(nfeat=features.shape[1], nhid=args.hidden, nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha, dataset=args.dataset, experiment=args.experiment, use_cuda=args.cuda)
+elif args.model_name == 'GAT_rwr':
+    model = RWR_process(nfeat=features.shape[1],
+                        nhid=args.hidden,
+                        nclass=nclass,
+                        dropout=args.dropout,
+                        nheads=args.nb_heads,
+                        alpha=args.alpha,
+                        adj_ad=adj_ad,
+                        adj=adj,
+                        dataset_str=args.dataset)
+elif args.model_name == 'GAT_adsf':
+    model = ADSF(nfeat=features.shape[1],
+                 nhid=args.hidden,
+                 nclass=nclass,
+                 dropout=args.dropout,
+                 nheads=args.nb_heads,
+                 alpha=args.alpha,
+                 adj_ad=adj_ad,
+                 adj=adj)
+elif args.model_name == 'GAT_adsf':
+    exit()
+
 optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
 
 if args.cuda:
     model.cuda()
     features = features.cuda()
     adj = adj.cuda()
+    adj_ad = adj_ad.cuda()
     labels = labels.cuda()
     idx_train = idx_train.cuda()
     idx_val = idx_val.cuda()
     idx_test = idx_test.cuda()
-    if args.rel:
+    if args.model_name == 'GAT_rel' or args.model_name == 'GAT_all':
         rel = rel.cuda()
-
 features, adj, labels = Variable(features), Variable(adj), Variable(labels)
-if args.rel:
+if args.model_name == 'GAT_rel' or args.model_name == 'GAT_all':
     rel = Variable(rel)
 
 
@@ -78,10 +96,12 @@ def train(epoch):
     t = time.time()
     model.train()
     optimizer.zero_grad()
-    if args.rel:
+    if args.model_name == 'GAT_rel':
         output = model(features, rel, rel_dict, adj)
-    else:
+    elif args.model_name == 'GAT':
         output = model(features, adj)
+    else:
+        output = model(features)
     loss_train = multi_labels_nll_loss(output[idx_train], labels[idx_train])
     acc_train, preds = accuracy(output[idx_train], labels[idx_train], args.cuda)
     loss_train.backward()
@@ -91,28 +111,39 @@ def train(epoch):
         # Evaluate validation set performance separately,
         # deactivates dropout during validation run.
         model.eval()
-        if args.rel:
+        if args.model_name == 'GAT_rel':
             output = model(features, rel, rel_dict, adj)
-        else:
+        elif args.model_name == 'GAT':
             output = model(features, adj)
+        else:
+            output = model(features)
 
     loss_val = multi_labels_nll_loss(output[idx_val], labels[idx_val])
     acc_val, preds = accuracy(output[idx_val], labels[idx_val], args.cuda)
+
+    file_handle1 = open('./{}/auc.txt'.format(args.experiment), mode='a')
+    print("epoch: {:04d}, acc_val: {:.4f}, loss_val: {:.4f}, time: {:.4f}s".format(epoch, acc_val, loss_val.item(),
+                                                                                   time.time() - t), file=file_handle1)
+    file_handle1.close()
+
     print('Epoch: {:04d}'.format(epoch+1),
           'loss_train: {:.4f}'.format(loss_train.item()),
           'acc_train: {:.4f}'.format(acc_train),
           'loss_val: {:.4f}'.format(loss_val.item()),
           'acc_val: {:.4f}'.format(acc_val),
           'time: {:.4f}s'.format(time.time() - t))
+
     return loss_val.item()
 
 
 def compute_test():
     model.eval()
-    if args.rel:
+    if args.model_name == 'GAT_rel':
         output = model(features, rel, rel_dict, adj, names, True)
-    else:
+    elif args.model_name == 'GAT':
         output = model(features, adj, names, True)
+    else:
+        output = model(features, names, True)
     loss_test = multi_labels_nll_loss(output[idx_test], labels[idx_test])
     acc_test, preds = accuracy(output[idx_test], labels[idx_test], args.cuda)
     print("pres:", preds)
@@ -132,7 +163,6 @@ if not os.path.exists(args.experiment):
 
 for epoch in range(args.epochs):
     loss_values.append(train(epoch))
-
     torch.save(model.state_dict(), './{}/{}.pkl'.format(args.experiment, epoch))
     if loss_values[-1] < best:
         best = loss_values[-1]
