@@ -71,7 +71,7 @@ elif args.model_name == 'GAT_adsf':
                  alpha=args.alpha,
                  adj_ad=adj_ad,
                  adj=adj)
-elif args.model_name == 'GAT_adsf':
+elif args.model_name == 'GAT_all':
     exit()
 
 optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
