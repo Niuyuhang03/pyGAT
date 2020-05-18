@@ -17,10 +17,8 @@ class GAT(nn.Module):
         self.linear_att = nn.Linear(nfeat, nclass)
 
     def forward(self, x, adj, names=None, print_flag=False):
-        x = F.dropout(x, self.dropout, training=self.training)
         x = torch.cat([att(x, adj) for att in self.attentions], dim=1)
-        x = F.dropout(x, self.dropout, training=self.training)
-        x = F.elu(self.out_att(x, adj))
+        x = self.out_att(x, adj)
         if print_flag:
             with open("./{}/GAT_{}_output.txt".format(self.experiment, self.dataset), "w") as output_f:
                 x_array = x.cpu().detach().numpy()
@@ -49,10 +47,8 @@ class GAT_rel(nn.Module):
         self.linear_att2 = nn.Linear(nfeat, nclass)
 
     def forward(self, x, rel, rel_dict, adj, names=None, print_flag=False):
-        x = F.dropout(x, self.dropout, training=self.training)
         x = torch.cat([att(x, rel, rel_dict, adj) for att in self.attentions], dim=1)
-        x = F.dropout(x, self.dropout, training=self.training)
-        x = F.elu(self.out_att(x, rel, rel_dict, adj))
+        x = self.out_att(x, rel, rel_dict, adj)
         x = self.linear_att1(x)
         if print_flag:
             with open("./{}/GAT_{}_output.txt".format(self.experiment, self.dataset), "w") as output_f:
