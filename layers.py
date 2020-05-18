@@ -254,7 +254,7 @@ class StructuralFingerprintLayer(nn.Module):
 
 class GraphAttentionLayer_all(nn.Module):
     def __init__(self, nrel, inout_features, dropout, alpha, adj_ad, adj, concat=True):
-        super(GraphAttentionLayer_rel, self).__init__()
+        super(GraphAttentionLayer_all, self).__init__()
         self.inout_features = inout_features
         self.alpha = alpha
         self.concat = concat
