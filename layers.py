@@ -265,6 +265,7 @@ class GraphAttentionLayer_all(nn.Module):
         self.bias = nn.Parameter(torch.zeros(inout_features).type(torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor), requires_grad=True)
         self.coefs_dropout = nn.Dropout(dropout)
         self.leakyrelu = nn.LeakyReLU(self.alpha)
+        self.relu = nn.ReLU()
 
         self.W = nn.Parameter(torch.zeros(size=(inout_features, inout_features)))
         nn.init.xavier_uniform_(self.W.data, gain=1.414)  # 均匀分布
