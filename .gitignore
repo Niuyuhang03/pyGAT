@@ -7,13 +7,5 @@ data/.DS_Store
 try.py
 try/
 try.slurm
-GAT_cora/
-GAT_FB15K237/
-GAT_FB15K237_rel/
-GAT_FB15K237_4000/
-GAT_FB15K237_4000_rel/
-GAT_WN18RR/
-GAT_WN18RR_rel/
-GAT_WN18RR_4000/
-GAT_WN18RR_4000_rel/
-!GAT_result/*
+GAT_*/
+\.*/
