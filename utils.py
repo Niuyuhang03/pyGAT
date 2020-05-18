@@ -111,14 +111,15 @@ def load_data(path, dataset, model_name):
         idx_test = range(len(idx_map) // 10 * 9, len(idx_map))
 
     # Implementation from paper
-    # adj = normalize_adj(adj + sp.eye(adj.shape[0]))
-    # adj = torch.FloatTensor(np.array(adj.todense()))
+    adj = adj.astype(np.float32)
+    adj = normalize_adj(adj + sp.eye(adj.shape[0]))
+    adj = torch.FloatTensor(np.array(adj.todense()))
 
     # Tricky implementation of official GAT
-    adj = (adj + sp.eye(adj.shape[0])).todense()
-    adj[adj == 0] = -9e15
-    adj[adj >= 1] = 0
-    adj = torch.FloatTensor(np.array(adj))
+    # adj = (adj + sp.eye(adj.shape[0])).todense()
+    # adj[adj == 0] = -9e15
+    # adj[adj >= 1] = 0
+    # adj = torch.FloatTensor(np.array(adj))
     adj_delta = adj
 
     features = normalize_features(features)
@@ -225,7 +226,7 @@ def parse_index_file(filename):
 
 def normalize_adj(mx):
     """Row-normalize sparse matrix"""
-    rowsum = np.array(mx.sum(1))
+    rowsum = np.array(mx.sum(1), dtype=np.float32)
     r_inv_sqrt = np.power(rowsum, -0.5).flatten()
     r_inv_sqrt[np.isinf(r_inv_sqrt)] = 0.
     r_mat_inv_sqrt = sp.diags(r_inv_sqrt)

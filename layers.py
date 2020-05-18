@@ -13,13 +13,12 @@ class GraphAttentionLayer(nn.Module):
     Simple GAT layer, similar to https://arxiv.org/abs/1710.10903
     """
 
-    def __init__(self, in_features, out_features, dropout, alpha, concat=True, use_cuda=True, residual=False):
+    def __init__(self, in_features, out_features, dropout, alpha, concat=True, residual=False):
         super(GraphAttentionLayer, self).__init__()
         self.in_features = in_features
         self.out_features = out_features
         self.alpha = alpha
         self.concat = concat
-        self.use_cuda = use_cuda
         self.residual = residual
 
         self.seq_transformation = nn.Conv1d(in_features, out_features, kernel_size=1, stride=1, bias=False)
@@ -71,12 +70,11 @@ class GraphAttentionLayer_rel(nn.Module):
     GAT with relations. out_features has to be in_features to nfeat in GAT_rel
     """
 
-    def __init__(self, nrel, inout_features, dropout, alpha, concat=True, use_cuda=True):
+    def __init__(self, nrel, inout_features, dropout, alpha, concat=True):
         super(GraphAttentionLayer_rel, self).__init__()
         self.inout_features = inout_features
         self.alpha = alpha
         self.concat = concat
-        self.use_cuda = use_cuda
 
         self.seq_transformation_rel = nn.Conv1d(nrel, 1, kernel_size=1, stride=1, bias=False)
         self.bias = nn.Parameter(torch.zeros(inout_features).type(torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor), requires_grad=True)
@@ -97,8 +95,6 @@ class GraphAttentionLayer_rel(nn.Module):
             e1, e2 = e1e2.split('+')
             e1, e2 = int(e1), int(e2)
             logits[e2][e1] = logits[e1][e2] = float(seq_fts_rel[0, 0, list(r)].max())  # 取所有e1和e2之间的r的Conv1d后的最大值
-        # logits = torch.FloatTensor(logits)
-        if self.use_cuda:
             logits = logits.cuda()
         coefs = F.softmax(self.relu(logits) + adj, dim=1)
         coefs = self.coefs_dropout(coefs)  # fb中coefs.shape = [14435, 14435]
@@ -112,61 +108,6 @@ class GraphAttentionLayer_rel(nn.Module):
 
     def __repr__(self):
         return self.__class__.__name__ + ' (' + str(self.inout_features) + ' -> ' + str(self.inout_features) + ')'
-
-
-class StructuralFingerprintLayer(nn.Module):
-    """
-    adaptive structural fingerprint layer
-    """
-
-    def __init__(self, in_features, out_features, dropout, alpha, adj_ad, adj, concat=True):
-        super(StructuralFingerprintLayer, self).__init__()
-        self.dropout = dropout
-        self.in_features = in_features
-        self.out_features = out_features
-        self.alpha = alpha
-        self.concat = concat
-        self.adj_ad = adj_ad
-        self.adj = adj
-        self.W = nn.Parameter(torch.zeros(size=(in_features, out_features)))
-        nn.init.xavier_uniform_(self.W.data, gain=1.414)  # 均匀分布
-        self.a = nn.Parameter(torch.zeros(size=(2 * out_features, 1)))
-        nn.init.xavier_uniform_(self.a.data, gain=1.414)
-        self.leakyrelu = nn.LeakyReLU(self.alpha)
-        self.W_si = nn.Parameter(torch.zeros(size=(1, 1)))
-        nn.init.xavier_uniform_(self.W_si.data, gain=1.414)
-        self.W_ei = nn.Parameter(torch.zeros(size=(1, 1)))
-        nn.init.xavier_uniform_(self.W_ei.data, gain=1.414)
-
-    def forward(self, input):
-        h = torch.mm(input, self.W)  # h * w
-        N = h.size()[0]
-        a_input = torch.cat([h.repeat(1, N).view(N * N, -1), h.repeat(N, 1)], dim=1).view(N, -1, 2 * self.out_features)
-        e = self.leakyrelu(torch.matmul(a_input, self.a).squeeze(2))  # leakyrelu(h * w * a)，即leakyrelu的eij
-        s = self.adj_ad  # sij
-        adj = self.adj
-        e = e.cuda()
-        s = s.cuda()
-        adj = adj.cuda()  # adj为图连通性
-
-        # combine sij and eij
-        e = abs(self.W_ei) * e + abs(self.W_si) * s  # aij=前半部分+后半部分（均未softmax）
-
-        zero_vec = -9e15 * torch.ones_like(e)
-        # k_vec = -9e15 * torch.ones_like(e)
-
-        np.set_printoptions(threshold=np.inf)
-        attention = torch.where(adj > 0, e, zero_vec)  # 第一个参数是条件，第二个参数是满足时的值，第三个参数时不满足时的值
-        attention = F.softmax(attention, dim=1)  # alpha
-        attention = F.dropout(attention, self.dropout, training=self.training)
-        h_prime = torch.matmul(attention, h)  # h=alpha * W * h
-        if self.concat:
-            return F.elu(h_prime)
-        else:
-            return h_prime
-
-    def __repr__(self):
-        return self.__class__.__name__ + ' (' + str(self.in_features) + ' -> ' + str(self.out_features) + ')'
 
 
 class RWRLayer(nn.Module):
@@ -254,3 +195,129 @@ class RWRLayer(nn.Module):
 
     def __repr__(self):
         return self.__class__.__name__ + ' (' + str(self.in_features) + ' -> ' + str(self.out_features) + ')'
+
+
+class StructuralFingerprintLayer(nn.Module):
+    """
+    adaptive structural fingerprint layer
+    """
+
+    def __init__(self, in_features, out_features, dropout, alpha, adj_ad, adj, concat=True):
+        super(StructuralFingerprintLayer, self).__init__()
+        self.dropout = dropout
+        self.in_features = in_features
+        self.out_features = out_features
+        self.alpha = alpha
+        self.concat = concat
+        self.adj_ad = adj_ad
+        self.adj = adj
+        self.W = nn.Parameter(torch.zeros(size=(in_features, out_features)))
+        nn.init.xavier_uniform_(self.W.data, gain=1.414)  # 均匀分布
+        self.a = nn.Parameter(torch.zeros(size=(2 * out_features, 1)))
+        nn.init.xavier_uniform_(self.a.data, gain=1.414)
+        self.leakyrelu = nn.LeakyReLU(self.alpha)
+        self.W_si = nn.Parameter(torch.zeros(size=(1, 1)))  # 1 * 1
+        nn.init.xavier_uniform_(self.W_si.data, gain=1.414)
+        self.W_ei = nn.Parameter(torch.zeros(size=(1, 1)))  # 1 * 1
+        nn.init.xavier_uniform_(self.W_ei.data, gain=1.414)
+
+    def forward(self, input):
+        h = torch.mm(input, self.W)  # h * w
+        N = h.size()[0]
+        a_input = torch.cat([h.repeat(1, N).view(N * N, -1), h.repeat(N, 1)], dim=1).view(N, -1, 2 * self.out_features)  # N * N * (2 * out_features)
+        e = self.leakyrelu(torch.matmul(a_input, self.a).squeeze(2))  # leakyrelu(h * w * a)，即leakyrelu的eij, N * N
+        s = self.adj_ad  # sij, N * N
+        adj = self.adj
+        e = e.cuda()
+        s = s.cuda()
+        adj = adj.cuda()  # adj为图连通性
+
+        # combine sij and eij
+        e = abs(self.W_ei) * e + abs(self.W_si) * s  # aij=前半部分+后半部分（均未softmax）, N * N
+
+        zero_vec = -9e15 * torch.ones_like(e)
+        # k_vec = -9e15 * torch.ones_like(e)
+
+        np.set_printoptions(threshold=np.inf)
+        attention = torch.where(adj > 0, e, zero_vec)  # 第一个参数是条件，第二个参数是满足时的值，第三个参数时不满足时的值
+        attention = F.softmax(attention, dim=1)  # alpha
+        attention = F.dropout(attention, self.dropout, training=self.training)
+        h_prime = torch.matmul(attention, h)  # h=alpha * W * h
+        if self.concat:
+            return F.elu(h_prime)
+        else:
+            return h_prime
+
+    def __repr__(self):
+        return self.__class__.__name__ + ' (' + str(self.in_features) + ' -> ' + str(self.out_features) + ')'
+
+
+class GraphAttentionLayer_all(nn.Module):
+    def __init__(self, nrel, inout_features, dropout, alpha, adj_ad, adj, concat=True):
+        super(GraphAttentionLayer_rel, self).__init__()
+        self.inout_features = inout_features
+        self.alpha = alpha
+        self.concat = concat
+        self.adj_ad = adj_ad
+        self.adj = adj
+
+        self.seq_transformation_rel = nn.Conv1d(nrel, 1, kernel_size=1, stride=1, bias=False)
+        self.bias = nn.Parameter(torch.zeros(inout_features).type(torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor), requires_grad=True)
+        self.coefs_dropout = nn.Dropout(dropout)
+        self.leakyrelu = nn.LeakyReLU(self.alpha)
+
+        self.W = nn.Parameter(torch.zeros(size=(inout_features, inout_features)))
+        nn.init.xavier_uniform_(self.W.data, gain=1.414)  # 均匀分布
+        self.a = nn.Parameter(torch.zeros(size=(2 * inout_features, 1)))
+        nn.init.xavier_uniform_(self.a.data, gain=1.414)
+        self.W_si = nn.Parameter(torch.zeros(size=(1, 1)))  # 1 * 1
+        nn.init.xavier_uniform_(self.W_si.data, gain=1.414)
+        self.W_ei = nn.Parameter(torch.zeros(size=(1, 1)))  # 1 * 1
+        nn.init.xavier_uniform_(self.W_ei.data, gain=1.414)
+        self.W_ri = nn.Parameter(torch.zeros(size=(1, 1)))  # 1 * 1
+        nn.init.xavier_uniform_(self.W_ri.data, gain=1.414)
+
+    def forward(self, input, rel, rel_dict, adj):
+        seq_rel = torch.transpose(rel, 0, 1).unsqueeze(0)  # fb中seq_rel.shape = [1, 100, 237]
+        seq_fts_rel = self.seq_transformation_rel(seq_rel)  # fb中seq_fts_rel.shape = [1, 1, 237]
+        # 根据rel构造权重coefs
+        logits = torch.zeros_like(adj)
+        for e1e2, r in rel_dict.items():
+            e1, e2 = e1e2.split('+')
+            e1, e2 = int(e1), int(e2)
+            logits[e2][e1] = logits[e1][e2] = float(seq_fts_rel[0, 0, list(r)].max())  # 取所有e1和e2之间的r的Conv1d后的最大值
+            logits = logits.cuda()
+        coefs = F.softmax(self.relu(logits) + adj, dim=1)
+        r = self.coefs_dropout(coefs)  # fb中coefs.shape = [14435, 14435]
+
+        h = torch.mm(input, self.W)  # h * w
+        N = h.size()[0]
+        a_input = torch.cat([h.repeat(1, N).view(N * N, -1), h.repeat(N, 1)], dim=1).view(N, -1, 2 * self.inout_features)  # N * N * (2 * out_features)
+        e = self.leakyrelu(torch.matmul(a_input, self.a).squeeze(2))  # leakyrelu(h * w * a)，即leakyrelu的eij, N * N
+        e = e.cuda()
+
+        s = self.adj_ad  # sij, N * N
+        s = s.cuda()
+
+        adj = self.adj
+        adj = adj.cuda()  # adj为图连通性
+
+        # combine sij and eij
+        e = abs(self.W_ei) * e + abs(self.W_ri) * r + abs(self.W_si) * s
+
+        zero_vec = -9e15 * torch.ones_like(e)
+        # k_vec = -9e15 * torch.ones_like(e)
+        np.set_printoptions(threshold=np.inf)
+        attention = torch.where(adj > 0, e, zero_vec)  # 第一个参数是条件，第二个参数是满足时的值，第三个参数时不满足时的值
+
+        attention = F.softmax(attention, dim=1)  # alpha
+        attention = F.dropout(attention, self.dropout, training=self.training)
+        ret = torch.matmul(attention, h)  # h=alpha * W * h
+
+        if self.concat:
+            return F.elu(ret)  # fb中F.elu(ret).shape = [14435, 100]
+        else:
+            return ret
+
+    def __repr__(self):
+        return self.__class__.__name__ + ' (' + str(self.inout_features) + ' -> ' + str(self.inout_features) + ')'

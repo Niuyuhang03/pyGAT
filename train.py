@@ -10,7 +10,7 @@ import os
 import glob
 from torch.autograd import Variable
 from utils import load_data, accuracy, multi_labels_nll_loss
-from models import GAT, GAT_rel, ADSF, RWR_process
+from models import GAT, GAT_rel, ADSF, RWR_process, GAT_all
 
 
 # Training settings
@@ -49,9 +49,9 @@ adj, features, rel, rel_dict, labels, idx_train, idx_val, idx_test, nclass, name
 
 # Model and optimizer
 if args.model_name == 'GAT_rel':
-    model = GAT_rel(nfeat=features.shape[1], nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha, dataset=args.dataset, experiment=args.experiment, use_cuda=args.cuda)
+    model = GAT_rel(nfeat=features.shape[1], nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha, dataset=args.dataset, experiment=args.experiment)
 elif args.model_name == 'GAT':
-    model = GAT(nfeat=features.shape[1], nhid=args.hidden, nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha, dataset=args.dataset, experiment=args.experiment, use_cuda=args.cuda)
+    model = GAT(nfeat=features.shape[1], nhid=args.hidden, nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha, dataset=args.dataset, experiment=args.experiment)
 elif args.model_name == 'GAT_rwr':
     model = RWR_process(nfeat=features.shape[1],
                         nhid=args.hidden,
@@ -72,7 +72,7 @@ elif args.model_name == 'GAT_adsf':
                  adj_ad=adj_ad,
                  adj=adj)
 elif args.model_name == 'GAT_all':
-    exit()
+    model = GAT_all(nfeat=features.shape[1], nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha, adj_ad=adj_ad, adj=adj, dataset=args.dataset, experiment=args.experiment)
 
 optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
 
