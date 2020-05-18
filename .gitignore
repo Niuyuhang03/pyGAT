@@ -3,9 +3,8 @@ __pycache__/
 data/.DS_Store
 *.log
 .idea
+!/data/FB15K237_4000/*
+!/data/WN18RR_4000/*
 *.pkl
-try.py
-try/
-try.slurm
 GAT_*/
 \.*/
