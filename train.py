@@ -81,14 +81,9 @@ if args.cuda:
     idx_train = idx_train.cuda()
     idx_val = idx_val.cuda()
     idx_test = idx_test.cuda()
-    if args.model_name == 'GAT_rel' or args.model_name == 'GAT_all':
-        rel = rel.cuda()
-    if args.model_name == 'GAT_rwr' or args.model_name == 'GAT_adsf' or args.model_name == 'GAT_all':
-        adj_ad = adj_ad.cuda()
+    rel = rel.cuda()
 
-features, adj, labels = Variable(features), Variable(adj), Variable(labels)
-if args.model_name == 'GAT_rel' or args.model_name == 'GAT_all':
-    rel = Variable(rel)
+features, adj, labels, rel = Variable(features), Variable(adj), Variable(labels), Variable(rel)
 
 
 def train(epoch):
@@ -112,12 +107,14 @@ def train(epoch):
         # Evaluate validation set performance separately,
         # deactivates dropout during validation run.
         model.eval()
-        if args.model_name == 'GAT_rel' or args.model_name == 'GAT_all':
+        if args.model_name == 'GAT_rel':
             output = model(features, rel, rel_dict, adj)
         elif args.model_name == 'GAT':
             output = model(features, adj)
+        elif args.model_name == 'GAT_all':
+            output = model(features, rel, rel_dict, adj, adj_ad)
         else:
-            output = model(features)
+            output = model(features, adj, adj_ad)
 
     loss_val = multi_labels_nll_loss(output[idx_val], labels[idx_val])
     acc_val, preds = accuracy(output[idx_val], labels[idx_val], args.cuda)
