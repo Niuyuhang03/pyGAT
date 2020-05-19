@@ -139,12 +139,14 @@ def train(epoch):
 
 def compute_test():
     model.eval()
-    if args.model_name == 'GAT_rel' or args.model_name == 'GAT_all':
-        output = model(features, rel, rel_dict, adj, names, True)
+    if args.model_name == 'GAT_rel':
+        output = model(features, rel, rel_dict, adj)
     elif args.model_name == 'GAT':
-        output = model(features, adj, names, True)
+        output = model(features, adj)
+    elif args.model_name == 'GAT_all':
+        output = model(features, rel, rel_dict, adj, adj_ad)
     else:
-        output = model(features, names, True)
+        output = model(features, adj, adj_ad)
     loss_test = multi_labels_nll_loss(output[idx_test], labels[idx_test])
     acc_test, preds = accuracy(output[idx_test], labels[idx_test], args.cuda)
     print("pres:", preds)
