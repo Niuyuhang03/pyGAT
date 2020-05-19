@@ -137,16 +137,19 @@ def train(epoch):
     return loss_val.item()
 
 
-def compute_test():
+def compute_test(dataset):
     model.eval()
+    print_flag = True
+    if dataset == 'cora' or dataset == 'citeseer':
+        print_flag = False
     if args.model_name == 'GAT_rel':
-        output = model(features, rel, rel_dict, adj)
+        output = model(features, rel, rel_dict, adj, names, print_flag)
     elif args.model_name == 'GAT':
-        output = model(features, adj)
+        output = model(features, adj, names, print_flag)
     elif args.model_name == 'GAT_all':
-        output = model(features, rel, rel_dict, adj, adj_ad)
+        output = model(features, rel, rel_dict, adj, adj_ad, names, print_flag)
     else:
-        output = model(features, adj, adj_ad)
+        output = model(features, adj, adj_ad, names, print_flag)
     loss_test = multi_labels_nll_loss(output[idx_test], labels[idx_test])
     acc_test, preds = accuracy(output[idx_test], labels[idx_test], args.cuda)
     print("pres:", preds)
@@ -198,4 +201,4 @@ print('Loading {}th epoch'.format(best_epoch))
 model.load_state_dict(torch.load('./{}/{}.pkl'.format(args.experiment, best_epoch)))
 
 # Testing
-compute_test()
+compute_test(args.dataset)
