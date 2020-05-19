@@ -8,5 +8,5 @@ time=`date +%Y%m%d-%H%M%S`
 mkdir ./GAT_WN18RR_4000_adsf/${time}
 source /home/LAB/anaconda3/etc/profile.d/conda.sh
 conda activate cuda9.1
-CUDA_VISIBLE_DEVICES=0 python train.py --model_name GAT_adsf --dataset WN18RR_4000 --experiment GAT_WN18RR_4000_adsf/${time}
+CUDA_VISIBLE_DEVICES=0 python train.py --model_name GAT_adsf --dataset WN18RR_4000 --hidden 10 --nb_heads 10 --experiment GAT_WN18RR_4000_adsf/${time}
 mv ./GAT_WN18RR_4000_adsf/GAT_WN18RR_4000_result_$SLURM_JOB_ID.log ./GAT_WN18RR_4000_adsf/${time}/GAT_WN18RR_4000_result.log
