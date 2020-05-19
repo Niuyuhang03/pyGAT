@@ -96,12 +96,12 @@ def train(epoch):
     t = time.time()
     model.train()
     optimizer.zero_grad()
-    if args.model_name == 'GAT_rel':
+    if args.model_name == 'GAT_rel' or args.model_name == 'GAT_all':
         output = model(features, rel, rel_dict, adj)
     elif args.model_name == 'GAT':
         output = model(features, adj)
     else:
-        output = model(features, rel, rel_dict, adj)
+        output = model(features)
     loss_train = multi_labels_nll_loss(output[idx_train], labels[idx_train])
     acc_train, preds = accuracy(output[idx_train], labels[idx_train], args.cuda)
     loss_train.backward()
@@ -111,7 +111,7 @@ def train(epoch):
         # Evaluate validation set performance separately,
         # deactivates dropout during validation run.
         model.eval()
-        if args.model_name == 'GAT_rel':
+        if args.model_name == 'GAT_rel' or args.model_name == 'GAT_all':
             output = model(features, rel, rel_dict, adj)
         elif args.model_name == 'GAT':
             output = model(features, adj)
@@ -138,7 +138,7 @@ def train(epoch):
 
 def compute_test():
     model.eval()
-    if args.model_name == 'GAT_rel':
+    if args.model_name == 'GAT_rel' or args.model_name == 'GAT_all':
         output = model(features, rel, rel_dict, adj, names, True)
     elif args.model_name == 'GAT':
         output = model(features, adj, names, True)
