@@ -49,7 +49,7 @@ adj, features, rel, rel_dict, labels, idx_train, idx_val, idx_test, nclass, name
 
 # Model and optimizer
 if args.model_name == 'GAT_rel':
-    model = GAT_rel(nfeat=features.shape[1], nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha, dataset=args.dataset, experiment=args.experiment)
+    model = GAT_rel(nfeat=features.shape[1], nhid=args.hidden, nrel=rel.shape[1], nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha, dataset=args.dataset, experiment=args.experiment)
 elif args.model_name == 'GAT':
     model = GAT(nfeat=features.shape[1], nhid=args.hidden, nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha, dataset=args.dataset, experiment=args.experiment)
 elif args.model_name == 'GAT_rwr':
@@ -59,8 +59,6 @@ elif args.model_name == 'GAT_rwr':
                         dropout=args.dropout,
                         nheads=args.nb_heads,
                         alpha=args.alpha,
-                        adj_ad=adj_ad,
-                        adj=adj,
                         dataset_str=args.dataset)
 elif args.model_name == 'GAT_adsf':
     model = ADSF(nfeat=features.shape[1],
@@ -68,11 +66,9 @@ elif args.model_name == 'GAT_adsf':
                  nclass=nclass,
                  dropout=args.dropout,
                  nheads=args.nb_heads,
-                 alpha=args.alpha,
-                 adj_ad=adj_ad,
-                 adj=adj)
+                 alpha=args.alpha)
 elif args.model_name == 'GAT_all':
-    model = GAT_all(nfeat=features.shape[1], nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha, adj_ad=adj_ad, adj=adj, dataset=args.dataset, experiment=args.experiment)
+    model = GAT_all(nfeat=features.shape[1], nhid=args.hidden, nrel=rel.shape[1], nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha, dataset=args.dataset, experiment=args.experiment)
 
 optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
 
@@ -87,6 +83,9 @@ if args.cuda:
     idx_test = idx_test.cuda()
     if args.model_name == 'GAT_rel' or args.model_name == 'GAT_all':
         rel = rel.cuda()
+    if args.model_name == 'GAT_rwr' or args.model_name == 'GAT_adsf' or args.model_name == 'GAT_all':
+        adj_ad = adj_ad.cuda()
+
 features, adj, labels = Variable(features), Variable(adj), Variable(labels)
 if args.model_name == 'GAT_rel' or args.model_name == 'GAT_all':
     rel = Variable(rel)
@@ -96,12 +95,14 @@ def train(epoch):
     t = time.time()
     model.train()
     optimizer.zero_grad()
-    if args.model_name == 'GAT_rel' or args.model_name == 'GAT_all':
+    if args.model_name == 'GAT_rel':
         output = model(features, rel, rel_dict, adj)
     elif args.model_name == 'GAT':
         output = model(features, adj)
+    elif args.model_name == 'GAT_all':
+        output = model(features, rel, rel_dict, adj, adj_ad)
     else:
-        output = model(features)
+        output = model(features, adj, adj_ad)
     loss_train = multi_labels_nll_loss(output[idx_train], labels[idx_train])
     acc_train, preds = accuracy(output[idx_train], labels[idx_train], args.cuda)
     loss_train.backward()

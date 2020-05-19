@@ -154,7 +154,7 @@ def load_data(path, dataset, model_name):
             a = open("data/{}/dijskra_{}.pkl".format(dataset, dataset), 'wb')  # 写入
             pickle.dump(adj_delta, a)
 
-        if model_name == 'model_adsf' or model_name == 'model_all':  # adsf
+        if model_name == 'GAT_adsf' or model_name == 'GAT_all':  # adsf
             fw = open('data/{}/ri_index_c_0.5_{}_highorder_1_x_abs.pkl'.format(dataset, dataset), 'rb')
             ri_index = pickle.load(fw)
             fw.close()
