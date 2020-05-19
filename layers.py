@@ -21,8 +21,6 @@ class GraphAttentionLayer(nn.Module):
         self.concat = concat
 
         self.seq_transformation = nn.Conv1d(in_features, out_features, kernel_size=1, stride=1, bias=False)
-        if self.residual:
-            self.proj_residual = nn.Conv1d(in_features, out_features, kernel_size=1, stride=1)
         self.f_1 = nn.Conv1d(out_features, 1, kernel_size=1, stride=1)
         self.f_2 = nn.Conv1d(out_features, 1, kernel_size=1, stride=1)
         self.bias = nn.Parameter(torch.zeros(out_features).type(torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor), requires_grad=True)
