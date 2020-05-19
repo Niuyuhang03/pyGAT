@@ -271,6 +271,7 @@ class GraphAttentionLayer_all(nn.Module):
         self.alpha = alpha
         self.concat = concat
 
+        self.seq_transformation = nn.Conv1d(in_features, out_features, kernel_size=1, stride=1, bias=False)
         self.seq_transformation_rel = nn.Conv1d(nrel, 1, kernel_size=1, stride=1, bias=False)
         self.f_1 = nn.Conv1d(out_features, 1, kernel_size=1, stride=1)
         self.f_2 = nn.Conv1d(out_features, 1, kernel_size=1, stride=1)
