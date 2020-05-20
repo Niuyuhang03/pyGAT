@@ -25,8 +25,8 @@ class GraphAttentionLayer(nn.Module):
         self.f_2 = nn.Conv1d(out_features, 1, kernel_size=1, stride=1)
         self.bias = nn.Parameter(torch.zeros(out_features).type(torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor), requires_grad=True)
 
-        self.seq_dropout = nn.Dropout(dropout)
-        self.coefs_dropout = nn.Dropout(dropout)
+        # self.seq_dropout = nn.Dropout(dropout)
+        # self.coefs_dropout = nn.Dropout(dropout)
 
         self.leakyrelu = nn.LeakyReLU(self.alpha)
 
@@ -40,11 +40,11 @@ class GraphAttentionLayer(nn.Module):
         logits = (torch.transpose(f_1, 2, 1) + f_2).squeeze(0)  # N * N
         coefs = F.softmax(self.leakyrelu(logits) + adj, dim=1)  # N * N
         coefs = coefs.cuda()
-        coefs = self.coefs_dropout(coefs)
+        # coefs = self.coefs_dropout(coefs)
 
         seq_fts = seq_fts.squeeze(0)  # out_feature * N
         seq_fts = torch.transpose(seq_fts, 0, 1)  # N * out_feature
-        seq_fts = self.seq_dropout(seq_fts)
+        # seq_fts = self.seq_dropout(seq_fts)
 
         h_prime = torch.mm(coefs, seq_fts) + self.bias  # N * out_feature
 
@@ -74,8 +74,8 @@ class GraphAttentionLayer_rel(nn.Module):
         self.seq_transformation_rel = nn.Conv1d(nrel, 1, kernel_size=1, stride=1, bias=False)
         self.bias = nn.Parameter(torch.zeros(out_features).type(torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor), requires_grad=True)
 
-        self.seq_dropout = nn.Dropout(dropout)
-        self.coefs_dropout = nn.Dropout(dropout)
+        # self.seq_dropout = nn.Dropout(dropout)
+        # self.coefs_dropout = nn.Dropout(dropout)
 
         self.leakyrelu = nn.LeakyReLU(self.alpha)
 
@@ -96,11 +96,11 @@ class GraphAttentionLayer_rel(nn.Module):
             logits = logits.cuda()
         coefs = F.softmax(self.leakyrelu(logits) + adj, dim=1)
         coefs = coefs.cuda()
-        coefs = self.coefs_dropout(coefs)  # N * N
+        # coefs = self.coefs_dropout(coefs)  # N * N
 
         seq_fts = seq_fts.squeeze(0)  # out_feature * N
         seq_fts = torch.transpose(seq_fts, 0, 1)  # N * out_feature
-        seq_fts = self.seq_dropout(seq_fts)
+        # seq_fts = self.seq_dropout(seq_fts)
 
         h_prime = torch.mm(coefs, seq_fts) + self.bias  # N * out_feature
 
@@ -132,8 +132,8 @@ class RWRLayer(nn.Module):
         self.f_2 = nn.Conv1d(out_features, 1, kernel_size=1, stride=1)
         self.bias = nn.Parameter(torch.zeros(out_features).type(torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor), requires_grad=True)
 
-        self.seq_dropout = nn.Dropout(dropout)
-        self.coefs_dropout = nn.Dropout(dropout)
+        # self.seq_dropout = nn.Dropout(dropout)
+        # self.coefs_dropout = nn.Dropout(dropout)
 
         self.leakyrelu = nn.LeakyReLU(self.alpha)
 
@@ -147,7 +147,7 @@ class RWRLayer(nn.Module):
         logits = (torch.transpose(f_1, 2, 1) + f_2).squeeze(0)  # N * N
         coefs = F.softmax(self.leakyrelu(logits) + adj, dim=1)  # N * N
         coefs = coefs.cuda()
-        coefs = self.coefs_dropout(coefs)
+        # coefs = self.coefs_dropout(coefs)
 
         s = adj_ad  # N * N
 
@@ -189,7 +189,7 @@ class RWRLayer(nn.Module):
 
         seq_fts = seq_fts.squeeze(0)  # out_feature * N
         seq_fts = torch.transpose(seq_fts, 0, 1)  # N * out_feature
-        seq_fts = self.seq_dropout(seq_fts)
+        # seq_fts = self.seq_dropout(seq_fts)
 
         h_prime = torch.mm(coefs, seq_fts) + self.bias  # N * out_feature
 
@@ -219,8 +219,8 @@ class StructuralFingerprintLayer(nn.Module):
         self.f_2 = nn.Conv1d(out_features, 1, kernel_size=1, stride=1)
         self.bias = nn.Parameter(torch.zeros(out_features).type(torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor), requires_grad=True)
 
-        self.seq_dropout = nn.Dropout(dropout)
-        self.coefs_dropout = nn.Dropout(dropout)
+        # self.seq_dropout = nn.Dropout(dropout)
+        # self.coefs_dropout = nn.Dropout(dropout)
 
         self.leakyrelu = nn.LeakyReLU(self.alpha)
 
@@ -237,18 +237,18 @@ class StructuralFingerprintLayer(nn.Module):
         f_1 = self.f_1(seq_fts)  # 1 * 1 * N
         f_2 = self.f_2(seq_fts)  # 1 * 1 * N
         logits = (torch.transpose(f_1, 2, 1) + f_2).squeeze(0)  # N * N
-        e = F.softmax(self.leakyrelu(logits) + adj, dim=1)  # N * N
+        e = F.softmax(self.leakyrelu(logits), dim=1)  # N * N
         e = e.cuda()
 
-        s = adj_ad  # N * N
+        s = F.softmax(adj_ad, dim=1)  # N * N
 
-        coefs = F.softmax(abs(self.W_ei) * e + abs(self.W_si) * s, dim=1)  # N * N
+        coefs = F.softmax(abs(self.W_ei) * e + abs(self.W_si) * s + adj, dim=1)  # N * N
         coefs = coefs.cuda()
-        coefs = self.coefs_dropout(coefs)
+        # coefs = self.coefs_dropout(coefs)
 
         seq_fts = seq_fts.squeeze(0)  # out_feature * N
         seq_fts = torch.transpose(seq_fts, 0, 1)  # N * out_feature
-        seq_fts = self.seq_dropout(seq_fts)
+        # seq_fts = self.seq_dropout(seq_fts)
 
         h_prime = torch.mm(coefs, seq_fts) + self.bias  # N * out_feature
 
@@ -277,8 +277,8 @@ class GraphAttentionLayer_all(nn.Module):
         self.f_2 = nn.Conv1d(out_features, 1, kernel_size=1, stride=1)
         self.bias = nn.Parameter(torch.zeros(out_features).type(torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor), requires_grad=True)
 
-        self.seq_dropout = nn.Dropout(dropout)
-        self.coefs_dropout = nn.Dropout(dropout)
+        # self.seq_dropout = nn.Dropout(dropout)
+        # self.coefs_dropout = nn.Dropout(dropout)
 
         self.leakyrelu = nn.LeakyReLU(self.alpha)
 
@@ -304,22 +304,22 @@ class GraphAttentionLayer_all(nn.Module):
             e1, e2 = int(e1), int(e2)
             logits_r[e2][e1] = logits_r[e1][e2] = float(seq_fts_rel[0, 0, list(r)].max())  # 取所有e1和e2之间的r的Conv1d后的最大值
             logits_r = logits_r.cuda()
-        r = F.softmax(self.leakyrelu(logits_r) + adj, dim=1)  # N * N
+        r = F.softmax(self.leakyrelu(logits_r), dim=1)  # N * N
 
         f_1 = self.f_1(seq_fts)  # 1 * 1 * N
         f_2 = self.f_2(seq_fts)  # 1 * 1 * N
         logits_e = (torch.transpose(f_1, 2, 1) + f_2).squeeze(0)  # N * N
-        e = F.softmax(self.leakyrelu(logits_e) + adj, dim=1)  # N * N
+        e = F.softmax(self.leakyrelu(logits_e), dim=1)  # N * N
 
-        s = adj_ad.cuda()  # N * N
+        s = F.softmax(adj_ad.cuda(), dim=1)  # N * N
 
-        coefs = F.softmax(abs(self.W_ei) * e + abs(self.W_ri) * r + abs(self.W_si) * s, dim=1)  # N * N
+        coefs = F.softmax(abs(self.W_ei) * e + abs(self.W_ri) * r + abs(self.W_si) * s + adj, dim=1)  # N * N
         coefs = coefs.cuda()
-        coefs = self.coefs_dropout(coefs)
+        # coefs = self.coefs_dropout(coefs)
 
         seq_fts = seq_fts.squeeze(0)  # out_feature * N
         seq_fts = torch.transpose(seq_fts, 0, 1)  # N * out_feature
-        seq_fts = self.seq_dropout(seq_fts)
+        # seq_fts = self.seq_dropout(seq_fts)
 
         h_prime = torch.mm(coefs, seq_fts) + self.bias  # N * out_feature
 

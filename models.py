@@ -17,7 +17,9 @@ class GAT(nn.Module):
         self.linear_att = nn.Linear(nfeat, nclass)
 
     def forward(self, x, adj, names=None, print_flag=False):
+        x = F.dropout(x, self.dropout, training=self.training)
         x = torch.cat([att(x, adj) for att in self.attentions], dim=1)
+        x = F.dropout(x, self.dropout, training=self.training)
         x = self.out_att(x, adj)
         if print_flag:
             with open("./{}/GAT_{}_output.txt".format(self.experiment, self.dataset), "w") as output_f:
@@ -29,7 +31,7 @@ class GAT(nn.Module):
                         output_f.write('\t' + str(i))
                     output_f.write('\n')
         # 增加一个全连接层
-        x = self.linear_att(x)
+        x = F.elu(self.linear_att(x))
         return F.log_softmax(x, dim=1)
 
 
@@ -46,7 +48,9 @@ class GAT_rel(nn.Module):
         self.linear_att = nn.Linear(nfeat, nclass)
 
     def forward(self, x, rel, rel_dict, adj, names=None, print_flag=False):
+        x = F.dropout(x, self.dropout, training=self.training)
         x = torch.cat([att(x, rel, rel_dict, adj) for att in self.attentions], dim=1)
+        x = F.dropout(x, self.dropout, training=self.training)
         x = self.out_att(x, rel, rel_dict, adj)
         if print_flag:
             with open("./{}/GAT_{}_output.txt".format(self.experiment, self.dataset), "w") as output_f:
@@ -58,7 +62,7 @@ class GAT_rel(nn.Module):
                         output_f.write('\t' + str(i))
                     output_f.write('\n')
         # 增加一个全连接层
-        x = self.linear_att(x)
+        x = F.elu(self.linear_att(x))
         return F.log_softmax(x, dim=1)
 
 
@@ -111,7 +115,9 @@ class GAT_all(nn.Module):
         self.linear_att = nn.Linear(nfeat, nclass)
 
     def forward(self, x, rel, rel_dict, adj, adj_ad, names=None, print_flag=False):
+        x = F.dropout(x, self.dropout, training=self.training)
         x = torch.cat([att(x, rel, rel_dict, adj, adj_ad) for att in self.attentions], dim=1)
+        x = F.dropout(x, self.dropout, training=self.training)
         x = self.out_att(x, rel, rel_dict, adj, adj_ad)
         if print_flag:
             with open("./{}/GAT_{}_output.txt".format(self.experiment, self.dataset), "w") as output_f:
@@ -123,5 +129,5 @@ class GAT_all(nn.Module):
                         output_f.write('\t' + str(i))
                     output_f.write('\n')
         # 增加一个全连接层
-        x = self.linear_att(x)
+        x = F.elu(self.linear_att(x))
         return F.log_softmax(x, dim=1)
