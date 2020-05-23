@@ -99,8 +99,8 @@ def load_data(path, dataset, model_name):
 
     if dataset == 'cora':  # cora采用固定划分法，train中每个class取20个，valid大小300，test大小1000
         idx_train = range(140)
-        idx_val = range(140, 640)
-        idx_test = range(1708, 2708)
+        idx_val = range(200, 500)
+        idx_test = range(500, 1500)
     elif dataset == 'citeseer':
         idx_test = test_idx_range.tolist()
         idx_train = range(len(y))
