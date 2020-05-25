@@ -67,6 +67,7 @@ elif args.model_name == 'GAT_adsf':
                  dropout=args.dropout,
                  nheads=args.nb_heads,
                  alpha=args.alpha,
+                 dataset=args.dataset,
                  experiment=args.experiment)
 elif args.model_name == 'GAT_all':
     model = GAT_all(nfeat=features.shape[1], nhid=args.hidden, nrel=rel.shape[1], nclass=nclass, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha, dataset=args.dataset, experiment=args.experiment)
