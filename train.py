@@ -31,6 +31,8 @@ parser.add_argument('--dataset', type=str, default='cora', help='DataSet of mode
 # 实验名称，用于生成.pkl文件夹
 parser.add_argument('--experiment', type=str, default='GAT', help='Name of current experiment.')
 parser.add_argument('--model_name', type=str, default='GAT', help='GAT, GAT_rel, GAT_rwr, GAT_adsf, GAT_all')
+parser.add_argument('--no_init', action='store_true', default=False, help='Use random init features')
+
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -46,6 +48,9 @@ if args.cuda:
 
 # Load data
 adj, features, rel, rel_dict, labels, idx_train, idx_val, idx_test, nclass, names, adj_ad = load_data(path='./data/'+ args.dataset + '/', dataset=args.dataset, model_name=args.model_name)
+
+if args.no_init:
+    features = torch.randn_like(features, dtype=torch.float)
 
 # Model and optimizer
 if args.model_name == 'GAT_rel':
