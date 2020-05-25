@@ -85,10 +85,11 @@ class RWR_process(nn.Module):
 
 
 class ADSF(nn.Module):
-    def __init__(self, nfeat, nhid, nclass, dropout, alpha, nheads):
+    def __init__(self, nfeat, nhid, nclass, dropout, alpha, nheads, experiment):
         """version of ADSF."""
         super(ADSF, self).__init__()
         self.dropout = dropout
+        self.experiment = experiment
         self.attentions = [StructuralFingerprintLayer(nfeat, nhid, dropout=dropout, alpha=alpha, concat=True) for _ in range(nheads)]
         for i, attention in enumerate(self.attentions):
             self.add_module('attention_{}'.format(i), attention)  # 按attention_i名使用layer，似乎未用到
