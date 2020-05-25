@@ -92,13 +92,24 @@ class ADSF(nn.Module):
         self.attentions = [StructuralFingerprintLayer(nfeat, nhid, dropout=dropout, alpha=alpha, concat=True) for _ in range(nheads)]
         for i, attention in enumerate(self.attentions):
             self.add_module('attention_{}'.format(i), attention)  # 按attention_i名使用layer，似乎未用到
-        self.out_att = StructuralFingerprintLayer(nhid * nheads, nclass, dropout=dropout, alpha=alpha, concat=False)
+        self.out_att = StructuralFingerprintLayer(nhid * nheads, nfeat, dropout=dropout, alpha=alpha, concat=False)
+        self.linear_att = nn.Linear(nfeat, nclass)
 
     def forward(self, x, adj, adj_ad, names=None, print_flag=False):
         x = F.dropout(x, self.dropout, training=self.training)
         x = torch.cat([att(x, adj, adj_ad) for att in self.attentions], dim=1)
         x = F.dropout(x, self.dropout, training=self.training)
         x = F.elu(self.out_att(x, adj, adj_ad))
+        if print_flag:
+            with open("./{}/GAT_{}_output.txt".format(self.experiment, self.dataset), "w") as output_f:
+                x_array = x.cpu().detach().numpy()
+                for idx in range(len(x_array)):
+                    line = names[idx].split('\t')
+                    output_f.write(str(line[0]))
+                    for i in x_array[idx]:
+                        output_f.write('\t' + str(i))
+                    output_f.write('\n')
+        x = F.elu(self.linear_att(x))
         return F.log_softmax(x, dim=1)
 
 
