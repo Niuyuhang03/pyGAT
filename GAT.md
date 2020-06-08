@@ -48,11 +48,6 @@
 + [model.py](https://github.com/Niuyuhang03/ConvE/blob/master_with_comment/model.py)：模型和层定义
 + [evaluation.py](https://github.com/Niuyuhang03/ConvE/blob/master_with_comment/evaluation.py)：链接预测评估
 
-## [RDF2VEC_MultiLabel](https://github.com/Niuyuhang03/RDF2VEC_MultiLabel)
-
-+ 代码为[RDF2VEC](https://github.com/Niuyuhang03/RDF2VEC_MultiLabel)的`master`分支，直接提交`RDF2Vec.slurm`运行全部三个数据集。
-+ 采用朴素贝叶斯和svm两种模型。
-
 ## 数据集
 
 | 数据集       | Cora | Citeseer | FB15k-237_4000 | WN18RR_4000 |
