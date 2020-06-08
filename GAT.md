@@ -1,107 +1,119 @@
-# GPU集群提交任务格式
+# 代码
 
-# TransE
+## 仓库说明
 
-+ 代码为[OpenKE](https://github.com/Niuyuhang03/OpenKE) 的`GAT_data_process`分支的`TransE`模型。提交`train_FB15K237.slurm`和`train_WN18RR.slurm`运行代码 。得到的结果为实体和关系的embeddings。
++ [DKRL](https://github.com/Niuyuhang03/DKRL)：提供FB15k-237的实体描述信息和初步分类结果
++ [OpenKE](https://github.com/Niuyuhang03/OpenKE)：提供FB15k-237数据集和WN18RR数据集，TransE模型
++ [pyGAT](https://github.com/Niuyuhang03/pyGAT)：提供cora数据集，GAT模型
++ [ConvE](https://github.com/Niuyuhang03/ConvE)：提供ConvE、DistMult、ComplEx模型
++ [RDF2VEC_MultiLabel](https://github.com/Niuyuhang03/RDF2VEC_MultiLabel)：提供RDF2VEC模型
++ [ADaptive-Structural-Fingerprint](https://github.com/Niuyuhang03/ADaptive-Structural-Fingerprint)：提供ADSF模型（已融合到pyGAT中，本仓库已废弃）
++ [rgcn_pytorch_implementation](https://github.com/KarCute/rgcn_pytorch_implementation)：提供R-GCN模型
++ [gcn](https://github.com/tkipf/gcn)：提供citeseer数据
 
-# TransE->pyGAT数据处理
+## 注意事项
 
-+ 对实体的label进行标注，代码同样为[OpenKE](https://github.com/Niuyuhang03/OpenKE) 的`GAT_data_process`分支。其中原始数据由OpenKE和[DKRL](https://github.com/xrb92/DKRL) 得到，具体数据来源见运行文件注释。直接运行`./FB15K237_result/FB15K237_process.py`。得到结果为新数据文件`.content`、`.rel`、`.cites`，同时输出统计信息。**处理结果需要手动将复制到pyGAT项目中。**
++ 提交前注意分支，模型用到的分支均已设置为默认分支，但不是master分支
++ RDF2VEC模型没有embeddings，只用到了nb和svm核对已经embeddings好的数据进行评测
++ 数据集FB15k-237和WN18RR出现内存问题，最终使用的数据集是我们创建的FB15k-237_4000和WN18RR_4000
++ 提交文件使用GPU集群的slurm系统，在管理节点上以`sbatch xxx.slurm`方式提交，不能直接运行
 
-+ 无任何修改，直接重新运行代码时，可能会在git提示输出文件内容有修改，实际为输出内容的label顺序更换，但内容未变化。可通过git命令直接撤销对输出文件的变化。
+## [OpenKE](https://github.com/Niuyuhang03/OpenKE)
 
-+ nltk需要下载语料，`import nltk; nltk.download('wordnet')`
++ 安装依赖：`import nltk; nltk.download('wordnet')`
++ [train_FB15K237.py](https://github.com/Niuyuhang03/OpenKE/train_FB15K237.py)：在FB15k-237上训练TransE，输出文件在[FB15K237_result文件夹的TransE.json](https://github.com/Niuyuhang03/OpenKE/tree/GAT_data_process/FB15K237_result/TransE.json)
++ [train_WN18RR.py](https://github.com/Niuyuhang03/OpenKE/blob/GAT_data_process/train_WN18RR.py)：在WN18RR上训练TransE，输出文件在[WN18RR_result文件夹的TransE.json](https://github.com/Niuyuhang03/OpenKE/tree/GAT_data_process/WN18RR_result/TransE.json)
++ [FB15K237_process.py](https://github.com/Niuyuhang03/OpenKE/blob/GAT_data_process/FB15K237_result/FB15K237_process.py)：给FB15k-237实体标注，输出文件在[FB15K237_result文件夹](https://github.com/Niuyuhang03/OpenKE/tree/GAT_data_process/FB15K237_result)
++ [WN18RR_process.py](https://github.com/Niuyuhang03/OpenKE/blob/GAT_data_process/WN18RR_result/WN18RR_process.py)：给WN18RR实体标注，输出文件在[WN18RR_result文件夹](https://github.com/Niuyuhang03/OpenKE/tree/GAT_data_process/WN18RR_result)
++ [FB15K237_4000_process.py](https://github.com/Niuyuhang03/OpenKE/blob/GAT_data_process/FB15K237_4000_result/FB15K237_4000_process.py)：将FB15k-237划分为FB15k-237_4000，输出文件在[FB15K237_4000_result文件夹](https://github.com/Niuyuhang03/OpenKE/tree/GAT_data_process/FB15K237_4000_result)
++ [WN18RR_4000_process.py](https://github.com/Niuyuhang03/OpenKE/blob/GAT_data_process/WN18RR_4000_result/WN18RR_4000_process.py)：将WN18RR划分为WN18RR_4000，输出文件在[WN18RR_4000_result文件夹](https://github.com/Niuyuhang03/OpenKE/tree/GAT_data_process/WN18RR_4000_result)
 
-+ 数据详情：
++ 输出实体和关系向量需要手动复制到[pyGAT](https://github.com/Niuyuhang03/pyGAT)仓库
 
-  + FB15K237共14541个实体，237种关系，25种label，310116个三元组。实体和关系的embeddings都为100维。**每种labels**的分布如下：
+## [pyGAT](https://github.com/Niuyuhang03/pyGAT)
 
-    ![FB15K237](https://i.loli.net/2020/04/21/AlDC1eYysnk24Uv.png)
++ [train.py](https://github.com/Niuyuhang03/pyGAT/blob/similar_impl_tensorflow_with_comment/train.py)：模型入口
++ [utils.py](https://github.com/Niuyuhang03/pyGAT/blob/similar_impl_tensorflow_with_comment/utils.py)：数据处理
++ [models.py](https://github.com/Niuyuhang03/pyGAT/blob/similar_impl_tensorflow_with_comment/models.py)：模型定义
++ [layers.py](https://github.com/Niuyuhang03/pyGAT/blob/similar_impl_tensorflow_with_comment/layers.py)：层定义
 
-  + ==fb15k237中部分结果难以分类别，设置label为file，共127个实体，存储在.dele中。==
++ 输出实体向量需要执行`sh process.sh`复制到[ConvE](https://github.com/Niuyuhang03/ConvE)仓库，复制前需要修改[preprocess.sh](https://github.com/Niuyuhang03/ConvE/blob/master_with_comment/preprocess.sh)文件中的路径，路径以job在slurm的提交时间命名
 
-  + WN18RR共40943个实体，11种关系，4种label，93003个三元组。实体和关系的embeddings都为100维。**实体和labels**的分布如下：
-  
-    ![WN18RR](https://i.loli.net/2020/04/21/sRAFfEKx5IkYZjB.png)
+## [ConvE](https://github.com/Niuyuhang03/ConvE)
 
-# pyGAT
++ 安装依赖：`pip install -r requirements.txt;python -m spacy download en;sh preprocess.sh`
++ [create_FB15K237_4000.py](https://github.com/Niuyuhang03/ConvE/blob/master_with_comment/create_FB15K237_4000.py)：生成FB15K237_4000数据格式
++ [create_WN18RR_4000.py](https://github.com/Niuyuhang03/ConvE/blob/master_with_comment/create_WN18RR_4000.py)：生成WN18RR_4000数据格式
++ [main.py](https://github.com/Niuyuhang03/ConvE/blob/master_with_comment/main.py)：模型入口
++ [model.py](https://github.com/Niuyuhang03/ConvE/blob/master_with_comment/model.py)：模型和层定义
++ [evaluation.py](https://github.com/Niuyuhang03/ConvE/blob/master_with_comment/evaluation.py)：链接预测评估
 
-+ 模型代码为[pyGAT](https://github.com/Niuyuhang03/pyGAT)的`similar_impl_tensorflow_with_comment`分支。运行FB、WN时间一般在18-72小时之间。提交`GAT_dataset.slurm`运行。输出文件`GAT_dataset_output.txt`为新的实体embeddings结果。**需要择优将output复制到`./pyGAT/GAT_result/`对应文件夹，以便ConvE使用。**
-+ 注意事项：
-  + 在**关系**gat中，nhidden参数无效，nhidden永远等于nfeat，除全连接层外没有修改列维度的操作。
-  + GAT的.slurm文件中，`--experiment`参数含义为输出文件文件夹名称，必须和`#SBATCH -o`的输出文件的文件夹名称相同。
-  + cora数据集可以使用`CUDA_VISIBLE_DEVICES=0`来使用GPU运行。其他几乎所有数据集都要设置`CUDA_VISIBLE_DEVICES=1`，以保证`torch.cuda.is_available()=False`，才能不会出现out of memory。
-
-## GAT数据集
-
-|  数据集   |  实体/关系  |dataset.content|dataset.cites|dataset.rel|classes|
-| :-------: | :--------: | :-----------: | :---------: | :------: | :-----: |
-|   cora    |    实体    |  2708\*1433   |     5429    |    -     |    7    |
-| FB15K-237 |    关系    | 14541\*100 | 310116   | 237\*100 |   25    |
-|   WN18RR  |    关系    |  40943\*100   |    93003    |  11\*100 |    4    |
-
-## 模型结构
-
-输入实体n\*nfeat，输入关系n\*nrel：
-
-+ 实体GAT拼接：第一层结果n\*nhid，将nhead个n\*nhid拼接为n*(nhid\*nhead)，第二层结果n\*(nhid\*nhead)，全连接层结果n\*nclass。
-
-+ 实体GAT平均：第一层结果n\*nhid，将nhead个n\*nhid平均为n\*nhid，第二层结果n\*nfeat，全连接层结果n\*nclass。
-
-+ 关系GAT拼接：第一层结果n\*nfeat，将nhead个n\*nfeat拼接为n*(nfeat\*nhead)，第二层结果n\*(nfeat\*nhead)，全连接层结果n\*nclass。
-
-+ 关系GAT平均：第一层结果n\*nfeat，将nhead个n\*nfeat平均为n\*nfeat，第二层结果n\*nfeat，全连接层结果n\*nclass。
-
-## FB15K237对比实验
-
-|        |实体FB15K-237拼接|实体FB15K-237平均|关系FB15K-237拼接|关系FB15K-237平均|
-| :----: | :------------: | :------------: | :-------------: | :------------: |
-|nhead 50|      0.3133    |                |      0.4985     |                |
-|nhead 30|      0.3432    |                |      0.4837     |                |
-
-+ nhidden实体FB15K-237为10，关系FB15K-237为100。
-
-## WN18RR对比实验
-
-|        | 实体WN18RR拼接  | 实体WN18RR平均 |  关系WN18RR拼接  |  关系WN18RR平均 |
-| :----: | :------------: | :------------: | :-------------: | :------------: |
-|nhead 10|                |                |     0.8573      |                |
-
-+ nhidden实体WN18RR为10，关系WN18RR为100。
-
-# pyGAT->ConvE数据处理
-
-+ 代码为[ConvE](https://github.com/Niuyuhang03/ConvE)的`master_with_comment`分支，运行`sh preprocess.sh`，会将`train.txt` `valid.txt` `test.txt`变为`.json`文件，并从`pyGAT/GAT_result/`中复制结果到`ConvE/data/`。
-
-# ConvE
-
-+ 代码为[ConvE](https://github.com/Niuyuhang03/ConvE)的`master_with_comment`分支。每个数据集和模型提交一个`model_dataset.slurm`文件运行。
-+ 注意事项
-  + 参数`process`无效，代码中一定会执行process函数。
-  + 都可以使用`CUDA_VISIBLE_DEVICES=0`来使用GPU运行。
-  + 每次修改过数据，都需要执行“pyGAT->ConvE数据处理”部分。
-  + 不能同时运行一个数据集的多个实验（process函数会将json转换为存在硬盘中的结果，运行多个时会删除其他作业的数据）
-
-# Baseline
-
-## RDF2VEC
+## [RDF2VEC_MultiLabel](https://github.com/Niuyuhang03/RDF2VEC_MultiLabel)
 
 + 代码为[RDF2VEC](https://github.com/Niuyuhang03/RDF2VEC_MultiLabel)的`master`分支，直接提交`RDF2Vec.slurm`运行全部三个数据集。
 + 采用朴素贝叶斯和svm两种模型。
 
-## R-GCN
+## 数据集
 
-+ 代码为[R-GCN](https://github.com/KarCute/rgcn_pytorch_implementation)的`master`分支。对每个数据集提交一个`rgcn_dataset.slurm`运行代码。
-+ FB15K237可能会出现内存爆炸，需要设置epoch最大为230。WN数据集无此情况。
+| 数据集       | Cora | Citeseer | FB15k-237_4000 | WN18RR_4000 |
+| ------------ | ---- | -------- | -------------- | ----------- |
+| 实体数       | 2708 | 3327     | 4457           | 3846        |
+| 关系数       | -    | -        | 110            | 10          |
+| 三元组数     | 5429 | 4732     | 27232          | 6439        |
+| 特征数       | 1433 | 3703     | 100            | 100         |
+| 实体类别数   | 7    | 6        | 25             | 4           |
+| 训练集实体数 | 140  | 120      | 3565           | 3076        |
+| 验证集实体数 | 300  | 500      | 446            | 385         |
+| 测试集实体数 | 1000 | 1000     | 446            | 385         |
 
-## baseline结果
+## 实验结果
 
-|              |    cora    |  citeseer  |  FB15K-237 |  WN18RR  |
-| :----------: | :--------: | :--------: | :--------: | :-------:|
-| RDF2VEC(nb)  |   0.5026   |   0.6116   |   0.0121   |  0.7779  |
-| RDF2VEC(svm) |   0.3020   |   0.2107   |   0.1711   |  0.7548  |
-|     R-GCN    |      -     |     -      |   0.4308   |  0.9105  |
-|     GAT      |   0.8211   |   0.6730   |   0.4642   |**0.9130**|
-|     R-GAT    |      -     |     -      |   0.5117   |  0.8977  |
-|     ADSF     |   0.8460   |   0.7050   | **0.5217** |  0.9003  |
-|   GAT-all    |      -     |     -      |   0.5058   |  0.8977  |
++ 实体分类
+
+|              | Cora       | Citeseer   | FB15k-237_4000 | WN18RR_4000 |
+| ------------ | ---------- | ---------- | -------------- | ----------- |
+| RDF2VEC(NB)  | 0.5026     | 0.6116     | 0.0121         | 0.7779      |
+| RDF2VEC(SVM) | 0.3020     | 0.2107     | 0.1711         | 0.7548      |
+| R-GCN        | -          | -          | 0.4308         | 0.9105      |
+| GAT          | 0.8211     | 0.6730     | 0.4642         | **0.9130**  |
+| GAT_rel      | -          | -          | 0.5117         | 0.8977      |
+| GAT_adsf     | **0.8460** | **0.7050** | **0.5217**     | 0.9003      |
+| GAT_all      | -          | -          | 0.5085         | 0.8977      |
+
++ 链接预测
+    + ConvE在FB15k-237_4000上
+
+    |          | MR        | MRR        | Hits@1     | Hits@10    |
+    | -------- | --------- | ---------- | ---------- | ---------- |
+    | GAT      | 961.3     | 0.1537     | 0.1263     | 0.1891     |
+    | GAT_rel  | 806.5     | 0.1662     | 0.1266     | 0.2194     |
+    | GAT_adsf | **681.0** | **0.2150** | **0.1484** | **0.3277** |
+    | GAT_all  | 898.5     | 0.1568     | 0.1263     | 0.2008     |
+
+    + ComplEx在FB15k-237_4000上
+
+    |          | MR        | MRR        | Hits@1     | Hits@10    |
+    | -------- | --------- | ---------- | ---------- | ---------- |
+    | GAT      | 1543.1    | 0.0658     | 0.0478     | 0.1181     |
+    | GAT_rel  | 2264.8    | 0.0645     | 0.0214     | 0.1165     |
+    | GAT_adsf | **908.1** | **0.0845** | 0.0091     | **0.1917** |
+    | GAT_all  | 1799.6    | 0.1014     | **0.0768** | 0.1250     |
+
+    + DistMult在FB15k-237_4000上
+
+    |          | MR         | MRR        | Hits@1     | Hits@10    |
+    | -------- | ---------- | ---------- | ---------- | ---------- |
+    | GAT      | 1603.6     | 0.0649     | 0.0423     | 0.1425     |
+    | GAT_rel  | 2361.3     | 0.1075     | **0.1914** | 0.1165     |
+    | GAT_adsf | **1038.9** | 0.0774     | 0.0276     | **0.1764** |
+    | GAT_all  | 2051.7     | **0.1117** | 0.1894     | 0.1223     |
+
++ 随机初始化
+
+    + FB15k-237_4000实体分类
+
+    |          | 随机初始化 | TransE初始化 |
+    | -------- | ---------- | ------------ |
+    | GAT      | 0.3850     | **0.4642**   |
+    | GAT_adsf | 0.5158     | **0.5217**   |
+
